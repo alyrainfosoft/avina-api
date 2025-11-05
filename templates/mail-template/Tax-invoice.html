@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<title>{{app_name}} - Tax Invoice</title>
+	<!-- <link rel="icon" href="http://cdn.thecadco.com.s3.amazonaws.com/assets/site/images/fav_ico_1.png" type="image/x-icon" /> -->
+	<style>
+		body {
+			font-family: 'Times New Roman', Times, serif;
+			text-align: center;
+			color: #777;
+			font-size: 12px;
+		}
+
+		body h1 {
+			font-weight: 300;
+			margin-bottom: 0px;
+			padding-bottom: 0px;
+			color: #000;
+		}
+
+		body h3 {
+			font-weight: 300;
+			margin-top: 10px;
+			margin-bottom: 20px;
+			font-style: italic;
+			color: #555;
+		}
+
+		body a {
+			color: #06f;
+		}
+
+		.invoice-box {
+			max-width: 800px;
+			margin: auto;
+			padding: 30px;
+			border: 1px solid #eee;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+			/*font-size: 16px;*/
+			line-height: 24px;
+			/* font-family: 'Noto Sans', Arial, sans-serif; */
+			color: #555;
+		}
+
+		.invoice-box table {
+			width: 100%;
+			line-height: inherit;
+			text-align: left;
+			border-collapse: collapse;
+		}
+
+		.invoice-box table td {
+			padding: 5px;
+			vertical-align: top;
+		}
+
+		.invoice-box table tr td:nth-child(2) {
+			text-align: right;
+		}
+
+		.invoice-box table tr.top table td.title {
+			font-size: 45px;
+			line-height: 45px;
+			color: #333;
+		}
+
+		/*.invoice-box table tr.information table td {
+				padding-bottom: 40px;
+			}*/
+
+		.invoice-box table tr.heading td {
+			background: #eee;
+			border-bottom: 1px solid #ddd;
+			font-weight: bold;
+		}
+
+		.invoice-box table tr.details td {
+			padding-bottom: 20px;
+		}
+
+		.invoice-box table tr.item td {
+			border-bottom: 1px solid #eee;
+		}
+
+
+		@media only screen and (max-width: 600px) {
+			.invoice-box table tr.top table td {
+				width: 100%;
+				display: block;
+				text-align: center;
+			}
+
+			.invoice-box table tr.information table td {
+				width: 100%;
+				display: block;
+				text-align: center;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<div class="invoice-box">
+		<table width="100%">
+			<tr class="top">
+				<td colspan="7">
+					<table style="width: 100%;">
+						<tr>
+							<td class="title">
+								<img src="{{pdf_app_logo}}" alt="Company logo" style="width: 100%; max-width: 100px" />
+							</td>
+
+							<td>
+								<b><u>TAX INVOICE</u></b><br />
+								Invoice #: {{invoice_number}}<br />
+								Created: {{invoice_date}}<br />
+								Transaction ID: {{transaction_id}}
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+
+			<tr class="information">
+				<td colspan="7">
+					<table>
+						<tr>
+							<td>
+								<b>Billing Address:</b><br />
+
+								{{billing_address.house_builing}}, {{billing_address.area_name}}<br />
+								{{billing_address.city}}, {{billing_address.state}}<br />
+								{{billing_address.country}}, {{billing_address.pincode}} <br />
+							</td>
+
+							<td>
+								{{#if pickup_store_id}} <div>
+									<b>Shipping Address:</b><br />
+									{{shipping_address.house_builing}}, {{shipping_address.area_name}}<br />
+									{{billing_address.city}}, {{shipping_address.state}}<br />
+									{{shipping_address.country}}, {{shipping_address.pincode}} <br />
+								</div> {{/if}}
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr class="heading" style="width: 100%;">
+				<td>Product </td>
+				<td>Product SKU</td>
+				<td></td>
+				<td>Qty</td>
+				<td>Rate</td>
+				<td>Total</td>
+			</tr>
+
+			{{#data}}
+			<tr class="item">
+				<td>{{product_title}}<br />
+					{{#if product_size}} size: {{product_size}}, <br /> {{/if}} {{#if product_length}}
+					length:{{product_length}},<br /> {{/if}}
+					{{#if metal}} Metal: {{metal}},<br /> {{/if}} {{#if Karat}} Karat: {{Karat}}KT, <br /> {{/if}}
+					{{#if Metal_tone}} Metal Tone: {{Metal_tone}} <br /> {{/if}}
+					{{#if head_metal_tone}} Head Metal Tone: {{head_metal_tone}}, <br /> Shank Metal Tone:
+					{{shank_metal_tone}} <br /> {{/if}}
+					{{#if engraving}}Engraving: {{engraving}}<br />{{/if}}
+					{{#if engraving_value}}Engraving: {{engraving_value}}<br />{{/if}}
+				</td>
+				<td>{{product_sku}}</td>
+				<td></td>
+				<td>{{quantity}}</td>
+				<td>{{{currency}}}{{sub_total}}</td>
+				<td>{{{currency}}}{{product_price}}</td>
+			</tr>
+			{{/data}}
+
+			<tr class="total">
+				<td><b>Total Amount</b></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>Total Amount before Tax</td>
+				<td><b>{{{currency}}}{{sub_total_amount}}</b></td>
+			</tr>
+			{{#if coupon_discount}} <tr class="total">
+				<td><b>Coupon Discount</b></td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>&nbsp;</td>
+				<td>Coupon - ({{coupon.coupon_code}})</td>
+				<td><b>Saved {{{currency}}}{{{coupon_discount}}}</b></td>
+			</tr> {{/if}}
+			<tr class="information">
+				<td colspan="7">
+					<table>
+						<tr>
+							<td style="width: 50%;">
+								<b>Thanks for your business!</b><br />
+								<b>
+
+									{{app_name}} <br />
+									Location: {{company_address}} <br />
+									Phone: {{company_phone}}</b><br />
+								{{#if company_email}} Email: {{company_email}}</b><br />{{/if}}
+								{{#if gst_number}} GSTIN: {{gst_number}}</b><br />{{/if}}
+							</td>
+
+							<td>
+								{{#tax_array}}
+								<div><b>{{name}} ({{rate}}%): {{{currency}}}{{tax_amount}}</b><br /></div>
+								{{/tax_array}}
+								<b>Shipping Cost: {{{currency}}}{{shipping_cost}}</b><br />
+								<b>convenience Fee: {{{currency}}}000</b><br />
+								<b style="font-weight: bolder;">Total Amount after Tax:
+									{{{currency}}}{{total_amount}}</b><br />
+
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+
+
+			<tr class="information">
+				<td colspan="7">
+					<table>
+						<tr>
+							<td align="center">
+								<hr>
+								We declare to the best of our knowledge and belief that the particulars
+								stated herein are true and correct
+								<hr>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+
+</html>

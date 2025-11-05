@@ -1,0 +1,16 @@
+/build/
+/node_modules/
+/logs/
+/public/
+yarn.lock
+.env*.local
+.env
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+package-lock.json
+/environment/
+.env
+.env
+.env

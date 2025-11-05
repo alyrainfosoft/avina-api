@@ -1,0 +1,158 @@
+name: SIGNI-API ALL stages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH for Development
+      if: github.ref == 'refs/heads/develop'
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SIGNI_PROD_SSH_KEY }}
+
+    - name: Set up SSH for Staging
+      if: github.ref == 'refs/heads/staging'
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SIGNI_PROD_SSH_KEY }}
+
+    - name: Set up SSH for Production
+      if: github.ref == 'refs/heads/signi-live'
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SIGNI_PROD_SSH_KEY }}
+
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install --prefer-offline --no-audit --progress=false
+    
+    - name: Build Node app
+      run: npm run build
+
+    - name: Add EC2 to known hosts
+      run: echo "${{ github.ref == 'refs/heads/signi-live' && secrets.SIGNI_PROD_KNOWN_HOSTS || github.ref == 'refs/heads/staging' && secrets.SIGNI_PROD_KNOWN_HOSTS || github.ref == 'refs/heads/development' && secrets.SIGNI_PROD_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
+    - name: Create .env Development
+      if: github.ref == 'refs/heads/development'
+      env:
+        ENV_FILE: ${{ secrets.SIGNI_PROD_ENV_FILE }}
+      run: |
+        ssh ubuntu@${{ secrets.SIGNI_PROD_HOST }} "
+          echo '${ENV_FILE}' | sudo tee /home/ubuntu/tcctechapinew/.env > /dev/null"
+
+    - name: Create .env Staging
+      if: github.ref == 'refs/heads/staging'
+      env:
+        ENV_FILE: ${{ secrets.SIGNI_PROD_ENV_FILE }}
+      run: |
+        ssh ubuntu@${{ secrets.SIGNI_PROD_HOST }} "
+          echo '${ENV_FILE}' | sudo tee /home/ubuntu/tcctechapinew/.env > /dev/null"
+
+    - name: Create .env Production
+      if: github.ref == 'refs/heads/signi-live'
+      env:
+        ENV_FILE: ${{ secrets.SIGNI_PROD_ENV_FILE }}
+      run: |
+        ssh ubuntu@${{ secrets.SIGNI_PROD_HOST }} "
+          echo '${ENV_FILE}' | sudo tee /home/ubuntu/tcctechapinew/.env > /dev/null"
+    
+    - name: Deploy using rsync on development
+      if: github.ref == 'refs/heads/development'
+      env:
+        EC2_HOST: ${{ secrets.SIGNI_PROD_HOST }}
+      run: |
+        rsync -chrlvzi --checksum --delete \
+          -e 'ssh -o StrictHostKeyChecking=yes -p 22' \
+          --exclude '.git' \
+          --exclude '.env' \
+          ./ ubuntu@${EC2_HOST}:/home/ubuntu/tcctechapinew/
+    
+    - name: Deploy using rsync on staging
+      if: github.ref == 'refs/heads/staging'
+      env:
+        EC2_HOST: ${{ secrets.SIGNI_PROD_HOST }}
+      run: |
+        rsync -chrlvzi --checksum --delete \
+          -e 'ssh -o StrictHostKeyChecking=yes -p 22' \
+          --exclude '.git' \
+          --exclude '.env' \
+          ./ ubuntu@${EC2_HOST}:/home/ubuntu/tcctechapinew/
+        
+    - name: Deploy using rsync on production
+      if: github.ref == 'refs/heads/signi-live'
+      env:
+        EC2_HOST: ${{ secrets.SIGNI_PROD_HOST }}
+      run: |
+        rsync -chrlvzi --checksum --delete \
+          -e 'ssh -o StrictHostKeyChecking=yes -p 22' \
+          --exclude '.git' \
+          --exclude '.env' \
+          ./ ubuntu@${EC2_HOST}:/home/ubuntu/tcctechapinew/
+
+    - name: Deploy to Devlopment
+      if: github.ref == 'refs/heads/development'
+      env:
+        EC2_HOST: ${{ secrets.SIGNI_PROD_HOST }}
+      run: |
+        ssh -t ubuntu@${EC2_HOST} << 'EOF'
+        export NVM_DIR="$HOME/.nvm"
+        source $NVM_DIR/nvm.sh
+        source $NVM_DIR/bash_completion
+        nvm use default
+        export PATH="$NVM_DIR/versions/node/v18.11.0/bin:$PATH"
+        cd /home/ubuntu/tcctechapinew/
+        pm2 restart "all"
+        EOF
+    
+    - name: Deploy to staging
+      if: github.ref == 'refs/heads/staging'
+      env:
+        EC2_HOST: ${{ secrets.SIGNI_PROD_HOST }}
+      run: |
+        ssh ubuntu@${EC2_HOST} << 'EOF'
+        export NVM_DIR="$HOME/.nvm"
+        source $NVM_DIR/nvm.sh
+        source $NVM_DIR/bash_completion
+        nvm use default
+        export PATH="$NVM_DIR/versions/node/v18.11.0/bin:$PATH"
+        cd /home/ubuntu/tcctechapinew/
+        pm2 restart "all"
+        EOF
+
+    - name: Deploy to Production
+      if: github.ref == 'refs/heads/signi-live'
+      env:
+        EC2_HOST: ${{ secrets.SIGNI_PROD_HOST }}
+      run: |
+        ssh -t ubuntu@${EC2_HOST} << 'EOF'
+        export NVM_DIR="$HOME/.nvm"
+        source $NVM_DIR/nvm.sh
+        source $NVM_DIR/bash_completion
+        nvm use default
+        export PATH="$NVM_DIR/versions/node/v18.11.0/bin:$PATH"
+        cd /home/ubuntu/tcctechapinew/
+        pm2 restart "all"
+        EOF

@@ -1,0 +1,21 @@
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.sequelize.query(`
+      ALTER TABLE "font_style_files" 
+      ALTER COLUMN "is_deleted" SET DEFAULT '0' ::"bit",
+      ALTER COLUMN "is_deleted" SET NOT NULL;
+    `);
+  },
+
+  async down (queryInterface, Sequelize) {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
+  }
+};

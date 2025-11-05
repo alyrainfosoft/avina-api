@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<title>{{app_name}} - Tax Invoice</title>
+	<!-- <link rel="icon" href="http://cdn.thecadco.com.s3.amazonaws.com/assets/site/images/fav_ico_1.png" type="image/x-icon" /> -->
+	<style>
+		body {
+			font-family: 'Times New Roman', Times, serif;
+			text-align: center;
+			color: #777;
+			font-size: 12px;
+		}
+	</style>
+</head>
+
+<body>
+	<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<title>{{app_name}} - Tax Invoice</title>
+	<!-- <link rel="icon" href="http://cdn.thecadco.com.s3.amazonaws.com/assets/site/images/fav_ico_1.png" type="image/x-icon" /> -->
+	<style>
+		body {
+			font-family: 'Times New Roman', Times, serif;
+			text-align: center;
+			color: #777;
+			font-size: 12px;
+        }
+	</style>
+</head>
+
+<body>
+	<div id="print-content" style="border: black 1px solid;">
+       
+        <div style="border-bottom: 1px solid black; padding: 16px;">
+            <div style="display: flex; align-items: center;">
+                <div style="flex: 0 0 16.66%;">
+                    <img src="{{pdf_app_logo}}" alt="Logo" height="90" width="200">
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <h6 class="invoice-title" style="font-weight: bold; color: blue; margin: 0; font-size: 20px !important; margin-bottom: 5px;">
+                        Order Confirmation
+                    </h6>
+                    <p style="margin: 0; font-size: 12px;">
+                        {{company_address}}
+                    </p>
+                    <p style="margin: 0; font-size: 12px;">
+                        <strong style="margin-right: 2px;">MOB: </strong> {{company_phone}}
+                        <strong style="margin-right: 2px;"> GSTIN NO: </strong> {{gst_number}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-around; border-bottom: 1px solid; padding: 0 4px;">
+            <strong style="font-size: 15px;">Order Confirmation</strong>
+            <strong style="font-size: 15px;">Shipping Address</strong>
+            <strong style="font-size: 15px;">Billing Address</strong>
+        </div>
+        
+        <div style="padding: 0 2px;">
+            <div style="display: flex;">
+                <div style="flex: 1; border-right: 1px solid; padding: 4px;">
+                    <p style="font-size: 13px; margin: 0;">
+                        <strong>Order number #:</strong> {{order_number}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        <strong>Order Date:</strong> {{order_date}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        <strong>Created:</strong> {{invoice_date}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        <strong>Payment Method:</strong> {{payment_method}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        <strong>Transaction ID:</strong> {{transaction_id}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        <strong>HSN Code:</strong> 711319
+                    </p>
+                </div>
+        
+                <div style="flex: 1; border-right: 1px solid; padding: 4px;">
+                    <p style="font-size: 13px; margin: 0;">
+                        {{shipping_address.house_builing}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        {{shipping_address.area_name}} {{billing_address.city}}, {{shipping_address.state}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        {{shipping_address.pincode}}, {{shipping_address.country}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        {{shipping_address.phone_number}}
+                    </p>
+                </div>
+        
+                <div style="flex: 1; padding: 4px;">
+                    <p style="font-size: 13px; margin: 0;">
+                        {{billing_address.house_builing}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        {{billing_address.area_name}} {{billing_address.city}}, {{billing_address.state}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        {{billing_address.pincode}}, {{billing_address.country}}
+                    </p>
+                    <p style="font-size: 13px; margin: 0;">
+                        {{billing_address.phone_number}}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="overflow-x: auto; padding: 0 4px;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead style="background-color: #f5f5f5;">
+                    <tr>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Sr No</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Product Name</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Qty</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Purity</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Metal wt.</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Rate ({{{currency}}})</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Amount ({{{currency}}})</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Dia Amount ({{{currency}}})</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Making Charges ({{{currency}}})</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Other Charges ({{{currency}}})</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Discount ({{{currency}}})</th>
+                        <th style="border: 1px solid black; font-weight: bold; font-size: 13px;">Total Amount ({{{currency}}})</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#product_new_data}}
+                    <tr>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{index}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{productTitle}} <br/> {{productSku}} ({{orderNumber}}) <br />{{metalTone}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{quantity}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{purity}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{metalWeight}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{rate}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{amount}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{diamondAmount}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{makingCharges}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{otherCharges}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{discount}}</td>
+                        <td style="border: 1px solid black; font-size: 13px; padding-left: 3px;">{{totalAmount}}</td>
+                    </tr>
+                    {{/product_new_data}}
+                    <tr>
+                        <td colspan="8" style="border: 1px solid black; font-weight: bold; font-size: 12px; padding-left: 4px;"></td>
+                        <td colspan="3" style="border: 1px solid black; padding-left: 4px; padding-right: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                <span><strong>Sub Total :</strong></span>
+                                <span><strong>{{{currency}}}{{sub_total_amount}}</strong></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                <span><strong>Discount :</strong></span>
+                                <span><strong>{{{currency}}} {{discount}}</strong></span>
+                            </div>
+                            {{#tax_array}}
+                            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                <span><strong>{{name}}({{rate}})% :</strong></span>
+                                <span><strong>{{{currency}}}{{tax_amount}}</strong></span>
+                            </div>
+                            {{/tax_array}}
+                            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                                <span><strong>Grand Total:</strong></span>
+                                <span><strong>{{{currency}}}{{total_amount}}</strong></span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+            <div style="display: flex; height: 80px;">
+                <div style="flex: 8; padding: 4px; font-size: 13px;">
+                    <p style="margin: 0; font-size: 13px;"><strong>Note :</strong></p>
+                    <p style="margin: 0; font-size: 13px;">We declare to the best of our knowledge and belief that the particulars stated herein are true and correct</p>
+                    <p style="margin: 0; font-size: 13px;">This is Computerised generated invoice if any query please contact on {{company_email}}</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+
+</html>
+</body>
+
+</html>
