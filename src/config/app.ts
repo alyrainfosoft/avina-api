@@ -2,15 +2,12 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { PORT, DB_HOST, DB_NAME } from "./env.var";
-import routes from "../routes/index.route";
 import { bodyDecipher } from "../middlewares/req-res-encoder";
-import { tokenVerification, tokenVerificationForV4 } from "../middlewares/authenticate";
-import routesVersionTwo from "../version-2/routes/index.route";
-import routesVersionThree from "../version-3/routes/index.route";
-import routesVersionFour from '../version-4/routes/index.route';
-import webhookRoute from "../version-4/routes/webhook.route";
-import adminRouteForV4 from "../version-4/routes/admin/index.route";
-import userRouteForV4 from "../version-4/routes/user/index.route";
+import { tokenVerificationForV4 } from "../middlewares/authenticate";
+import routesVersionFour from '../version-1/routes/index.route';
+import webhookRoute from "../version-1/routes/webhook.route";
+import adminRouteForV1 from "../version-1/routes/admin/index.route"
+import userRouteForV1 from "../version-1/routes/user/index.route";
 const compression = require('compression')
 const os = require('os');
 const cluster = require('cluster');
@@ -28,12 +25,9 @@ export default async ({ app }: { app: express.Application }) => {
   app.use(express.static("public"));
   app.use("/api/webhook", webhookRoute());
   app.use("/images", express.static("images"));
-  app.use("/api", [bodyDecipher, tokenVerification], routes());
-  app.use("/api/v2", [bodyDecipher, tokenVerification], routesVersionTwo());
-  app.use("/api/v3", [bodyDecipher, tokenVerification], routesVersionThree());
-  app.use("/api/v4", [bodyDecipher, tokenVerificationForV4], routesVersionFour());
-  app.use("/api/v4/admin", [bodyDecipher, tokenVerificationForV4], adminRouteForV4());
-  app.use("/api/v4/user", [bodyDecipher, tokenVerificationForV4], userRouteForV4());
+  app.use("/api/v1", [bodyDecipher, tokenVerificationForV4], routesVersionFour());
+  app.use("/api/v1/admin", [bodyDecipher, tokenVerificationForV4], adminRouteForV1());
+  app.use("/api/v1/user", [bodyDecipher, tokenVerificationForV4], userRouteForV1());
   startServer(app);
   // await updateCurrencyRatesViaCronJob();
 };

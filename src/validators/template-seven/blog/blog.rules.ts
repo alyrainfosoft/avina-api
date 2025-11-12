@@ -1,11 +1,9 @@
 import { body } from "express-validator";
-import { fieldStringChain } from "../../common-validation-rules";
-import categoryData from "../../../version-3/model/category.model";
 import { DeletedStatus } from "../../../utils/app-enumeration";
 import { NOT_FOUND_MESSAGE } from "../../../utils/app-messages";
 import { resNotFound } from "../../../utils/shared-functions";
 import { error } from "console";
-import BlogsData from "../../../version-3/model/blogs.model";
+import {BlogsData} from "../../../version-1/model/blogs.model";
 
 export const addblogRules:any = [
 

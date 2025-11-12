@@ -1,20 +1,3 @@
-import fs from "fs";
-import path from "path";
-import { FRONT_END_BASE_URL } from "../config/env.var";
-import { ITokenExpiredTime } from "../data/interfaces/jwt/jwt.interface";
-import { TUserType } from "../data/types/common/common.type";
-import CaratSize from "../model/master/attributes/caratSize.model";
-import ClarityData from "../model/master/attributes/clarity.model";
-import Colors from "../model/master/attributes/colors.model";
-import CutsData from "../model/master/attributes/cuts.model";
-import DiamondShape from "../model/master/attributes/diamondShape.model";
-import Gemstones from "../model/master/attributes/gemstones.model";
-import GoldKarat from "../model/master/attributes/metal/gold-karat.model";
-import HeadsData from "../model/master/attributes/heads.model";
-import MetalTone from "../model/master/attributes/metal/metalTone.model";
-import SettingCaratWeight from "../model/master/attributes/settingCaratWeight.model";
-import SettingType from "../model/master/attributes/settingType.model";
-import ShanksData from "../model/master/attributes/shanks.model";
 import {
   ATTRIBUTE_TYPE,
   BIRTHSTONE_STONE_TYPE,
@@ -51,7 +34,6 @@ import {
   paymentMethod,
   templateEightSectionTypeEnum,
 } from "./app-enumeration";
-import { Op } from "sequelize";
 
 // Region REQUEST RESPONSE CODER
 export const SIGNATURE_ALGORITHM = "sha1WithRSAEncryption";
@@ -322,39 +304,6 @@ export const GET_HTTP_METHODS_LABEL = {
 
 export const PER_PAGE_ROWS = 10;
 export const PRODUCT_PER_PAGE_ROW = 20;
-
-export const getAttributeModelByType = (attributeType: number) => {
-  switch (attributeType) {
-    case ATTRIBUTE_TYPE.CaratSize:
-      return CaratSize;
-    case ATTRIBUTE_TYPE.Clarity:
-      return ClarityData;
-    case ATTRIBUTE_TYPE.Color:
-      return Colors;
-    case ATTRIBUTE_TYPE.Cut:
-      return CutsData;
-    case ATTRIBUTE_TYPE.DiamondShape:
-      return DiamondShape;
-    case ATTRIBUTE_TYPE.Gemstone:
-      return Gemstones;
-    case ATTRIBUTE_TYPE.GoldKT:
-      return GoldKarat;
-    case ATTRIBUTE_TYPE.Head:
-      return HeadsData;
-    case ATTRIBUTE_TYPE.MetalStone:
-      return MetalTone;
-    case ATTRIBUTE_TYPE.SettingCaratWeight:
-      return SettingCaratWeight;
-    case ATTRIBUTE_TYPE.SettingStyle:
-      return SettingType;
-    case ATTRIBUTE_TYPE.Shank:
-      return ShanksData;
-    // case ATTRIBUTE_TYPE.Tags:
-    //   return Tag;
-    default:
-      return null;
-  }
-};
 
 export const RATE_PRICE_DECIMAL_POINT = 3;
 

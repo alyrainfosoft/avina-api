@@ -2,7 +2,7 @@ import { body } from "express-validator";
 import { DeletedStatus, TemplateSevenSectionType } from "../../../utils/app-enumeration";
 import { NOT_FOUND_MESSAGE, PRODUCT_ID_DUPLICATE_NOT_ALLOW, PRODUCT_ID_MUST_BE_ARRAY, PRODUCT_ID_NOT_FOUND } from "../../../utils/app-messages";
 import { prepareMessageFromParams } from "../../../utils/shared-functions";
-import { initModels } from "../../../version-4/model/index.model";
+import { initModels } from "../../../version-1/model/index.model";
 
 export const addProductAndCategoryRules = [
   body("products_and_category").custom(async (value, { req }) => {

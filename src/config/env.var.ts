@@ -12,11 +12,11 @@ export const PUBLIC_AUTHORIZATION_KEY =
   "5359f59f54b2b8fa5b89b1ced01698b1076d177cdd66e6b95fd48928989cc73779ab852847fd1c9ad70d8fe7e07892bc";
 
 // export const DB_NAME = process.env.DB_NAME || "royale_jeweler_p_2";
-export const DB_NAME = process.env.DB_NAME || "RJ2509";
+export const DB_NAME = process.env.DB_NAME || "postgres";
 export const DB_USER_NAME = process.env.DB_USER_NAME || "postgres";
-export const DB_PASSWORD = process.env.DB_PASSWORD || "Ring@2024";
+export const DB_PASSWORD = process.env.DB_PASSWORD || "Rakesh123@";
 // export const DB_PASSWORD = process.env.DB_PASSWORD || "jA6mkzoWCkxZUM4hdi1M";
-export const DB_HOST = process.env.DB_HOST || "64.225.86.47";
+export const DB_HOST = process.env.DB_HOST || "localhost";
 // export const DB_HOST = process.env.DB_HOST || "royale.cabbcwc2w7zj.us-west-1.rds.amazonaws.com";
 export const DB_PORT = process.env.DB_PORT || 5432;
 export const SEQUELIZE_DIALECT = process.env.SEQUELIZE_DIALECT || "postgres";

@@ -5,9 +5,6 @@ import {
   SECURE_COMMUNICATION,
 } from "../config/env.var";
 import { verifyJWT } from "../helpers/jwt.helper";
-import RoleApiPermission from "../model/role-api-permission.model";
-import RolePermissionAccess from "../model/role-permission-access.model";
-import RolePermission from "../model/role-permission.model";
 
 import { APP_KEY, BASE_INFO_URL, BASE_MASTER_URL, BASE_TEMPLATE_TWO_PRODUCT_URL, CLIENT_MANAGEMENT_URL, JWT_EXPIRED_ERROR_NAME, PUBLIC_API_URL, SUPER_ADMIN_AUTH_API_VERSIONS, SUPER_ADMIN_CREATED_ROLES_COMPANY_KEY } from "../utils/app-constants";
 import { AccessRolePermission, ActiveStatus, DeletedStatus, USER_TYPE } from "../utils/app-enumeration";
@@ -28,13 +25,11 @@ import {
   resUnauthorizedAccess,
   resUnknownError,
 } from "../utils/shared-functions";
-import AppUser from "../model/app-user.model";
 
 import getSubSequelize from "../utils/sub-db-connector";
-import { initModels } from "../version-4/model/index.model";
+import { initModels } from "../version-1/model/index.model";
 import { Op } from "sequelize";
-import MenuItem from "../model/menu-items.model";
-import Role from "../version-3/model/role.model";
+
 
 export const publicAuthentication: RequestHandler = (req, res, next) => {
   if (!req.headers.authorization) {
@@ -274,13 +269,13 @@ export const authorization: RequestHandler = async (req, res, next) => {
   try {
     // console.log("===========================", req.body.db_connection)
     const models = req.body.db_connection ? initModels(req) : null;
-    const userModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.AppUser : AppUser;
-    const roleModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.Role : Role;
+    const userModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.AppUser : null;
+    const roleModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.Role : null;
 
-    const roleApiPermissionModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.RoleApiPermission : RoleApiPermission;
-    const rolePermissionModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.RolePermission : RolePermission;
-    const rolePermissionAccessModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.RolePermissionAccess : RolePermissionAccess;
-    const MenuItemModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.MenuItem : MenuItem;
+    const roleApiPermissionModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.RoleApiPermission : null;
+    const rolePermissionModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.RolePermission : null;
+    const rolePermissionAccessModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.RolePermissionAccess : null;
+    const MenuItemModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.MenuItem : null;
     const CompanyInfo  = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.CompanyInfo : null;
     if (req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS)) {
       const findUser = await userModel.findOne({ where: { id: req.body.session_res.id_app_user } })

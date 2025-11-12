@@ -37,7 +37,7 @@ import {
 import { NAME_LENGTH_MAX, NAME_LENGTH_MIN } from "../validation.constant";
 import { prepareMessageFromParams } from "../../utils/shared-functions";
 import { ActiveStatus, CURRENCY_RATE_EXCHANGE_TYPE, DeletedStatus } from "../../utils/app-enumeration";
-import { initModels } from "../../version-4/model/index.model";
+import { initModels } from "../../version-1/model/index.model";
 
 const checkOnlyAI = (onlyAI: boolean, req: Meta["req"]) => {
   if (onlyAI) {

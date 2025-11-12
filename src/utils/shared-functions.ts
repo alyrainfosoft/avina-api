@@ -65,11 +65,9 @@ import axios from "axios";
 import puppeteer from "puppeteer";
 import handlebars from "handlebars";
 import path from "path";
-import ImageV3 from "../version-3/model/image.model";
-import ActivityLogsV3 from "../version-3/model/activity-logs.model";
 import dbContext from "../config/db-context";
-import { initModels } from "../version-4/model/index.model";
-import { CompanyInfo } from "../version-4/model/companyinfo.model";
+import { initModels } from "../version-1/model/index.model";
+import { CompanyInfo } from "../version-1/model/companyinfo.model";
 const { Client } = require('pg');
 const FormData = require("form-data"); // Required for Node.js
 
@@ -351,7 +349,7 @@ export const imageAddAndEditInDBAndS3 = async (
   try {
     const db_connection = req?.body?.db_connection ? req?.body?.db_connection : dbContext;
     const { Image } = initModels(req)
-    const model = client_id && client_id != null ? Image : ImageV3
+    const model = client_id && client_id != null ? Image : null
 
     const dataBaseConnection = client_id && client_id != null ? db_connection : dbContext
 
@@ -980,7 +978,7 @@ export const sendMessageInWhatsApp = async (otp: any, phone: any, config_data?: 
 export const addActivityLogs = async (req:any,company_info_id:any,logs: any, ref_id: any, activityType: any, logType: any, id_app_user: any,trn:any = null) => {
   try {
     const {ActivityLogs} = initModels(req);
-    const model = req.body.db_connection ? ActivityLogs : ActivityLogsV3
+    const model = req.body.db_connection ? ActivityLogs : null
 
     const options = trn ? { transaction:trn } : {};
     const logsList = []
