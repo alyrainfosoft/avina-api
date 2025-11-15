@@ -8,7 +8,6 @@ import {
 } from "@aws-sdk/client-s3";
 import {
   getLocalDate,
-  getWebSettingData,
   resSuccess,
   resUnknownError,
 } from "../utils/shared-functions";
@@ -46,9 +45,8 @@ export const s3UploadObject = async (
   mimetype: string,
   client_id: any,
 ) => {
-  const configData = client_id && client_id !== null ? await getWebSettingData(db_connection,client_id) : null;
   const payload = {
-    Bucket: configData?.s3_bucket_name || process.env.S3_BUCKET_NAME,
+    Bucket: process.env.S3_BUCKET_NAME,
     Key: path,
     Body: file,
     ContentType: mimetype,
@@ -63,9 +61,8 @@ export const s3UploadObject = async (
 };
 
 export const s3RemoveObject = async (db_connection: any, key: string, client_id: any) => {
-  const configData = client_id && client_id !== null ? await getWebSettingData(db_connection,client_id) : null;
   const payload = {
-    Bucket: configData?.s3_bucket_name || process.env.S3_BUCKET_NAME,
+    Bucket: process.env.S3_BUCKET_NAME,
     Key: key,
 
   };
@@ -78,9 +75,8 @@ export const s3RemoveObject = async (db_connection: any, key: string, client_id:
 };
 
 export const s3GetImageObject = async (db_connection: any,key: string, client_id: any) => {
-  const configData = client_id && client_id !== null ? await getWebSettingData(db_connection,client_id) : null;
 
-  const payload = { Bucket: process.env.S3_BUCKET_NAME || configData?.s3_bucket_name, Key: key };
+  const payload = { Bucket: process.env.S3_BUCKET_NAME, Key: key };
   const result: any = await S3RequestPromise(
     db_connection,
     S3ServiceMethods.GetObjectCommand,
@@ -97,16 +93,15 @@ export const s3GetImageObject = async (db_connection: any,key: string, client_id
 };
 
 export const s3ListObjects = async (db_connection: any,key: string, client_id: any) => {
-  const configData = client_id && client_id !== null ? await getWebSettingData(db_connection,client_id) : null;
 
   const S3 = new S3Client({
-    region: process.env.S3_REGION || configData?.s3_bucket_region,
+    region: process.env.S3_REGION ,
     credentials: {
-      accessKeyId: process.env.S3_ACCESS_KEY_ID || configData?.s3_bucket_access_key,
-      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || configData?.s3_bucket_secret_access_key,
+      accessKeyId: process.env.S3_ACCESS_KEY_ID ,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY ,
     },
   });
-  const payload = { Bucket: process.env.S3_BUCKET_NAME || configData?.s3_bucket_name, Prefix: key, Delimiter: "/" };
+  const payload = { Bucket: process.env.S3_BUCKET_NAME , Prefix: key, Delimiter: "/" };
   const result = await S3.send(new ListObjectsV2Command(payload));
   if (!result.Contents || result.Contents.length === 0) {
     return [];
@@ -127,12 +122,11 @@ const streamToString = async (stream: any): Promise<string> =>
   });
 
 const S3RequestPromise = async (db_connection: any,S3ServiceMethod: number, payload: any, client_id?: any) => {
-  const configData = client_id && client_id !== null ? await getWebSettingData(db_connection,client_id) : null;
   const S3 = new S3Client({
-    region: configData?.s3_bucket_region || process.env.S3_REGION,
+    region: process.env.S3_REGION,
     credentials: {
-      accessKeyId: configData?.s3_bucket_access_key || process.env.S3_ACCESS_KEY_ID,
-      secretAccessKey: configData?.s3_bucket_secret_access_key || process.env.S3_SECRET_ACCESS_KEY,
+      accessKeyId: process.env.S3_ACCESS_KEY_ID,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
     },
   });
 

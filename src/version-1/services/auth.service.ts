@@ -53,7 +53,6 @@ import {
   getInitialPaginationFromQuery,
   getLocalDate,
   getPriceFormat,
-  getWebSettingData,
   LoginWithCadcoPanelUsingAPI,
   prepareMessageFromParams,
   resBadRequest,
@@ -64,7 +63,7 @@ import {
   resUnauthorizedAccess,
   resUnknownError,
   resUnprocessableEntity,
-  sendMessageInWhatsApp,
+  // sendMessageInWhatsApp,
   statusUpdateValue,
   superAdminWhere,
 } from "../../utils/shared-functions";
@@ -84,7 +83,11 @@ import {
   USER_TYPE,
 } from "../../utils/app-enumeration";
 import {
+  FRONT_END_BASE_URL,
+  IMAGE_PATH,
+  INVOICE_NUMBER_DIGIT,
   PRODUCT_CSV_FOLDER_PATH,
+  RESET_PASSWORD_PATH,
   SEND_OTP_IN_WHATSAPP,
 } from "../../config/env.var";
 import {
@@ -1110,7 +1113,6 @@ export const authenticateSystemUser = async (req: Request) => {
     if (appUser.dataValues.user_type === USER_TYPE.Administrator && appUser.dataValues.is_super_admin === true || appUser.dataValues.user_type === USER_TYPE.BusinessUser && appUser.dataValues.is_super_admin === true) {
       const currentDate = getLocalDate(); // Get current time
       
-      // const configData = await getWebSettingData(req.body.db_connection,companyInfo?.dataValues?.id)
       const expireDate = new Date(currentDate.getTime() + OTP_EXPIRATION_TIME);
       const digits = "0123456789";
       let OTP = "";
@@ -1397,12 +1399,11 @@ export const authenticateCustomerUserWithOTP = async (req: Request) => {
         },
       });
     } else {
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
       const currentDate = getLocalDate(); // Get current time
       const expireDate = new Date(currentDate.getTime() + OTP_EXPIRATION_TIME);
       const digits = "0123456789";
       let OTP = "";
-      for (let i = 0; i < configData.otp_generate_digit_count; i++) {
+      for (let i = 0; i < INVOICE_NUMBER_DIGIT; i++) {
         OTP += digits[Math.floor(Math.random() * 10)];
       }
       await AppUser.update(
@@ -1418,15 +1419,7 @@ export const authenticateCustomerUserWithOTP = async (req: Request) => {
         contentTobeReplaced: { name: userDetails.dataValues.full_name, OTP },
       };
       await mailRegistrationOtp(mailPayload,company_info_id?.data,req);
-      if (
-        appUser.dataValues.user_type === USER_TYPE.Customer &&
-        userDetails &&
-        userDetails.dataValues &&
-        userDetails.dataValues.country_id == "+91" &&
-        configData.whats_app_send_message_status.toString() == "true"
-      ) {
-        await sendMessageInWhatsApp(OTP, userDetails.dataValues.mobile,configData);
-      }
+    
 
       const AfterUpdateappUser = await AppUser.findOne({
         where: { id: appUser?.dataValues?.id, company_info_id:company_info_id?.data },
@@ -1601,10 +1594,10 @@ export const forgotPassword = async (req: Request) => {
     const token = createResetToken(appUser.dataValues.id,company_info_id?.data);
 
     console.log("token", token)
-    const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
-    let link = `${configData.fronted_base_url}/${configData.reset_pass_url}${token}`;
-    let logo_image = configData.image_base_url;
-    let frontend_url = configData.fronted_base_url;
+    
+    let link = `${FRONT_END_BASE_URL}/${RESET_PASSWORD_PATH}${token}`;
+    let logo_image = IMAGE_PATH;
+    let frontend_url = FRONT_END_BASE_URL;
     const mailPayload = {
       toEmailAddress: appUser.dataValues.username,
       contentTobeReplaced: { name, link, logo_image, frontend_url },
@@ -1765,10 +1758,9 @@ export const registerCustomerUser = async (req: Request) => {
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
-    const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
     const digits = "0123456789";
     let OTP = "";
-    for (let i = 0; i < configData.otp_generate_digit_count; i++) {
+    for (let i = 0; i < INVOICE_NUMBER_DIGIT; i++) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
 
@@ -1837,18 +1829,7 @@ export const registerCustomerUser = async (req: Request) => {
           contentTobeReplaced: { name: full_name, OTP },
         };
         await mailRegistrationOtp(mailPayload,company_info_id?.data, req);
-        if (
-          CustomerUserPayload &&
-          CustomerUserPayload.dataValues &&
-          CustomerUserPayload.dataValues.country_id == "+91" &&
-          configData.whats_app_send_message_status.toString() == "true"
-        ) {
-          await sendMessageInWhatsApp(
-            OTP,
-            CustomerUserPayload.dataValues.mobile,
-            configData
-          );
-        }
+    
        return resSuccess({ data: CustomerUserPayload });
       } else {
         await trn.rollback();
@@ -1890,10 +1871,9 @@ const customerRegistrationWithSystem = async (req: Request) => {
       if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
     }
-    const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
     const digits = "0123456789";
     let OTP = "";
-    for (let i = 0; i < configData.otp_generate_digit_count; i++) {
+    for (let i = 0; i < INVOICE_NUMBER_DIGIT; i++) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
 
@@ -2029,14 +2009,7 @@ const customerRegistrationWithSystem = async (req: Request) => {
         contentTobeReplaced: { name: full_name, OTP },
       };
       await mailRegistrationOtp(mailPayload,company_info_id?.data, req);
-      if (
-        CustomerUserPayload &&
-        CustomerUserPayload.dataValues &&
-        CustomerUserPayload.dataValues.country_id == "+91" &&
-        configData.whats_app_send_message_status.toString() == "true"
-      ) {
-        await sendMessageInWhatsApp(OTP, CustomerUserPayload.dataValues.mobile, configData);
-      }
+  
 
         await addActivityLogs(req, 
         company_info_id?.data,
@@ -2145,9 +2118,9 @@ const customerRegistrationWithGoogle = async (req: Request) => {
           { transaction: trn }
         );
 
-        const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
-        let logo_image = configData.image_base_url;
-        let frontend_url = configData.fronted_base_url;
+        
+        let logo_image = IMAGE_PATH;
+        let frontend_url = FRONT_END_BASE_URL;
 
         const mailPayload = {
           toEmailAddress: CustomerUserPayload.dataValues.email,
@@ -2392,9 +2365,9 @@ const customerRegistrationWithFacebook = async (req: Request) => {
         );
 
         await trn.commit();
-        const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
-        let logo_image = configData.image_base_url;
-        let frontend_url = configData.fronted_base_url;
+        
+        let logo_image = IMAGE_PATH;
+        let frontend_url = FRONT_END_BASE_URL;
 
         const mailPayload = {
           toEmailAddress: CustomerUserPayload.dataValues.email,
@@ -2643,9 +2616,8 @@ const customerRegistrationWithCadcoPanel = async (req: Request) => {
         );
 
         await trn.commit();
-        const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
-        let logo_image = configData.image_base_url;
-        let frontend_url = configData.fronted_base_url;
+        let logo_image = IMAGE_PATH;
+        let frontend_url = FRONT_END_BASE_URL;
 
         const mailPayload = {
           toEmailAddress: CustomerUserPayload.dataValues.email,
@@ -2882,9 +2854,8 @@ export const customerRegisterOtpVerified = async (req: Request) => {
         ],
         include: [{ model: Image, as: "image", attributes: [] }],
       });
-      const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
-      let logo_image = configData.image_base_url;
-      let frontend_url = configData.fronted_base_url;
+      let logo_image = IMAGE_PATH;
+      let frontend_url = FRONT_END_BASE_URL;
 
       if (userDetails.dataValues.user_status != USER_STATUS.Approved) {
         const mailPayload = {
@@ -2944,10 +2915,9 @@ export const resendOtpVerification = async (req: Request) => {
     });
    
     if (userData) {
-      const configWebData:any = await getWebSettingData(req.body.db_connection,company_info_id?.data)
       const digits = "0123456789";
       let OTP = "";
-      for (let i = 0; i < (userData.dataValues.user_type == USER_TYPE.Administrator && userData.dataValues.is_super_admin == true ? 6  : configWebData.otp_generate_digit_count); i++) {
+      for (let i = 0; i < (userData.dataValues.user_type == USER_TYPE.Administrator && userData.dataValues.is_super_admin == true ? 6  : INVOICE_NUMBER_DIGIT); i++) {
         OTP += digits[Math.floor(Math.random() * 10)];
       }
       const currentDate = getLocalDate(); // Get current time
@@ -2962,25 +2932,15 @@ export const resendOtpVerification = async (req: Request) => {
         { where: { id: userData.dataValues.id, is_deleted: DeletedStatus.No, ...superAdminWhere(company_info_id?.data) } }
       );
 
-      const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
       const name = customer?.dataValues.full_name;
-      let logo_image = configData.image_base_url;
-      let frontend_url = configData.fronted_base_url;
+      let logo_image = IMAGE_PATH;
+      let frontend_url = FRONT_END_BASE_URL;
       const mailPayload = {
         toEmailAddress: userData.dataValues.username,
         contentTobeReplaced: { name, OTP, logo_image, frontend_url },
       };
 
       await mailRegistrationOtp(mailPayload,company_info_id?.data, req);
-      if (
-        userData.dataValues.user_type === USER_TYPE.Customer &&
-        customer &&
-        customer.dataValues &&
-        customer.dataValues.country_id == "+91" &&
-        configData.whats_app_send_message_status.toString() == "true"
-      ) {
-        await sendMessageInWhatsApp(OTP, customer.dataValues.mobile, configData);
-      }
 
       const afterUpdateUserData = await AppUser.findOne({
         where: { id: req.body.id, is_deleted: DeletedStatus.No,...superAdminWhere(company_info_id?.data)},

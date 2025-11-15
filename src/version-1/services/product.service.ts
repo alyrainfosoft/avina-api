@@ -45,7 +45,6 @@ import {
   getCompanyIdBasedOnTheCompanyKey,
   getInitialPaginationFromQuery,
   getLocalDate,
-  getWebSettingData,
   prepareMessageFromParams,
   refreshMaterializedProductListView,
   resBadRequest,
@@ -7370,7 +7369,6 @@ export const similarProductList = async (req: any) => {
       return resNotFound({ message: PRODUCT_NOT_FOUND });
     }
 
-    const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
     const similarProduct = await req.body.db_connection.query(`(WITH filtered_pmo AS (
       SELECT DISTINCT ON (pmo.id_product) pmo.id,
          pmo.id_product,
@@ -7404,10 +7402,8 @@ export const similarProductList = async (req: any) => {
      ), product_images_data AS (
       SELECT product_images.id_product,
          product_images.id AS image_id,
-         CONCAT(
-         '${configData.image_base_url}',
-         PRODUCT_IMAGES.IMAGE_PATH
-       ) AS image_path,
+         product_images.image_path
+        AS image_path,
          product_images.id_metal_tone,
          product_images.image_type
         FROM product_images

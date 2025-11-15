@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { callServiceMethod } from "./base.controller";
-import { addConfigProductOrder, addGiftSetProductOrder, addProductOrder, addProductWithPaypalOrder, configOrderDetailsAPI, deliveryStatusUpdate, getAllConfigOrdersUser, getAllGiftSetOrdersListAdmin, getAllGiftSetProductOrdersUser, getAllOrdersListAdmin, getAllOrdersUser, giftSetDeliveryStatusUpdate, giftSetOrderDetailsAPI, giftSetOrderDetailsAPIAdmin, giftSetOrderStatusUpdate, moveOrderToArchive, orderDetailsAPI, orderDetailsAPIAdmin, orderStatusUpdate, orderTransactionList } from "../services/orders.service";
+import { addConfigProductOrder, addGiftSetProductOrder, addProductOrder, configOrderDetailsAPI, deliveryStatusUpdate, getAllConfigOrdersUser, getAllGiftSetOrdersListAdmin, getAllGiftSetProductOrdersUser, getAllOrdersListAdmin, getAllOrdersUser, giftSetDeliveryStatusUpdate, giftSetOrderDetailsAPI, giftSetOrderDetailsAPIAdmin, giftSetOrderStatusUpdate, moveOrderToArchive, orderDetailsAPI, orderDetailsAPIAdmin, orderStatusUpdate, orderTransactionList } from "../services/orders.service";
 import { getAllGiftSetProductsUserSide } from "../services/gift_set_product.service";
 
 export const addProductOrderFn: RequestHandler = (req, res) => {
@@ -81,11 +81,4 @@ export const getAllConfigOrdersUserFn: RequestHandler = (req, res) => {
 
 export const configOrderDetailsAPIFn: RequestHandler = (req, res) => {
     callServiceMethod(req, res, configOrderDetailsAPI(req), "configOrderDetailsAPIFn");
-}
-
-
-/*----------- paypal payment method with order -----------------------*/
-
-export const addProductWithPaypalOrderFn: RequestHandler = (req, res) => {
-    callServiceMethod(req, res, addProductWithPaypalOrder(req), "addProductWithPaypalOrderFn");
 }

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addConfigProductOrderFn, addGiftSetProductOrderFn, addProductOrderFn, addProductWithPaypalOrderFn, configOrderDetailsAPIFn, getAllConfigOrdersUserFn, getAllGiftSetProductOrdersUserFn, getAllOrdersUserFn , giftSetOrderDetailsAPIFn, orderDetailsAPIFn } from "../../controllers/orders.controller";
+import { addConfigProductOrderFn, addGiftSetProductOrderFn, addProductOrderFn, configOrderDetailsAPIFn, getAllConfigOrdersUserFn, getAllGiftSetProductOrdersUserFn, getAllOrdersUserFn , giftSetOrderDetailsAPIFn, orderDetailsAPIFn } from "../../controllers/orders.controller";
 
 export default  (app: Router) => {
     app.post("/order/add", addProductOrderFn)
@@ -19,8 +19,5 @@ export default  (app: Router) => {
     // app.get("/config/product/order/list", getAllConfigOrdersUserFn)
     app.post("/config/product/order/details",  configOrderDetailsAPIFn)
 
-    ////////------------ paypal paymentmethod with order ----------/////////
-
-    app.post("/order/paypal/add", addProductWithPaypalOrderFn)
     
 }

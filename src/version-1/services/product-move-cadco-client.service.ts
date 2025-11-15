@@ -8,7 +8,6 @@ import { CATEGORY_IS_REQUIRES, CATEGORY_NOT_FOUND, DEFAULT_STATUS_CODE_SUCCESS, 
 import { ADD_CADCO_PRODUCT_DETAIL_TO_CLIENT_API_URL, DISCOUNT_TYPE_PLACE_ID, GENDERLIST, GET_DIAMOND_PLACE_ID_FROM_LABEL, GET_PRODUCT_CUSTOMIZATION_LABEL_FROM_ID } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
 import { create } from "domain";
-import { COMPANY_INFO_KEY } from "../../config/env.var";
 import axios from "axios";
 
 export const getCADCOProductDetailsForClient = async (req: Request) => {

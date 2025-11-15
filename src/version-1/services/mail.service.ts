@@ -1,9 +1,10 @@
 import EmailHelper from "../../helpers/mail.helper";
 import { ActiveStatus, DeletedStatus, DYNAMIC_MAIL_TYPE, EmailLogType, WantToSendMailDynamic } from "../../utils/app-enumeration";
-import {  getLocalDate, getWebSettingData, prepareMessageFromParams, resBadRequest } from "../../utils/shared-functions";
+import {  getLocalDate, prepareMessageFromParams, resBadRequest } from "../../utils/shared-functions";
 import { Op } from "sequelize";
 import { EMAIL_TEMPLATE_NOT_FOUND } from "../../utils/app-messages";
 import { initModels } from "../model/index.model";
+import { IMAGE_PATH } from "../../config/env.var";
 
 async function prepareAndSendEmail(
   req: any,
@@ -43,7 +44,6 @@ async function prepareAndSendEmail(
       ],
     }));
 
-    const configData = await getWebSettingData(req.body.db_connection,client_id);
 
     const mailLogoPath = await Image.findOne({where:{id:companyInfo.dataValues.mail_tem_logo}})
    
@@ -51,7 +51,7 @@ async function prepareAndSendEmail(
       ...payload,
       contentTobeReplaced: {
         ...payload?.contentTobeReplaced,
-        logo_image: configData?.image_base_url + mailLogoPath?.dataValues?.image_path,
+        logo_image: IMAGE_PATH + mailLogoPath?.dataValues?.image_path,
         frontend_url: companyInfo.web_link,
         app_name: companyInfo?.company_name,
         bg_color: companyInfo?.web_primary_color,
@@ -63,7 +63,7 @@ async function prepareAndSendEmail(
       },
     };
 
-    const objMail = new EmailHelper(configData);
+    const objMail = new EmailHelper();
 
     const mailInfo = {
       emailTemplate: mailTemplate,
@@ -73,7 +73,6 @@ async function prepareAndSendEmail(
       messageType: messageType,
       attachments: payload.attachments,
       dynamic: payload?.dynamic ? payload?.dynamic : false,
-      client_id: configData
 
     };
     await objMail.prepareEmail(mailInfo);

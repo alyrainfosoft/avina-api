@@ -20,7 +20,6 @@ import {
   getPriceFormat,
   refreshMaterializedProductListView,
   resSuccess,
-  getWebSettingData,
   convertCurrencySymbolIntoHTMLFormate,
   getEmailTemplateContent
 } from "../../utils/shared-functions";
@@ -31,6 +30,7 @@ import { mailNewOrderReceived } from "./mail.service";
 import { DEFAULT_STATUS_CODE_SUCCESS, SUCCESS_SUBSCRIPTION_LIST } from "../../utils/app-messages";
 import getSubSequelize from "../../utils/sub-db-connector";
 import { initModels } from "../model/index.model";
+import { FRONT_END_BASE_URL, IMAGE_PATH, INVOICE_NUMBER_DIGIT, INVOICE_NUMBER_IDENTITY } from "../../config/env.var";
 
 export const webhookForStripe = async (req: Request) => {
   try {
@@ -361,8 +361,7 @@ const successTransaction = async (
       transaction: trn,
     });
 
-    const configData = await getWebSettingData(dbConnection,findOrder?.dataValues?.company_info_id);
-    const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
+    const invoice_number = i.toString().padStart(INVOICE_NUMBER_DIGIT, "0");
 
     const findOrderTransaction = await OrderTransaction.findOne({
       where: {
@@ -397,7 +396,7 @@ const successTransaction = async (
       { where: { order_id: findOrder.dataValues.id,company_info_id:findOrder?.dataValues?.company_info_id }, transaction: trn }
     );
     const invoiceData = {
-      invoice_number: `${configData.order_invoice_number_identity}-${invoice_number}`,
+      invoice_number: `${INVOICE_NUMBER_IDENTITY}-${invoice_number}`,
       invoice_date: getLocalDate(),
       invoice_amount: parseFloat(findOrder.dataValues.order_total),
       billing_address: findOrder.dataValues.order_billing_address,
@@ -531,7 +530,7 @@ const successTransaction = async (
                 "product_details_json",
                 [
                   Sequelize.literal(
-                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT CONCAT('${configData.image_base_url}', image_path) FROM loose_diamond_group_masters where id = "product_id") ELSE (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
+                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN image_path FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN image_path FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT image_path FROM loose_diamond_group_masters where id = "product_id") ELSE image_path FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
                   ),
                   "product_image",
                 ],
@@ -890,7 +889,7 @@ const successTransaction = async (
             const userData = await CustomerUser.findOne({
               where: { id_app_user: result.dataValues.order_invoice.user_id || 0,company_info_id:findOrder?.dataValues?.company_info_id},
             });
-            let pdfLogo = configData.image_base_url + findLogo.dataValues.image_path
+            let pdfLogo = IMAGE_PATH + findLogo.dataValues.image_path
             const logoBase64:any = await convertImageUrlToDataURL(pdfLogo)
         
             if (logoBase64.code == DEFAULT_STATUS_CODE_SUCCESS) {
@@ -953,8 +952,8 @@ const successTransaction = async (
                   },
                   tax_array: taxData,
                   data: productData,
-                  logo_image: configData.image_base_url + findLogo.dataValues.image_path,
-                  frontend_url: configData.fronted_base_url,
+                  logo_image: IMAGE_PATH + findLogo.dataValues.image_path,
+                  frontend_url: FRONT_END_BASE_URL,
                   app_name: companyInfo?.dataValues?.company_name,
                   company_address: companyInfo?.dataValues?.company_address,
                   company_email: companyInfo?.dataValues?.company_email,
@@ -1034,8 +1033,8 @@ const successTransaction = async (
                   },
                   tax_array: taxData,
                   data: productData,
-                  logo_image: configData.image_base_url + findLogo.dataValues.image_path,
-                  frontend_url: configData.fronted_base_url,
+                  logo_image: IMAGE_PATH + findLogo.dataValues.image_path,
+                  frontend_url: FRONT_END_BASE_URL,
                 },
               },
               attachments:{
@@ -1097,8 +1096,8 @@ const successTransaction = async (
           },
           tax_array: taxData,
           data: productData,
-          logo_image: configData.image_base_url + findLogo.dataValues.image_path,
-          frontend_url: configData.fronted_base_url,
+          logo_image: IMAGE_PATH + findLogo.dataValues.image_path,
+          frontend_url: FRONT_END_BASE_URL,
         },
       },
     };

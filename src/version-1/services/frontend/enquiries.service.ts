@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { addActivityLogs, getCompanyIdBasedOnTheCompanyKey, getLocalDate, getWebSettingData, resSuccess } from "../../../utils/shared-functions";
+import { addActivityLogs, getCompanyIdBasedOnTheCompanyKey, getLocalDate, resSuccess } from "../../../utils/shared-functions";
 import { Sequelize } from "sequelize";
 import { LogsActivityType, LogsType, PRODUCT_IMAGE_TYPE } from "../../../utils/app-enumeration";
 import {
@@ -10,6 +10,7 @@ import {
 } from "../mail.service";
 import { DEFAULT_STATUS_CODE_SUCCESS } from "../../../utils/app-messages";
 import { initModels } from "../../model/index.model";
+import { FRONT_END_BASE_URL, IMAGE_PATH } from "../../../config/env.var";
 
 export const addEnquiries = async (req: Request) => {
   const {
@@ -53,9 +54,8 @@ export const addEnquiries = async (req: Request) => {
         "time",
       ],
     });
-    const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
-    let logo_image = configData.image_base_url;
-    let frontend_url = configData.fronted_base_url;
+    let logo_image = IMAGE_PATH;
+    let frontend_url = FRONT_END_BASE_URL;
 
     const [year, month, day] =
       productInquiries?.dataValues.date != null
@@ -170,7 +170,6 @@ export const addProductEnquiries = async (req: Request) => {
     };
     const inquiry = await ProductEnquiries.create(payload);
 
-    const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
     const productInquiries = await ProductEnquiries.findOne({
       where: { id: inquiry.dataValues.id,company_info_id : company_info_id?.data, },
       attributes: [
@@ -186,7 +185,7 @@ export const addProductEnquiries = async (req: Request) => {
         "time",
         [
           Sequelize.literal(
-            `(SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id_product = "product_id" AND image_type = ${PRODUCT_IMAGE_TYPE.Feature} AND id_metal_tone = CAST (product_enquiries.product_json ->> 'metal_tone_id' AS integer) ORDER BY id ASC LIMIT 1)`
+            `image_path FROM product_images WHERE id_product = "product_id" AND image_type = ${PRODUCT_IMAGE_TYPE.Feature} AND id_metal_tone = CAST (product_enquiries.product_json ->> 'metal_tone_id' AS integer) ORDER BY id ASC LIMIT 1)`
           ),
           "product_image",
         ],
@@ -239,8 +238,8 @@ export const addProductEnquiries = async (req: Request) => {
       ],
     });
 
-    let logo_image = configData.image_base_url;
-    let frontend_url = configData.fronted_base_url;
+    let logo_image = IMAGE_PATH;
+    let frontend_url = FRONT_END_BASE_URL;
 
     const mailPayload = {
       toEmailAddress: productInquiries?.dataValues.email,

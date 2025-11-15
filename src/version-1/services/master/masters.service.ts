@@ -4,7 +4,6 @@ import {
   columnValueLowerCase,
   getInitialPaginationFromQuery,
   getLocalDate,
-  getWebSettingData,
   prepareMessageFromParams,
   resBadRequest,
   resSuccess,
@@ -403,7 +402,6 @@ export const masterList = async (req: Request) => {
 
     pagination.total_items = totalItems;
     pagination.total_pages = Math.ceil(totalItems / pagination.per_page_rows);
-    const configData:any = getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id)
     const Masters = await Master.findAll({
       where,
       limit: pagination.per_page_rows,
@@ -422,11 +420,7 @@ export const masterList = async (req: Request) => {
         "link",
         "import_name",
         [
-          Sequelize.fn(
-            "CONCAT",
-            configData.image_base_url,
-            Sequelize.literal(`"image"."image_path"`)
-          ),
+         Sequelize.literal(`"image"."image_path"`),
           "image_path",
         ],
       ],
@@ -451,7 +445,6 @@ export const masterDetail = async (req: Request) => {
     const { Master,Image } = initModels(req);
 
     const { id, master_type } = req.params;
-    const configData:any = getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id)
     const MasterData = await Master.findOne({
       where: {
         id: id,
@@ -472,12 +465,7 @@ export const masterDetail = async (req: Request) => {
         "link",
         "import_name",
         [
-          Sequelize.fn(
-            "CONCAT",
-            configData.image_base_url,
-            Sequelize.literal(`"image"."image_path"`)
-          ),
-          "image_path",
+          Sequelize.literal(`"image"."image_path"`),"image_path",
         ],
       ],
       include: [

@@ -6,8 +6,6 @@ import { currencyMiddleware } from "../../../middlewares/currency-rate-change";
 import {
   addAllTypeProductWithPaypalOrderFn,
   addToCartAllProductAPIFn,
-  allTypeProductPaymentTransactionWithAffirmFn,
-  allTypeProductPaymentTransactionWithPaypalFn,
   cartAllProductListByUSerIdFn,
   cartAllWithBirthstoneProductRetailListByUSerIdFn,
   cartQuantityUpdateFn,
@@ -23,14 +21,7 @@ export default (app: Router) => {
   );
   // app.post("/all/product/cart/list", cartAllProductListByUSerIdFn);
   app.post("/all/product/add/order", addAllTypeProductWithPaypalOrderFn);
-  // app.post(
-  //   "/all/product/add/payment/paypal",
-  //   allTypeProductPaymentTransactionWithPaypalFn
-  // );
-  app.post(
-    "/all/product/add/payment/affirm",
-    allTypeProductPaymentTransactionWithAffirmFn
-  );
+
   app.post(
     "/all/retail/product/cart/list",
     [currencyMiddleware],

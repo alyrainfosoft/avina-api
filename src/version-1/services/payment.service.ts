@@ -5,7 +5,6 @@ import {
   getEmailTemplateContent,
   getLocalDate,
   getPriceFormat,
-  getWebSettingData,
   resBadRequest,
   resNotFound,
   resSuccess,
@@ -22,7 +21,12 @@ import {
   UNPROCESSABLE_ENTITY_CODE,
 } from "../../utils/app-messages";
 import {
-  INVOICE_LOGO_IMAGE_BASE64
+  FRONT_END_BASE_URL,
+  IMAGE_PATH,
+  INVOICE_LOGO_IMAGE_BASE64,
+  INVOICE_NUMBER_DIGIT,
+  INVOICE_NUMBER_IDENTITY,
+  yoco_secret_key
 } from "../../config/env.var";
 import {
   AllProductTypes,
@@ -86,9 +90,8 @@ export const PaymentTransaction = async (req: Request) => {
   });
 
   let i = (await Invoices.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
 
-  const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
+  const invoice_number = i.toString().padStart(INVOICE_NUMBER_DIGIT, "0");
 
   const paymentInfo = await axios
     .post(
@@ -100,7 +103,7 @@ export const PaymentTransaction = async (req: Request) => {
       },
       {
         headers: {
-          "X-Auth-Secret-Key": configData.yoco_secret_key,
+          "X-Auth-Secret-Key":yoco_secret_key,
         },
       }
     )
@@ -176,7 +179,7 @@ export const PaymentTransaction = async (req: Request) => {
         }
 
         const invoiceData = {
-          invoice_number: `${configData.order_invoice_number_identity}-${invoice_number}`,
+          invoice_number: `${INVOICE_NUMBER_IDENTITY}-${invoice_number}`,
           invoice_date: getLocalDate(),
           invoice_amount: amount,
           billing_address: orderAmontValidate.dataValues.order_billing_address,
@@ -387,13 +390,13 @@ export const PaymentTransaction = async (req: Request) => {
               "quantity",
               [
                 Sequelize.literal(
-                  `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer) LIMIT 1) ELSE (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) END`
+                  `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN image_path FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer) LIMIT 1) ELSE image_path FROM images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) END`
                 ),
                 "product_image",
               ],
               [
                 Sequelize.literal(
-                  `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') ELSE (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
+                  `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN image_path FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN image_path FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') ELSE image_path FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
                 ),
                 "product_image",
               ],
@@ -490,7 +493,7 @@ export const PaymentTransaction = async (req: Request) => {
     ],
   });
 
-  let logo_image = configData.image_base_url;
+  let logo_image = IMAGE_PATH;
   const taxData = JSON.parse(result.dataValues.order_invoice.order_taxs);
   const productData: any = [];
   let findCurrency
@@ -608,7 +611,7 @@ export const PaymentTransaction = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url: configData?.fronted_base_url
+        frontend_url: FRONT_END_BASE_URL
     }
   
     const data = {
@@ -667,7 +670,7 @@ export const PaymentTransaction = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url: configData?.fronted_base_url,
+        frontend_url: FRONT_END_BASE_URL,
       },
     },
     attachments:{
@@ -722,7 +725,7 @@ export const PaymentTransaction = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url:configData?.fronted_base_url,
+        frontend_url:FRONT_END_BASE_URL,
       },
     },
   };
@@ -761,7 +764,6 @@ export const invoivesDetailsApi = async (req: Request) => {
     const { Invoices,Orders, CurrencyData,StoreAddress,OrdersDetails } = initModels(req);
     const { order_id } = req.body;
 
-    const configData =  await getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id);
     const result = await Invoices.findOne({
       where: { order_id: order_id },
       attributes: [
@@ -876,7 +878,7 @@ export const invoivesDetailsApi = async (req: Request) => {
                 "product_id",
                 [
                   Sequelize.literal(
-                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} OR CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.SettingProduct} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') ELSE (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
+                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} OR CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.SettingProduct} THEN image_path FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN image_path FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') ELSE image_path FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
                   ),
                   "product_image",
                 ],
@@ -1091,9 +1093,8 @@ export const giftProductPaymentTransaction = async (req: Request) => {
   });
 
   let i = (await GiftSetProductInvoice.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
 
-  const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
+  const invoice_number = i.toString().padStart(INVOICE_NUMBER_DIGIT, "0");
 
   const paymentInfo = await axios
     .post(
@@ -1105,7 +1106,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
       },
       {
         headers: {
-          "X-Auth-Secret-Key": configData.yoco_secret_key,
+          "X-Auth-Secret-Key": yoco_secret_key,
         },
       }
     )
@@ -1156,7 +1157,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
         );
 
         const invoiceData = {
-          invoice_number: `${configData.order_invoice_number_identity}-${invoice_number}`,
+          invoice_number: `${INVOICE_NUMBER_IDENTITY}-${invoice_number}`,
           invoice_date: getLocalDate(),
           invoice_amount: amount,
           billing_address: orderAmontValidate.dataValues.order_billing_address,
@@ -1362,7 +1363,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
               "product_id",
               [
                 Sequelize.literal(
-                  `(SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = ${GIFT_PRODUCT_IMAGE_TYPE.Thumb} )`
+                  `image_path FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = ${GIFT_PRODUCT_IMAGE_TYPE.Thumb} )`
                 ),
                 "product_image",
               ],
@@ -1391,7 +1392,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
       },
     ],
   });
-  let logo_image = configData.image_base_url;
+  let logo_image = IMAGE_PATH;
   const productData: any = [];
   for (const data of result.dataValues.gift_set_order_invoice.gift_order) {
     productData.push({
@@ -1455,7 +1456,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url: configData?.fronted_base_url,
+        frontend_url: FRONT_END_BASE_URL,
       },
     },
     attachments: {
@@ -1485,7 +1486,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url: configData?.fronted_base_url,
+        frontend_url: FRONT_END_BASE_URL,
       },
       filename: "invoice.pdf",
       content: "../../../templates/mail-template/gift-set-product-invoice.html",
@@ -1524,7 +1525,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url: configData?.fronted_base_url,
+        frontend_url: FRONT_END_BASE_URL,
       },
     },
   };
@@ -1702,9 +1703,9 @@ export const configProductPaymentTransaction = async (req: Request) => {
   });
 
   let i = (await Invoices.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
+  const configData =  yoco_secret_key
 
-  const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
+  const invoice_number = i.toString().padStart(INVOICE_NUMBER_DIGIT, "0");
 
   const paymentInfo = await axios
     .post(
@@ -1716,7 +1717,7 @@ export const configProductPaymentTransaction = async (req: Request) => {
       },
       {
         headers: {
-          "X-Auth-Secret-Key": configData.yoco_secret_key,
+          "X-Auth-Secret-Key": yoco_secret_key,
         },
       }
     )
@@ -1771,7 +1772,7 @@ export const configProductPaymentTransaction = async (req: Request) => {
         );
 
         const invoiceData = {
-          invoice_number: `${configData.order_invoice_number_identity}-${invoice_number}`,
+          invoice_number: `${INVOICE_NUMBER_IDENTITY}-${invoice_number}`,
           invoice_date: getLocalDate(),
           invoice_amount: amount,
           billing_address: orderAmontValidate.dataValues.order_billing_address,
@@ -2256,7 +2257,7 @@ export const configProductPaymentTransaction = async (req: Request) => {
     productData.push(list);
   }
 
-  let logo_image = configData.image_base_url;
+  let logo_image = IMAGE_PATH;
   const taxData = JSON.parse(result.dataValues.order_invoice.order_taxs);
 
   const userData = await CustomerUser.findOne({
@@ -2297,7 +2298,7 @@ export const configProductPaymentTransaction = async (req: Request) => {
       tax_array: taxData,
       data: productData,
       logo_image,
-      frontend_url: configData?.fronted_base_url,
+      frontend_url: FRONT_END_BASE_URL,
   }
 
   const data = {
@@ -2400,8 +2401,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
   });
 
   let i = (await Invoices.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
-  const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
+  const invoice_number = i.toString().padStart(INVOICE_NUMBER_DIGIT, "0");
 
   if (status == "SUCCESS") {
     try {
@@ -2444,7 +2444,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
       );
 
       const invoiceData = {
-        invoice_number: `${configData.order_invoice_number_identity}-${invoice_number}`,
+        invoice_number: `${INVOICE_NUMBER_IDENTITY}-${invoice_number}`,
         invoice_date: getLocalDate(),
         invoice_amount: amount,
         billing_address: orderAmontValidate.dataValues.order_billing_address,
@@ -2631,7 +2631,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
               "product_details_json",
               [
                 Sequelize.literal(
-                  `(SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id_product = "product_id" AND image_type = ${PRODUCT_IMAGE_TYPE.Feature} AND id_metal_tone = CAST (order_details_json ->> 'metal_tone' AS integer) LIMIT 1)`
+                  `image_path FROM product_images WHERE id_product = "product_id" AND image_type = ${PRODUCT_IMAGE_TYPE.Feature} AND id_metal_tone = CAST (order_details_json ->> 'metal_tone' AS integer) LIMIT 1)`
                 ),
                 "product_image",
               ],
@@ -2742,7 +2742,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
       where: { is_default: "1", company_info_id: orderAmontValidate.dataValues.company_info_id },
     });
    }
-  let logo_image = configData.image_base_url;
+  let logo_image = IMAGE_PATH;
   const taxData = JSON.parse(result.dataValues.order_invoice.order_taxs);
   const productData: any = [];
   for (const data of result.dataValues.order_invoice.order) {
@@ -2802,7 +2802,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
       tax_array: taxData,
       data: productData,
       logo_image,
-      frontend_url: configData?.fronted_base_url,
+      frontend_url: FRONT_END_BASE_URL,
   }
 
   const data = {
@@ -2854,7 +2854,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url: configData?.fronted_base_url,
+        frontend_url: FRONT_END_BASE_URL,
       },
     },
     attachments: {
@@ -2903,7 +2903,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
         tax_array: taxData,
         data: productData,
         logo_image,
-        frontend_url:configData?.fronted_base_url,
+        frontend_url:FRONT_END_BASE_URL,
       },
     },
   };

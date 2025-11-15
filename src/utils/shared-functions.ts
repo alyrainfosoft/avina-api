@@ -922,58 +922,58 @@ export const formatPriceForFloatValue = (price: any, separator: any) => {
     .replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 };
 
-export const sendMessageInWhatsApp = async (otp: any, phone: any, config_data?: any) => {
-  const data = {
-    messaging_product: "whatsapp",
-    recipient_type: "individual",
-    to: `91${phone}`,
-    type: "template",
-    template: {
-      name: 'otp',
-      language: {
-        code: "en_US"
-      },
-      components: [
-        {
-          type: "body",
-          parameters: [
-            {
-              type: "text",
-              text: String(otp)
-            }
-          ]
-        },
-        {
-          type: "button",
-          sub_type: "url",
-          index: "0",
-          parameters: [
-            {
-              type: "text",
-              text: String(otp)
-            }
-          ]
-        }
-      ]
-    },
-  };
-  await axios
-    .post(`${config_data.whats_app_send_message_api || WHATSAPP_SEND_MESSAGE_API}`, data, {
-      headers: {
-        Authorization: `Bearer ${config_data.whats_app_send_message_api_token || WHATSAPP_SEND_MESSAGE_API_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    })
-    .then((response) => {
-      console.log("success",response.data);
-      return resSuccess({ data: response.data });
-    })
-    .catch((error) => {
-      console.log("fail",error);
+// export const sendMessageInWhatsApp = async (otp: any, phone: any, config_data?: any) => {
+//   const data = {
+//     messaging_product: "whatsapp",
+//     recipient_type: "individual",
+//     to: `91${phone}`,
+//     type: "template",
+//     template: {
+//       name: 'otp',
+//       language: {
+//         code: "en_US"
+//       },
+//       components: [
+//         {
+//           type: "body",
+//           parameters: [
+//             {
+//               type: "text",
+//               text: String(otp)
+//             }
+//           ]
+//         },
+//         {
+//           type: "button",
+//           sub_type: "url",
+//           index: "0",
+//           parameters: [
+//             {
+//               type: "text",
+//               text: String(otp)
+//             }
+//           ]
+//         }
+//       ]
+//     },
+//   };
+//   await axios
+//     .post(`${config_data.whats_app_send_message_api || WHATSAPP_SEND_MESSAGE_API}`, data, {
+//       headers: {
+//         Authorization: `Bearer ${config_data.whats_app_send_message_api_token || WHATSAPP_SEND_MESSAGE_API_TOKEN}`,
+//         "Content-Type": "application/json",
+//       },
+//     })
+//     .then((response) => {
+//       console.log("success",response.data);
+//       return resSuccess({ data: response.data });
+//     })
+//     .catch((error) => {
+//       console.log("fail",error);
 
-      return resUnprocessableEntity({ data: error });
-    });
-};
+//       return resUnprocessableEntity({ data: error });
+//     });
+// };
 
 export const addActivityLogs = async (req:any,company_info_id:any,logs: any, ref_id: any, activityType: any, logType: any, id_app_user: any,trn:any = null) => {
   try {
@@ -1337,26 +1337,6 @@ export const superAdminWhere = (company_info_id: any) => {
     ]
   };
 };
-
-
-export const getWebSettingData = async (db_connection: any, company_info_id: any) => {
-   
-  //We are reading company info from Main Secure database
-   const companyInfoExistes = await CompanyInfo(dbContext).findOne({
-      where:  { id: company_info_id },
-   });
-  
-    const req = {
-      body :{
-        db_connection : db_connection,
-        company_key : companyInfoExistes?.dataValues?.key
-      }
-    }
-  const {WebConfigSetting} = await initModels(req);
-  const webSettingData = await WebConfigSetting.findOne({ where: { company_info_id: company_info_id } })
-  
-  return {...webSettingData.dataValues, company_key: companyInfoExistes?.dataValues?.key};
-}
 
 export const convertCurrencySymbolIntoHTMLFormate = (currencySymbol: string) => {
   return currencySymbol

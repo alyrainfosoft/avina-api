@@ -5,7 +5,6 @@ import {
   getCompanyIdBasedOnTheCompanyKey,
   getInitialPaginationFromQuery,
   getLocalDate,
-  getWebSettingData,
   prepareMessageFromParams,
   resBadRequest,
   resNotFound,
@@ -40,6 +39,7 @@ import { IQueryPagination } from "../../data/interfaces/common/common.interface"
 import { ORDER_STATUS_ID_FROM_LABEL } from "../../utils/app-constants";
 
 import {
+  INVOICE_NUMBER_IDENTITY,
   PROCESS_ENVIRONMENT,
 } from "../../config/env.var";
 import { initModels } from "../model/index.model";
@@ -349,9 +349,8 @@ export const addProductOrder = async (req: Request) => {
           }
         }
       }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data);
       const ordersPayload = {
-        order_number: `${configData.order_invoice_number_identity}-${order_number}`,
+        order_number: `${INVOICE_NUMBER_IDENTITY}-${order_number}`,
         user_id: user_id,
         email: email,
         shipping_method: shipping_method,
@@ -1325,7 +1324,6 @@ export const orderDetailsAPIAdmin = async (req: Request) => {
   }
 
   try {
-    const configData = await getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id);
     const orderDetails = await Orders.findOne({
       where: { order_number: order_number,company_info_id :req?.body?.session_res?.client_id },
       attributes: [
@@ -1480,7 +1478,7 @@ export const orderDetailsAPIAdmin = async (req: Request) => {
             "variant_id",
             [
               Sequelize.literal(
-                `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} OR CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.SettingProduct} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT CONCAT('${configData.image_base_url}', image_path) FROM loose_diamond_group_masters where id = "product_id") ELSE (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
+                `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} OR CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.SettingProduct} THEN image_path FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN image_path FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT image_path FROM loose_diamond_group_masters where id = "product_id") ELSE image_path FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
               ),
               "product_image",
             ],
@@ -2145,9 +2143,8 @@ export const addGiftSetProductOrder = async (req: Request) => {
           }
         }
       }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data);
       const ordersPayload = {
-        order_number: `${configData.order_invoice_number_identity}-${order_number}`,
+        order_number: `${INVOICE_NUMBER_IDENTITY}-${order_number}`,
         user_id: user_id,
         email: email,
         shipping_method: shipping_method,
@@ -3060,10 +3057,9 @@ export const addConfigProductOrder = async (req: Request) => {
           }
         }
       }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data);
 
       const ordersPayload = {
-        order_number: `${configData.order_invoice_number_identity}-${order_number}`,
+        order_number: `${INVOICE_NUMBER_IDENTITY}-${order_number}`,
         user_id: user_id,
         shipping_method: shipping_method,
         pickup_store_id: pickup_store_id,
@@ -3360,462 +3356,460 @@ export const configOrderDetailsAPI = async (req: Request) => {
   }
 };
 
-export const addProductWithPaypalOrder = async (req: Request) => {
-  try {
-    const {
-      user_id,
-      email,
-      coupon_id,
-      sub_total,
-      order_note,
-      is_add_address,
-      payment_method,
-      order_total,
-      currency_id,
-      order_shipping_address,
-      order_type,
-      shipping_method,
-      pickup_store_id,
-      order_billing_address,
-      product_details,
-      shipping_cost,
-      discount,
-      total_tax,
-    } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
-    const {AppUser,TaxMaster,CityData, UserAddress, Orders, OrdersDetails, Product, CurrencyData} = initModels(req);
-    if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
-      return company_info_id;
-    }
-    if (user_id) {
-      const users = await AppUser.findOne({
-        where: { id: user_id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
-      });
-      if (!(users && users.dataValues)) {
-        return resNotFound({ message: USER_NOT_FOUND });
-      }
-    }
+// export const addProductWithPaypalOrder = async (req: Request) => {
+//   try {
+//     const {
+//       user_id,
+//       email,
+//       coupon_id,
+//       sub_total,
+//       order_note,
+//       is_add_address,
+//       payment_method,
+//       order_total,
+//       currency_id,
+//       order_shipping_address,
+//       order_type,
+//       shipping_method,
+//       pickup_store_id,
+//       order_billing_address,
+//       product_details,
+//       shipping_cost,
+//       discount,
+//       total_tax,
+//     } = req.body;
+//     const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+//     const {AppUser,TaxMaster,CityData, UserAddress, Orders, OrdersDetails, Product, CurrencyData} = initModels(req);
+//     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
+//       return company_info_id;
+//     }
+//     if (user_id) {
+//       const users = await AppUser.findOne({
+//         where: { id: user_id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
+//       });
+//       if (!(users && users.dataValues)) {
+//         return resNotFound({ message: USER_NOT_FOUND });
+//       }
+//     }
 
-    const taxValues = await TaxMaster.findAll({
-      where: { is_active: ActiveStatus.Active, is_deleted: DeletedStatus.No , company_info_id:company_info_id?.data },
-    });
-    let productTaxAmount: any;
-    let productTax: any;
-    let allTax = [];
-    let taxRateData = [];
-    let ordersDetailsData:any = [];
-    for (const taxData of taxValues) {
-      productTax = taxData.dataValues.rate / 100;
-      productTaxAmount = sub_total * productTax;
-      console.log(productTaxAmount);
+//     const taxValues = await TaxMaster.findAll({
+//       where: { is_active: ActiveStatus.Active, is_deleted: DeletedStatus.No , company_info_id:company_info_id?.data },
+//     });
+//     let productTaxAmount: any;
+//     let productTax: any;
+//     let allTax = [];
+//     let taxRateData = [];
+//     let ordersDetailsData:any = [];
+//     for (const taxData of taxValues) {
+//       productTax = taxData.dataValues.rate / 100;
+//       productTaxAmount = sub_total * productTax;
+//       console.log(productTaxAmount);
 
-      taxRateData.push({
-        rate: taxData.dataValues.rate,
-        tax_amount: parseFloat(productTaxAmount.toFixed(2)),
-        name: taxData.dataValues.name,
-      });
-      allTax.push(parseFloat(productTaxAmount.toFixed(2)));
-    }
+//       taxRateData.push({
+//         rate: taxData.dataValues.rate,
+//         tax_amount: parseFloat(productTaxAmount.toFixed(2)),
+//         name: taxData.dataValues.name,
+//       });
+//       allTax.push(parseFloat(productTaxAmount.toFixed(2)));
+//     }
 
-    const sumTotal = allTax.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue;
-    }, 0);
+//     const sumTotal = allTax.reduce((accumulator, currentValue) => {
+//       return accumulator + currentValue;
+//     }, 0);
 
-    const totalOrderAmount =
-      parseFloat(sub_total) + parseFloat(sumTotal.toFixed(2));
+//     const totalOrderAmount =
+//       parseFloat(sub_total) + parseFloat(sumTotal.toFixed(2));
 
-    if (totalOrderAmount.toFixed(2) != order_total) {
-      return resBadRequest({ message: TOTAL_AMOUNT_WRONG });
-    }
+//     if (totalOrderAmount.toFixed(2) != order_total) {
+//       return resBadRequest({ message: TOTAL_AMOUNT_WRONG });
+//     }
 
-    const trn = await (req.body.db_connection).transaction();
-    const order_number = crypto.randomInt(1000000000, 9999999999);
+//     const trn = await (req.body.db_connection).transaction();
+//     const order_number = crypto.randomInt(1000000000, 9999999999);
 
-    try {
-      const billingAddresscityNameExistes = await CityData.findOne({
-        where: [
-          columnValueLowerCase("city_name", order_billing_address.city_id),
-          { is_deleted: DeletedStatus.No },
-          { company_info_id:company_info_id?.data },
-        ],
-      });
+//     try {
+//       const billingAddresscityNameExistes = await CityData.findOne({
+//         where: [
+//           columnValueLowerCase("city_name", order_billing_address.city_id),
+//           { is_deleted: DeletedStatus.No },
+//           { company_info_id:company_info_id?.data },
+//         ],
+//       });
 
-      let billingCityCreateId: any;
-      if (
-        billingAddresscityNameExistes &&
-        billingAddresscityNameExistes.dataValues
-      ) {
-        billingCityCreateId = billingAddresscityNameExistes.dataValues.id;
-      } else {
-        const created = await CityData.create(
-          {
-            city_name: order_billing_address.city_id,
-            city_code: order_billing_address.city_id,
-            id_state: order_billing_address.state_id,
-            created_date: getLocalDate(),
-            is_active: ActiveStatus.Active,
-            is_deleted: DeletedStatus.No,
-            company_info_id:company_info_id?.data,
-          },
-          { transaction: trn }
-        );
-        await addActivityLogs(req,company_info_id?.data,[{
-          old_data: null,
-          new_data: {
-            order_with_paypal_billing_address_city_id: created?.dataValues?.id, data: {
-              ...created?.dataValues
-            }
-          }
-        }], created?.dataValues?.id, LogsActivityType.Add, LogsType.OrderBillingCityWithPaypal, req?.body?.session_res?.id_app_user,trn)
+//       let billingCityCreateId: any;
+//       if (
+//         billingAddresscityNameExistes &&
+//         billingAddresscityNameExistes.dataValues
+//       ) {
+//         billingCityCreateId = billingAddresscityNameExistes.dataValues.id;
+//       } else {
+//         const created = await CityData.create(
+//           {
+//             city_name: order_billing_address.city_id,
+//             city_code: order_billing_address.city_id,
+//             id_state: order_billing_address.state_id,
+//             created_date: getLocalDate(),
+//             is_active: ActiveStatus.Active,
+//             is_deleted: DeletedStatus.No,
+//             company_info_id:company_info_id?.data,
+//           },
+//           { transaction: trn }
+//         );
+//         await addActivityLogs(req,company_info_id?.data,[{
+//           old_data: null,
+//           new_data: {
+//             order_with_paypal_billing_address_city_id: created?.dataValues?.id, data: {
+//               ...created?.dataValues
+//             }
+//           }
+//         }], created?.dataValues?.id, LogsActivityType.Add, LogsType.OrderBillingCityWithPaypal, req?.body?.session_res?.id_app_user,trn)
       
-        billingCityCreateId = created.dataValues.id;
-      }
+//         billingCityCreateId = created.dataValues.id;
+//       }
 
-      const shippingAddresscityNameExistes = await CityData.findOne({
-        where: [
-          columnValueLowerCase("city_name", order_shipping_address.city_id),
-          { is_deleted: DeletedStatus.No },
-          { company_info_id:company_info_id?.data },
-        ],
-      });
+//       const shippingAddresscityNameExistes = await CityData.findOne({
+//         where: [
+//           columnValueLowerCase("city_name", order_shipping_address.city_id),
+//           { is_deleted: DeletedStatus.No },
+//           { company_info_id:company_info_id?.data },
+//         ],
+//       });
 
-      let shippingCityCreateId: any;
-      if (
-        shippingAddresscityNameExistes &&
-        shippingAddresscityNameExistes.dataValues
-      ) {
-        shippingCityCreateId = shippingAddresscityNameExistes.dataValues.id;
-      } else {
-        const created = await CityData.create(
-          {
-            city_name: order_shipping_address.city_id,
-            city_code: order_shipping_address.city_id,
-            id_state: order_shipping_address.state_id,
-            created_date: getLocalDate(),
-            is_active: ActiveStatus.Active,
-            is_deleted: DeletedStatus.No,
-            company_info_id:company_info_id?.data,
-          },
-          { transaction: trn }
-        );
-        await addActivityLogs(req,company_info_id?.data,[{
-          old_data: null,
-          new_data: {
-            order_with_paypal_shipping_address_city_id: created?.dataValues?.id, data: {
-              ...created?.dataValues
-            }
-          }
-        }], created?.dataValues?.id, LogsActivityType.Add, LogsType.OrderShippingCityWithPaypal, req?.body?.session_res?.id_app_user,trn)
+//       let shippingCityCreateId: any;
+//       if (
+//         shippingAddresscityNameExistes &&
+//         shippingAddresscityNameExistes.dataValues
+//       ) {
+//         shippingCityCreateId = shippingAddresscityNameExistes.dataValues.id;
+//       } else {
+//         const created = await CityData.create(
+//           {
+//             city_name: order_shipping_address.city_id,
+//             city_code: order_shipping_address.city_id,
+//             id_state: order_shipping_address.state_id,
+//             created_date: getLocalDate(),
+//             is_active: ActiveStatus.Active,
+//             is_deleted: DeletedStatus.No,
+//             company_info_id:company_info_id?.data,
+//           },
+//           { transaction: trn }
+//         );
+//         await addActivityLogs(req,company_info_id?.data,[{
+//           old_data: null,
+//           new_data: {
+//             order_with_paypal_shipping_address_city_id: created?.dataValues?.id, data: {
+//               ...created?.dataValues
+//             }
+//           }
+//         }], created?.dataValues?.id, LogsActivityType.Add, LogsType.OrderShippingCityWithPaypal, req?.body?.session_res?.id_app_user,trn)
       
-        shippingCityCreateId = created.dataValues.id;
-      }
+//         shippingCityCreateId = created.dataValues.id;
+//       }
 
-      if (parseInt(is_add_address) == 1) {
-        if (order_billing_address.id && order_shipping_address.id) {
-          if (
-            order_billing_address.id &&
-            parseInt(order_billing_address.id) == 0
-          ) {
-            const payload = {
-              user_id: user_id,
-              full_name: order_billing_address.full_name,
-              house_building: order_billing_address.house_builing,
-              area_name: order_billing_address.area_name,
-              pincode: order_billing_address.pincode,
-              phone: order_billing_address.phone_number,
-              city_id: billingCityCreateId,
-              state_id: order_billing_address.state_id,
-              country_id: order_billing_address.country_id,
-              address_type: 2,
-              default_addres: 0,
-              is_deleted: 0,
-              created_date: getLocalDate(),
-              company_info_id:company_info_id?.data,
-            };
+//       if (parseInt(is_add_address) == 1) {
+//         if (order_billing_address.id && order_shipping_address.id) {
+//           if (
+//             order_billing_address.id &&
+//             parseInt(order_billing_address.id) == 0
+//           ) {
+//             const payload = {
+//               user_id: user_id,
+//               full_name: order_billing_address.full_name,
+//               house_building: order_billing_address.house_builing,
+//               area_name: order_billing_address.area_name,
+//               pincode: order_billing_address.pincode,
+//               phone: order_billing_address.phone_number,
+//               city_id: billingCityCreateId,
+//               state_id: order_billing_address.state_id,
+//               country_id: order_billing_address.country_id,
+//               address_type: 2,
+//               default_addres: 0,
+//               is_deleted: 0,
+//               created_date: getLocalDate(),
+//               company_info_id:company_info_id?.data,
+//             };
 
-            const UserAddressData = await UserAddress.create(payload, { transaction: trn });
-            await addActivityLogs(req,company_info_id?.data,[{
-              old_data: null,
-              new_data: {
-                order_with_paypal_user_billing_address_id: UserAddressData?.dataValues?.id, data: {
-                  ...UserAddressData?.dataValues
-                }
-              }
-            }], UserAddressData?.dataValues?.id, LogsActivityType.Add, LogsType.OrderUserBillingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)          
-          } else {
-            const addressId = await UserAddress.findOne({
-              where: { id: order_billing_address.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
-            });
-            if (!(addressId && addressId.dataValues)) {
-              await trn.rollback();
-              return resNotFound({ message: ADDRESS_NOT_EXITS });
-            }
-            const addressInfo = await UserAddress.update(
-              {
-                house_building: order_billing_address.house_builing,
-                full_name: order_billing_address.full_name,
-                area_name: order_billing_address.area_name,
-                pincode: order_billing_address.pincode,
-                phone: order_billing_address.phone_number,
-                city_id: billingCityCreateId,
-                state_id: order_billing_address.state_id,
-                country_id: order_billing_address.country_id,
-                address_type: 2,
-                default_addres: 0,
-                modified_date: getLocalDate(),
-                company_info_id:company_info_id?.data,
-              },
+//             const UserAddressData = await UserAddress.create(payload, { transaction: trn });
+//             await addActivityLogs(req,company_info_id?.data,[{
+//               old_data: null,
+//               new_data: {
+//                 order_with_paypal_user_billing_address_id: UserAddressData?.dataValues?.id, data: {
+//                   ...UserAddressData?.dataValues
+//                 }
+//               }
+//             }], UserAddressData?.dataValues?.id, LogsActivityType.Add, LogsType.OrderUserBillingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)          
+//           } else {
+//             const addressId = await UserAddress.findOne({
+//               where: { id: order_billing_address.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
+//             });
+//             if (!(addressId && addressId.dataValues)) {
+//               await trn.rollback();
+//               return resNotFound({ message: ADDRESS_NOT_EXITS });
+//             }
+//             const addressInfo = await UserAddress.update(
+//               {
+//                 house_building: order_billing_address.house_builing,
+//                 full_name: order_billing_address.full_name,
+//                 area_name: order_billing_address.area_name,
+//                 pincode: order_billing_address.pincode,
+//                 phone: order_billing_address.phone_number,
+//                 city_id: billingCityCreateId,
+//                 state_id: order_billing_address.state_id,
+//                 country_id: order_billing_address.country_id,
+//                 address_type: 2,
+//                 default_addres: 0,
+//                 modified_date: getLocalDate(),
+//                 company_info_id:company_info_id?.data,
+//               },
 
-              {
-                where: { id: addressId.dataValues.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
-                transaction: trn,
-              }
-            );
-            const afterUpdateUseraddress = await UserAddress.findOne({
-              where: { id: order_billing_address.id, is_deleted: DeletedStatus.No },
-            });
+//               {
+//                 where: { id: addressId.dataValues.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
+//                 transaction: trn,
+//               }
+//             );
+//             const afterUpdateUseraddress = await UserAddress.findOne({
+//               where: { id: order_billing_address.id, is_deleted: DeletedStatus.No },
+//             });
 
-            await addActivityLogs(req,company_info_id?.data,[{
-              old_data: { order_with_paypal_user_billing_address_id: addressId?.dataValues?.id, data: addressId?.dataValues},
-              new_data: {
-                order_with_paypal_user_billing_address_id: afterUpdateUseraddress?.dataValues?.id, data: { ...afterUpdateUseraddress?.dataValues }
-              }
-            }], addressId?.dataValues?.id,LogsActivityType.Edit, LogsType.OrderUserBillingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)
+//             await addActivityLogs(req,company_info_id?.data,[{
+//               old_data: { order_with_paypal_user_billing_address_id: addressId?.dataValues?.id, data: addressId?.dataValues},
+//               new_data: {
+//                 order_with_paypal_user_billing_address_id: afterUpdateUseraddress?.dataValues?.id, data: { ...afterUpdateUseraddress?.dataValues }
+//               }
+//             }], addressId?.dataValues?.id,LogsActivityType.Edit, LogsType.OrderUserBillingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)
           
-          }
-          if (order_shipping_address.country_id != null) {
-            if (
-              order_shipping_address.id &&
-              parseInt(order_shipping_address.id) == 0
-            ) {
-              const payload = {
-                user_id: user_id,
-                full_name: order_shipping_address.full_name,
-                house_building: order_shipping_address.house_builing,
-                area_name: order_shipping_address.area_name,
-                pincode: order_shipping_address.pincode,
-                phone: order_shipping_address.phone_number,
-                city_id: shippingCityCreateId,
-                state_id: order_shipping_address.state_id,
-                country_id: order_shipping_address.country_id,
-                address_type: 1,
-                default_addres: 0,
-                is_deleted: 0,
-                created_date: getLocalDate(),
-                company_info_id:company_info_id?.data,
-              };
+//           }
+//           if (order_shipping_address.country_id != null) {
+//             if (
+//               order_shipping_address.id &&
+//               parseInt(order_shipping_address.id) == 0
+//             ) {
+//               const payload = {
+//                 user_id: user_id,
+//                 full_name: order_shipping_address.full_name,
+//                 house_building: order_shipping_address.house_builing,
+//                 area_name: order_shipping_address.area_name,
+//                 pincode: order_shipping_address.pincode,
+//                 phone: order_shipping_address.phone_number,
+//                 city_id: shippingCityCreateId,
+//                 state_id: order_shipping_address.state_id,
+//                 country_id: order_shipping_address.country_id,
+//                 address_type: 1,
+//                 default_addres: 0,
+//                 is_deleted: 0,
+//                 created_date: getLocalDate(),
+//                 company_info_id:company_info_id?.data,
+//               };
 
-              const UserAddressData = await UserAddress.create(payload, { transaction: trn });
-              await addActivityLogs(req,company_info_id?.data,[{
-                old_data: null,
-                new_data: {
-                  order_with_paypal_user_shipping_address_id: UserAddressData?.dataValues?.id, data: {
-                    ...UserAddressData?.dataValues
-                  }
-                }
-              }], UserAddressData?.dataValues?.id, LogsActivityType.Add, LogsType.OrderUserShippingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)            } else {
-              const addressId = await UserAddress.findOne({
-                where: { id: order_shipping_address.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
-              });
-              if (!(addressId && addressId.dataValues)) {
-                await trn.rollback();
-                return resNotFound({ message: ADDRESS_NOT_EXITS });
-              }
-              const addressInfo = await UserAddress.update(
-                {
-                  house_building: order_shipping_address.house_builing,
-                  full_name: order_shipping_address.full_name,
-                  area_name: order_shipping_address.area_name,
-                  pincode: order_shipping_address.pincode,
-                  phone: order_shipping_address.phone_number,
-                  city_id: shippingCityCreateId,
-                  state_id: order_shipping_address.state_id,
-                  country_id: order_shipping_address.country_id,
-                  address_type: 1,
-                  default_addres: 0,
-                  modified_date: getLocalDate(),
-                },
-                {
-                  where: { id: addressId.dataValues.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
-                  transaction: trn,
-                }
-              );
-              const afterUpdateFindUseraddress = await UserAddress.findOne({
-                where: { id: order_shipping_address.id, is_deleted: DeletedStatus.No },
-              });
+//               const UserAddressData = await UserAddress.create(payload, { transaction: trn });
+//               await addActivityLogs(req,company_info_id?.data,[{
+//                 old_data: null,
+//                 new_data: {
+//                   order_with_paypal_user_shipping_address_id: UserAddressData?.dataValues?.id, data: {
+//                     ...UserAddressData?.dataValues
+//                   }
+//                 }
+//               }], UserAddressData?.dataValues?.id, LogsActivityType.Add, LogsType.OrderUserShippingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)            } else {
+//               const addressId = await UserAddress.findOne({
+//                 where: { id: order_shipping_address.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
+//               });
+//               if (!(addressId && addressId.dataValues)) {
+//                 await trn.rollback();
+//                 return resNotFound({ message: ADDRESS_NOT_EXITS });
+//               }
+//               const addressInfo = await UserAddress.update(
+//                 {
+//                   house_building: order_shipping_address.house_builing,
+//                   full_name: order_shipping_address.full_name,
+//                   area_name: order_shipping_address.area_name,
+//                   pincode: order_shipping_address.pincode,
+//                   phone: order_shipping_address.phone_number,
+//                   city_id: shippingCityCreateId,
+//                   state_id: order_shipping_address.state_id,
+//                   country_id: order_shipping_address.country_id,
+//                   address_type: 1,
+//                   default_addres: 0,
+//                   modified_date: getLocalDate(),
+//                 },
+//                 {
+//                   where: { id: addressId.dataValues.id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
+//                   transaction: trn,
+//                 }
+//               );
+//               const afterUpdateFindUseraddress = await UserAddress.findOne({
+//                 where: { id: order_shipping_address.id, is_deleted: DeletedStatus.No },
+//               });
   
-              await addActivityLogs(req,company_info_id?.data,[{
-                old_data: { order_with_paypal_user_shipping_address_id: addressId?.dataValues?.id, data: addressId?.dataValues},
-                new_data: {
-                  order_with_paypal_user_shipping_address_id: afterUpdateFindUseraddress?.dataValues?.id, data: { ...afterUpdateFindUseraddress?.dataValues }
-                }
-              }], addressId?.dataValues?.id,LogsActivityType.Edit, LogsType.OrderUserShippingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)
+//               await addActivityLogs(req,company_info_id?.data,[{
+//                 old_data: { order_with_paypal_user_shipping_address_id: addressId?.dataValues?.id, data: addressId?.dataValues},
+//                 new_data: {
+//                   order_with_paypal_user_shipping_address_id: afterUpdateFindUseraddress?.dataValues?.id, data: { ...afterUpdateFindUseraddress?.dataValues }
+//                 }
+//               }], addressId?.dataValues?.id,LogsActivityType.Edit, LogsType.OrderUserShippingAddressWithPaypal, req?.body?.session_res?.id_app_user,trn)
             
-            }
-          }
-        }
-      }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
+//             }
+//           }
+//         }
+//       }
 
-      const ordersPayload = {
-        order_number: `${configData.order_invoice_number_identity}-${order_number}`,
-        user_id: user_id,
-        email: email,
-        shipping_method: shipping_method,
-        pickup_store_id: pickup_store_id,
-        coupon_id,
-        sub_total: parseFloat(sub_total),
-        shipping_cost: parseFloat(shipping_cost),
-        discount: parseFloat(discount),
-        total_tax: sumTotal,
-        order_total: totalOrderAmount,
-        payment_method: payment_method,
-        currency_id: currency_id,
-        order_status: OrderStatus.Pendding,
-        payment_status: PaymentStatus.InPaid,
-        order_date: getLocalDate(),
-        order_type: order_type,
-        order_note: order_note,
-        order_shipping_address: {
-          ...order_shipping_address,
-          city_id: shippingCityCreateId,
-        },
-        order_billing_address: {
-          ...order_billing_address,
-          city_id: billingCityCreateId,
-        },
-        order_taxs: JSON.stringify(taxRateData),
-        created_by: req.body.session_res.id_app_user,
-        company_info_id:company_info_id?.data,
-        created_date: getLocalDate(),
-      };
+//       const ordersPayload = {
+//         order_number: `${INVOICE_NUMBER_IDENTITY}-${order_number}`,
+//         user_id: user_id,
+//         email: email,
+//         shipping_method: shipping_method,
+//         pickup_store_id: pickup_store_id,
+//         coupon_id,
+//         sub_total: parseFloat(sub_total),
+//         shipping_cost: parseFloat(shipping_cost),
+//         discount: parseFloat(discount),
+//         total_tax: sumTotal,
+//         order_total: totalOrderAmount,
+//         payment_method: payment_method,
+//         currency_id: currency_id,
+//         order_status: OrderStatus.Pendding,
+//         payment_status: PaymentStatus.InPaid,
+//         order_date: getLocalDate(),
+//         order_type: order_type,
+//         order_note: order_note,
+//         order_shipping_address: {
+//           ...order_shipping_address,
+//           city_id: shippingCityCreateId,
+//         },
+//         order_billing_address: {
+//           ...order_billing_address,
+//           city_id: billingCityCreateId,
+//         },
+//         order_taxs: JSON.stringify(taxRateData),
+//         created_by: req.body.session_res.id_app_user,
+//         company_info_id:company_info_id?.data,
+//         created_date: getLocalDate(),
+//       };
 
-      const orders = await Orders.create(ordersPayload, { transaction: trn });
+//       const orders = await Orders.create(ordersPayload, { transaction: trn });
 
-      for (let product of product_details) {
-        if (!product.product_id) {
-          await trn.rollback();
-          return resBadRequest({ message: INVALID_ID });
-        }
-        const products = await Product.findOne({
-          where: { id: product.product_id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
-          transaction: trn,
-        });
-        if (!(products && products.dataValues)) {
-          await trn.rollback();
-          return resNotFound({ message: PRODUCT_NOT_FOUND });
-        }
-        let diamondRate = await req.body.db_connection.query(
-          `SELECT sum(diamond_group_masters.rate) FROM product_diamond_options LEFT OUTER JOIN diamond_group_masters ON diamond_group_masters.id = product_diamond_options.id_diamond_group WHERE product_diamond_options.id_product = ${product.product_id} AND product_diamond_options.company_info_id=${company_info_id?.data}`,
-          { type: QueryTypes.SELECT }
-        );
-        const metalRates = await req.body.db_connection.query(
-          `SELECT CASE WHEN PMO.id_karat IS NULL THEN (metal.metal_rate*PMO.metal_weight) ELSE (metal.metal_rate/metal.calculate_rate*gold_kts.calculate_rate*PMO.metal_weight) END FROM products LEFT OUTER JOIN product_metal_options AS PMO ON PMO.id_product = products.id LEFT OUTER JOIN metal_masters AS metal ON PMO.id_metal = metal.id LEFT OUTER JOIN gold_kts ON PMO.id_karat = gold_kts.id WHERE products.company_info_id = ${company_info_id?.data} AND CASE WHEN PMO.id_karat IS NULL THEN products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} ELSE products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} AND PMO.id_karat = ${product.order_details_json.karat_id} END`,
-          { type: QueryTypes.SELECT }
-        );
-        const ordersDetails = await OrdersDetails.create(
-          {
-            order_id: orders.dataValues.id,
-            product_id: product.product_id,
-            quantity: product.quantity,
-            finding_charge: parseFloat(products.dataValues.finding_charge),
-            makring_charge: parseFloat(products.dataValues.making_charge),
-            other_charge: parseFloat(products.dataValues.other_charge),
-            diamond_rate: diamondRate.map((t: any) => t.sum)[0],
-            metal_rate: metalRates.map((t: any) => t.case)[0],
-            sub_total: parseFloat(product.sub_total),
-            product_tax: parseFloat(product.product_tax),
-            discount_amount: parseFloat(product.discount_amount),
-            shipping_cost: parseFloat(product.shipping_cost),
-            shipping_method_id: shipping_method,
-            delivery_status: DeliverStatus.Pendding,
-            payment_status: PaymentStatus.InPaid,
-            order_details_json: product.order_details_json,
-            company_info_id:company_info_id?.data,
-          },
-          { transaction: trn }
-        );
-        ordersDetailsData.push({...ordersDetails?.dataValues})
-      }
-      const currency = await CurrencyData.findOne({where: {id: currency_id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data }})
+//       for (let product of product_details) {
+//         if (!product.product_id) {
+//           await trn.rollback();
+//           return resBadRequest({ message: INVALID_ID });
+//         }
+//         const products = await Product.findOne({
+//           where: { id: product.product_id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
+//           transaction: trn,
+//         });
+//         if (!(products && products.dataValues)) {
+//           await trn.rollback();
+//           return resNotFound({ message: PRODUCT_NOT_FOUND });
+//         }
+//         let diamondRate = await req.body.db_connection.query(
+//           `SELECT sum(diamond_group_masters.rate) FROM product_diamond_options LEFT OUTER JOIN diamond_group_masters ON diamond_group_masters.id = product_diamond_options.id_diamond_group WHERE product_diamond_options.id_product = ${product.product_id} AND product_diamond_options.company_info_id=${company_info_id?.data}`,
+//           { type: QueryTypes.SELECT }
+//         );
+//         const metalRates = await req.body.db_connection.query(
+//           `SELECT CASE WHEN PMO.id_karat IS NULL THEN (metal.metal_rate*PMO.metal_weight) ELSE (metal.metal_rate/metal.calculate_rate*gold_kts.calculate_rate*PMO.metal_weight) END FROM products LEFT OUTER JOIN product_metal_options AS PMO ON PMO.id_product = products.id LEFT OUTER JOIN metal_masters AS metal ON PMO.id_metal = metal.id LEFT OUTER JOIN gold_kts ON PMO.id_karat = gold_kts.id WHERE products.company_info_id = ${company_info_id?.data} AND CASE WHEN PMO.id_karat IS NULL THEN products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} ELSE products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} AND PMO.id_karat = ${product.order_details_json.karat_id} END`,
+//           { type: QueryTypes.SELECT }
+//         );
+//         const ordersDetails = await OrdersDetails.create(
+//           {
+//             order_id: orders.dataValues.id,
+//             product_id: product.product_id,
+//             quantity: product.quantity,
+//             finding_charge: parseFloat(products.dataValues.finding_charge),
+//             makring_charge: parseFloat(products.dataValues.making_charge),
+//             other_charge: parseFloat(products.dataValues.other_charge),
+//             diamond_rate: diamondRate.map((t: any) => t.sum)[0],
+//             metal_rate: metalRates.map((t: any) => t.case)[0],
+//             sub_total: parseFloat(product.sub_total),
+//             product_tax: parseFloat(product.product_tax),
+//             discount_amount: parseFloat(product.discount_amount),
+//             shipping_cost: parseFloat(product.shipping_cost),
+//             shipping_method_id: shipping_method,
+//             delivery_status: DeliverStatus.Pendding,
+//             payment_status: PaymentStatus.InPaid,
+//             order_details_json: product.order_details_json,
+//             company_info_id:company_info_id?.data,
+//           },
+//           { transaction: trn }
+//         );
+//         ordersDetailsData.push({...ordersDetails?.dataValues})
+//       }
+//       const currency = await CurrencyData.findOne({where: {id: currency_id, is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data }})
 
-      const paayPalPamentData = await paymentPalVerification(
-        order_number,
-        totalOrderAmount,
-        configData,
-        currency?.dataValues?.currency_code,
-      );
-      if (paayPalPamentData.code !== DEFAULT_STATUS_CODE_SUCCESS) {
-        await trn.rollback();
-        return paayPalPamentData;
-      }
+//       // const paayPalPamentData = await paymentPalVerification(
+//       //   order_number,
+//       //   totalOrderAmount,
+//       //   currency?.dataValues?.currency_code,
+//       // );
+//       // if (paayPalPamentData.code !== DEFAULT_STATUS_CODE_SUCCESS) {
+//       //   await trn.rollback();
+//       //   return paayPalPamentData;
+//       // }
 
-      await addActivityLogs(req,company_info_id?.data,[{
-        old_data: null,
-        new_data: {
-          order_id: orders?.dataValues?.id, 
-          order_data: {
-            ...orders?.dataValues
-          },
-          order_detail_id:ordersDetailsData.id,
-          order_detail_data: ordersDetailsData,
-          paypal_payment_id: paayPalPamentData.data.result.id,
-          paypal_payment_data: paayPalPamentData.data.result
-        }
-      }], orders?.dataValues?.id, LogsActivityType.Add, LogsType.OrderWithPaypal, req?.body?.session_res?.id_app_user,trn)
+//       await addActivityLogs(req,company_info_id?.data,[{
+//         old_data: null,
+//         new_data: {
+//           order_id: orders?.dataValues?.id, 
+//           order_data: {
+//             ...orders?.dataValues
+//           },
+//           order_detail_id:ordersDetailsData.id,
+//           order_detail_data: ordersDetailsData,
+//           paypal_payment_id: paayPalPamentData.data.result.id,
+//           paypal_payment_data: paayPalPamentData.data.result
+//         }
+//       }], orders?.dataValues?.id, LogsActivityType.Add, LogsType.OrderWithPaypal, req?.body?.session_res?.id_app_user,trn)
     
-      await trn.commit();
-      return resSuccess({
-        data: {
-          paypalData: paayPalPamentData.data.result,
-          orderData: orders.dataValues,
-        },
-      });
-    } catch (error) {
-      await trn.rollback();
-      return resUnknownError({ data: error });
-    }
-  } catch (error) {
-    throw error;
-  }
-};
+//       await trn.commit();
+//       return resSuccess({
+//         data: {
+//           paypalData: paayPalPamentData.data.result,
+//           orderData: orders.dataValues,
+//         },
+//       });
+//     } catch (error) {
+//       await trn.rollback();
+//       return resUnknownError({ data: error });
+//     }
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
-const paymentPalVerification = async (order_number: any, amount: any, configData: any, currency: any) => {
-  const request = new paypal.orders.OrdersCreateRequest();
-  request.prefer("return=representation");
-  request.requestBody({
-    intent: "CAPTURE",
-    purchase_units: [
-      {
-        reference_id: `${configData.order_invoice_number_identity}-${order_number}`,
-        amount: {
-          currency_code: currency,
-          value: amount,
-          breakdown: {
-            item_total: {
-              currency_code: currency,
-              value: amount,
-            },
-          },
-        },
-      },
-    ],
-  });
+// const paymentPalVerification = async (order_number: any, amount: any, currency: any) => {
+//   const request = new paypal.orders.OrdersCreateRequest();
+//   request.prefer("return=representation");
+//   request.requestBody({
+//     intent: "CAPTURE",
+//     purchase_units: [
+//       {
+//         reference_id: `${INVOICE_NUMBER_IDENTITY}-${order_number}`,
+//         amount: {
+//           currency_code: currency,
+//           value: amount,
+//           breakdown: {
+//             item_total: {
+//               currency_code: currency,
+//               value: amount,
+//             },
+//           },
+//         },
+//       },
+//     ],
+//   });
 
-  try {
-    const Environment =
-  PROCESS_ENVIRONMENT == "development"
-    ? paypal.core.SandboxEnvironment
-    : paypal.core.LiveEnvironment;
-const paypalClient = new paypal.core.PayPalHttpClient(
-  new Environment(configData.paypal_public_key, configData.paypal_secret_key)
-);
-    const order = await paypalClient.execute(request);
-    return resSuccess({ data: order });
-  } catch (e: any) {
-    return resUnknownError({ data: e.message });
-  }
-};
+//   try {
+//     const Environment =
+//   PROCESS_ENVIRONMENT == "development"
+//     ? paypal.core.SandboxEnvironment
+//     : paypal.core.LiveEnvironment;
+// const paypalClient = new paypal.core.PayPalHttpClient(
+//   new Environment(configData.paypal_public_key, configData.paypal_secret_key)
+// );
+//     const order = await paypalClient.execute(request);
+//     return resSuccess({ data: order });
+//   } catch (e: any) {
+//     return resUnknownError({ data: e.message });
+//   }
+// };
 
 export const moveOrderToArchive = async (req: any) => {
   try {

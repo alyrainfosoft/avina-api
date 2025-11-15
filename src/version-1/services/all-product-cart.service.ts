@@ -40,7 +40,6 @@ import {
   getLocalDate,
   getLocationBasedOnIPAddress,
   getPriceFormat,
-  getWebSettingData,
   prepareMessageFromParams,
   refreshMaterializedProductListView,
   resBadRequest,
@@ -82,9 +81,14 @@ import {
   WHITE_METAL_TONE_SORT_CODE,
 } from "../../utils/app-constants";
 import {
-  AFFIRM_TRANSACTION_API_URL,
+  ALLOW_OUT_OF_STOCK_ORDERS,
+  IMAGE_PATH,
   INVOICE_LOGO_IMAGE_BASE64,
+  INVOICE_NUMBER_IDENTITY,
   PROCESS_ENVIRONMENT,
+  RAZORPAY_KEY_ID,
+  RAZORPAY_KEY_SECRET,
+  STRIPE_SECRET_KEY,
 } from "../../config/env.var";
 import {
   mailCatalogueNewOrderAdminReceived,
@@ -4482,7 +4486,6 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
 
     const variantQuantityToCheck = {};
     const productDataForMail = [];
-    const configData = await getWebSettingData(req.body.db_connection, company_info_id?.data);
     for (let product of product_details) {
       if (!product.product_id) {
         return resBadRequest({ message: INVALID_ID });
@@ -4526,7 +4529,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
           product_name: products.dataValues.name,
           product_sku: products.dataValues.sku,
           product_image:
-            configData.image_base_url + hasTVImage,
+            IMAGE_PATH + hasTVImage,
         });
 
         if (products.dataValues.is_quantity_track && product.variant_id) {
@@ -4576,7 +4579,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
 
       if (
         variantPmo.dataValues.remaing_quantity_count <= 0 &&
-        configData.allow_out_of_stock_product_order.toString() === "false"
+        ALLOW_OUT_OF_STOCK_ORDERS.toString() === "false"
       ) {
         return resUnprocessableEntity({
           message: PRODUCT_UNAVAILABLE,
@@ -4590,7 +4593,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
       if (
         variantPmo.dataValues.remaing_quantity_count <
         variantToCheck.quantity &&
-        configData.allow_out_of_stock_product_order.toString() === "false"
+        ALLOW_OUT_OF_STOCK_ORDERS.toString() === "false"
       ) {
         return resUnprocessableEntity({
           message: prepareMessageFromParams(INSUFFICIENT_QUANTITY, [
@@ -4611,7 +4614,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
 
       if (
         diamondToCheck.available_remaining_quantity_count <= 0 &&
-        configData.allow_out_of_stock_product_order.toString() === "false"
+        ALLOW_OUT_OF_STOCK_ORDERS.toString() === "false"
       ) {
         return resUnprocessableEntity({
           message: PRODUCT_UNAVAILABLE,
@@ -4626,7 +4629,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
       if (
         diamondToCheck.available_remaining_quantity_count <
         diamondToCheck.quantity &&
-        configData.allow_out_of_stock_product_order.toString() === "false"
+        ALLOW_OUT_OF_STOCK_ORDERS.toString() === "false"
       ) {
         return resUnprocessableEntity({
           message: prepareMessageFromParams(INSUFFICIENT_QUANTITY, [
@@ -4945,7 +4948,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
 
       const findDefaultCurrency = await CurrencyData.findOne({ where: { is_deleted: DeletedStatus.No, is_active: ActiveStatus.Active, is_default: "1", company_info_id: company_info_id?.data } });
       const ordersPayload = {
-        order_number: `${configData.order_invoice_number_identity}-${order_number}`,
+        order_number: `${INVOICE_NUMBER_IDENTITY}-${order_number}`,
         user_id: user_id,
         email: email,
         shipping_method: shipping_method,
@@ -6218,44 +6221,42 @@ WHERE
         }
       } else {
         if (payment_method == paymentMethod.paypal) {
-          const payPalPaymentData = await paymentPalVerification(
-            order_number,
-            order_total,
-            currency.dataValues.code || null,
-            configData,
-            req.query.company_key
-          );
-          if (payPalPaymentData.code !== DEFAULT_STATUS_CODE_SUCCESS) {
-            await trn.rollback();
-            return payPalPaymentData;
-          }
-          const order_transactions = {
-            order_id: orders.dataValues.id,
-            order_amount: order_total,
-            payment_status: PaymentStatus.InPaid,
-            payment_currency:
-              payPalPaymentData.data.result.purchase_units[0].amount
-                .currency_code,
-            payment_datetime: getLocalDate(),
-            payment_source_type: "visa",
-            payment_json: payPalPaymentData.data.result,
-            payment_transaction_id: payPalPaymentData.data.result.id,
-            created_by: req.body.session_res.id_app_user,
-            company_info_id: company_info_id?.data,
-            created_date: getLocalDate(),
-          };
-          await OrderTransaction.create(order_transactions, {
-            transaction: trn,
-          });
-          await trn.commit();
-          // return resSuccess({data: orders})
+          // const payPalPaymentData = await paymentPalVerification(
+          //   order_number,
+          //   order_total,
+          //   currency.dataValues.code || null,
+          // );
+          // if (payPalPaymentData.code !== DEFAULT_STATUS_CODE_SUCCESS) {
+          //   await trn.rollback();
+          //   return payPalPaymentData;
+          // }
+          // const order_transactions = {
+          //   order_id: orders.dataValues.id,
+          //   order_amount: order_total,
+          //   payment_status: PaymentStatus.InPaid,
+          //   payment_currency:
+          //     payPalPaymentData.data.result.purchase_units[0].amount
+          //       .currency_code,
+          //   payment_datetime: getLocalDate(),
+          //   payment_source_type: "visa",
+          //   payment_json: payPalPaymentData.data.result,
+          //   payment_transaction_id: payPalPaymentData.data.result.id,
+          //   created_by: req.body.session_res.id_app_user,
+          //   company_info_id: company_info_id?.data,
+          //   created_date: getLocalDate(),
+          // };
+          // await OrderTransaction.create(order_transactions, {
+          //   transaction: trn,
+          // });
+          // await trn.commit();
+          // // return resSuccess({data: orders})
 
-          return resSuccess({
-            data: {
-              paypalData: payPalPaymentData.data.result,
-              orderData: orders.dataValues,
-            },
-          });
+          // return resSuccess({
+          //   data: {
+          //     paypalData: payPalPaymentData.data.result,
+          //     orderData: orders.dataValues,
+          //   },
+          // });
         } else if (payment_method == paymentMethod.stripe) {
           const stripePamentData = await stripePaymentVerification(
             order_total,
@@ -6263,9 +6264,6 @@ WHERE
             ordersPayload.order_number,
             orders.dataValues.id,
             req.body.session_res.id_app_user,
-            company_info_id,
-            configData,
-            req.query.company_key
           );
           if (stripePamentData.code !== DEFAULT_STATUS_CODE_SUCCESS) {
             await trn.rollback();
@@ -6282,8 +6280,8 @@ WHERE
           });
         } else if (payment_method == paymentMethod.razorpay) {
           const razorpay = new Razorpay({
-            key_id: configData.razorpay_public_key,
-            key_secret: configData.razorpay_secret_key,
+            key_id: RAZORPAY_KEY_ID,
+            key_secret: RAZORPAY_KEY_SECRET,
           });
           const options = {
             amount: Number((order_total * 100).toFixed(0)),
@@ -6329,56 +6327,53 @@ WHERE
   }
 };
 
-const paymentPalVerification = async (order_number: any, amount: any, currency: any, configData: any, company_key: any) => {
-  const request = new paypal.orders.OrdersCreateRequest();
-  request.prefer("return=representation");
-  request.requestBody({
-    intent: "CAPTURE",
-    purchase_units: [
-      {
-        reference_id: `${configData.order_invoice_number_identity}-${order_number}`,
-        description: company_key,
-        amount: {
-          currency_code: currency,
-          value: amount,
-          breakdown: {
-            item_total: {
-              currency_code: currency,
-              value: amount,
-            },
-          },
-        },
-      },
-    ],
-  });
+// const paymentPalVerification = async (order_number: any, amount: any, currency: any) => {
+//   const request = new paypal.orders.OrdersCreateRequest();
+//   request.prefer("return=representation");
+//   request.requestBody({
+//     intent: "CAPTURE",
+//     purchase_units: [
+//       {
+//         reference_id: `${INVOICE_NUMBER_IDENTITY}-${order_number}`,
+//         description: {},
+//         amount: {
+//           currency_code: currency,
+//           value: amount,
+//           breakdown: {
+//             item_total: {
+//               currency_code: currency,
+//               value: amount,
+//             },
+//           },
+//         },
+//       },
+//     ],
+//   });
 
-  try {
-    const Environment =
-      PROCESS_ENVIRONMENT == "development"
-        ? paypal.core.SandboxEnvironment
-        : paypal.core.LiveEnvironment;
-    const paypalClient = new paypal.core.PayPalHttpClient(
-      new Environment(configData.paypal_public_key, configData.paypal_secret_key)
-    );
-    const order = await paypalClient.execute(request);
-    return resSuccess({ data: order });
-  } catch (e: any) {
-    return resUnknownError({ data: e.message });
-  }
-};
+//   try {
+//     const Environment =
+//       PROCESS_ENVIRONMENT == "development"
+//         ? paypal.core.SandboxEnvironment
+//         : paypal.core.LiveEnvironment;
+//     const paypalClient = new paypal.core.PayPalHttpClient(
+//       new Environment(configData.paypal_public_key, configData.paypal_secret_key)
+//     );
+//     const order = await paypalClient.execute(request);
+//     return resSuccess({ data: order });
+//   } catch (e: any) {
+//     return resUnknownError({ data: e.message });
+//   }
+// };
 
 const stripePaymentVerification = async (
   amount: any,
   currency: any,
   order_number: any,
   order_id: any,
-  created_by: any,
-  company_info_id: any,
-  configData: any,
-  company_key: any
+  created_by: any
 ) => {
   try {
-    const stripe = require("stripe")(configData.stripe_secret_key, {
+    const stripe = require("stripe")(STRIPE_SECRET_KEY, {
       apiVersion: "2023-10-16",
       appInfo: {
         name: "stripe-samples/accept-a-payment/payment-element",
@@ -6394,9 +6389,7 @@ const stripePaymentVerification = async (
         order_number: order_number,
         order_id: order_id,
         order_amount: amount,
-        created_by: created_by,
-        company_info_id: company_info_id?.data,
-        company_key: company_key
+        created_by: created_by
       },
     });
 
@@ -6405,1254 +6398,9 @@ const stripePaymentVerification = async (
     return resUnknownError({ data: error });
   }
 };
-export const allTypeProductPaymentTransactionWithPaypal = async (
-  req: Request
-) => {
-  try {
-    //   const {
-    //     order_id,
-    //     order_number,
-    //     amount,
-    //     status,
-    //     currency,
-    //     response_json,
-    //     paypal_order_id,
-    //   } = req.body;
-    //   let invoiceDetails: any;
-    //   let errors: {
-    //     error_status: number;
-    //     error_message: any;
-    //   }[] = [];
 
-    //   const orderValidate = await Orders.findOne({
-    //     where: {
-    //       id: order_id,
-    //     },
-    //   });
 
-    //   if (!(orderValidate && orderValidate.dataValues)) {
-    //     return resNotFound({ message: ORDER_NOT_FOUND });
-    //   }
 
-    //   const orderNameValidate = await Orders.findOne({
-    //     where: {
-    //       id: order_id,
-    //       order_number: order_number,
-    //     },
-    //   });
-
-    //   if (!(orderNameValidate && orderNameValidate.dataValues)) {
-    //     return resNotFound({ message: ORDER_NUMBER_IS_INVALID });
-    //   }
-
-    //   const orderAmontValidate = await Orders.findOne({
-    //     where: {
-    //       id: order_id,
-    //       order_number: order_number,
-    //       order_total: amount,
-    //     },
-    //   });
-
-    //   if (!(orderAmontValidate && orderAmontValidate.dataValues)) {
-    //     return resNotFound({ message: ORDER_AMOND_WRONG });
-    //   }
-
-    //   const order_details = await OrdersDetails.findAll({
-    //     where: { order_id: orderAmontValidate.dataValues.id },
-    //   });
-
-    //   let i = (await Invoives.count()) + 1;
-
-    //   const invoice_number = i.toString().padStart(INVOICE_NUMBER_DIGIT, "0");
-    //   const trn = await (req.body.db_connection).transaction();
-
-    //   if (status == "SUCCESS") {
-    //     try {
-    //       const order_transactions = {
-    //         order_id: order_id,
-    //         order_amount: parseFloat(amount),
-    //         payment_status: PaymentStatus.paid,
-    //         payment_currency: currency,
-    //         payment_datetime: getLocalDate(),
-    //         payment_source_type: "visa",
-    //         payment_json: response_json,
-    //         payment_transaction_id: paypal_order_id,
-    //         created_by: req.body.session_res.id_app_user,
-    //         created_date: getLocalDate(),
-    //       };
-    //       const orders = await OrderTransaction.create(order_transactions, {
-    //         transaction: trn,
-    //       });
-
-    //       await Orders.update(
-    //         {
-    //           payment_status: PaymentStatus.paid,
-    //           modified_date: getLocalDate(),
-    //           modified_by: req.body.session_res.id_app_user,
-    //         },
-    //         { where: { id: order_id }, transaction: trn }
-    //       );
-
-    //       await OrdersDetails.update(
-    //         {
-    //           payment_status: PaymentStatus.paid,
-    //         },
-    //         { where: { order_id: order_id }, transaction: trn }
-    //       );
-
-    //       for (let value of order_details) {
-    //         if (
-    //           (value.dataValues.order_details_json.product_type ==
-    //             AllProductTypes.Product ||
-    //             value.dataValues.order_details_json.product_type ==
-    //               AllProductTypes.SettingProduct) &&
-    //           value.dataValues.variant_id
-    //         ) {
-    //           const products = await ProductMetalOption.findOne({
-    //             where: {
-    //               id_product: value.dataValues.product_id,
-    //               id: value.dataValues.variant_id,
-    //             },
-    //             transaction: trn,
-    //           });
-    //           await ProductMetalOption.update(
-    //             {
-    //               remaing_quantity_count:
-    //                 products.dataValues.remaing_quantity_count &&
-    //                 products.dataValues.remaing_quantity_count != null
-    //                   ? products.dataValues.remaing_quantity_count -
-    //                     value.dataValues.quantity
-    //                   : products.dataValues.remaing_quantity_count,
-    //             },
-    //             { where: { id: products.dataValues.id }, transaction: trn }
-    //           );
-    //         }
-    //       }
-
-    //       const invoiceData = {
-    //         invoice_number: `${ORDER_NUMBER_IDENTITY}-${invoice_number}`,
-    //         invoice_date: getLocalDate(),
-    //         invoice_amount: amount,
-    //         billing_address: orderAmontValidate.dataValues.order_billing_address,
-    //         shipping_address:
-    //           orderAmontValidate.dataValues.order_shipping_address,
-    //         order_id: orderAmontValidate.dataValues.id,
-    //         transaction_id: orders.dataValues.id,
-    //         created_date: getLocalDate(),
-    //         created_by: req.body.session_res.id_app_user,
-    //       };
-    //       invoiceDetails = await Invoives.create(invoiceData, {
-    //         transaction: trn,
-    //       });
-    //       await trn.commit();
-    //       // return resSuccess()
-    //     } catch (error) {
-    //       await trn.rollback();
-    //       return resUnknownError({ data: error });
-    //     }
-    //   } else if (status == "ERROR") {
-    //     try {
-    //       const order_transactions = {
-    //         order_id: order_id,
-    //         order_amount: amount,
-    //         payment_status: PaymentStatus.Failed,
-    //         payment_datetime: getLocalDate(),
-    //         payment_json: response_json,
-    //         created_by: req.body.session_res.id_app_user,
-    //         created_date: getLocalDate(),
-    //       };
-    //       await OrderTransaction.create(order_transactions, { transaction: trn });
-
-    //       await Orders.update(
-    //         {
-    //           order_status: OrderStatus.Failed,
-    //           payment_status: PaymentStatus.Failed,
-    //           modified_date: getLocalDate(),
-    //           modified_by: req.body.session_res.id_app_user,
-    //         },
-    //         { where: { id: order_id }, transaction: trn }
-    //       );
-
-    //       await OrdersDetails.update(
-    //         {
-    //           payment_status: PaymentStatus.Failed,
-    //         },
-    //         { where: { order_id: order_id }, transaction: trn }
-    //       );
-
-    //       await trn.commit();
-    //       return resUnknownError({
-    //         code: UNPROCESSABLE_ENTITY_CODE,
-    //         message: TRANSACTION_FAILD_MESSAGE,
-    //       });
-    //     } catch (error) {
-    //       await trn.rollback();
-    //       return resUnknownError({ data: error });
-    //     }
-    //   }
-
-    //   const result: any = await Invoives.findOne({
-    //     where: { order_id: invoiceDetails.dataValues.order_id },
-    //     attributes: [
-    //       "id",
-    //       "invoice_number",
-    //       "invoice_date",
-    //       "invoice_amount",
-    //       "billing_address",
-    //       "shipping_address",
-    //       "order_id",
-    //       [
-    //         Sequelize.literal(
-    //           `(SELECT contries.country_name FROM contries WHERE id= CAST (shipping_address ->> 'country_id' AS integer))`
-    //         ),
-    //         "shipping_country",
-    //       ],
-    //       [
-    //         Sequelize.literal(
-    //           `(SELECT state_name FROM states WHERE id=  CAST (shipping_address ->> 'state_id' AS integer))`
-    //         ),
-    //         "shipping_state",
-    //       ],
-    //       [
-    //         Sequelize.literal(
-    //           `(SELECT city_name FROM cities WHERE id =  CAST (shipping_address ->> 'city_id' AS integer))`
-    //         ),
-    //         "shipping_city",
-    //       ],
-    //       [
-    //         Sequelize.literal(
-    //           `(SELECT contries.country_name FROM contries WHERE id= CAST (billing_address ->> 'country_id' AS integer))`
-    //         ),
-    //         "billing_country",
-    //       ],
-    //       [
-    //         Sequelize.literal(
-    //           `(SELECT state_name FROM states WHERE id=  CAST (billing_address ->> 'state_id' AS integer))`
-    //         ),
-    //         "billing_state",
-    //       ],
-    //       [
-    //         Sequelize.literal(
-    //           `(SELECT city_name FROM cities WHERE id =  CAST (billing_address ->> 'city_id' AS integer))`
-    //         ),
-    //         "billing_city",
-    //       ],
-    //       // [Sequelize.literal(`(SELECT payment_transaction_id FROM order_transactions WHERE order_id = ${invoiceDetails.dataValues.order_id})`), "transactions_id"]
-    //     ],
-    //     include: [
-    //       {
-    //         model: Orders,
-    //         as: "order_invoice",
-    //         attributes: [
-    //           "id",
-    //           "order_number",
-    //           "discount",
-    //           "email",
-    //           "total_tax",
-    //           "order_date",
-    //           "payment_method",
-    //           "shipping_cost",
-    //           "sub_total",
-    //           "order_taxs",
-    //         ],
-    //         include: [
-    //           {
-    //             model: OrdersDetails,
-    //             as: "order",
-    //             attributes: [
-    //               "quantity",
-    //               "sub_total",
-    //               "product_tax",
-    //               "order_details_json",
-    //               "product_id",
-    //               "variant_id",
-    //               [
-    //                 Sequelize.literal(
-    //                   `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT CONCAT('${IMAGE_PATH}/' ,image_path) FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT CONCAT('${IMAGE_PATH}/' ,image_path) FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT CONCAT('${IMAGE_PATH}/', image_path) FROM loose_diamond_group_masters where id = "product_id") ELSE (SELECT CONCAT('${IMAGE_PATH}/' ,image_path) FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
-    //                 ),
-    //                 "product_image",
-    //               ],
-    //               [Sequelize.literal("order_total"), "product_price"],
-    //               [
-    //                 Sequelize.literal(
-    //                   `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT name FROM products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT product_title from gift_set_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Config_Ring_product} THEN (SELECT product_title from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Three_stone_config_product} THEN (SELECT product_title from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BirthStone_product} THEN (SELECT name from birthstone_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Eternity_product} THEN (SELECT product_title from config_eternity_products WHERE id = "product_id") ELSE null END`
-    //                 ),
-    //                 "product_title",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT sku FROM products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT sku from gift_set_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Config_Ring_product} THEN (SELECT sku from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Three_stone_config_product} THEN (SELECT sku from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BirthStone_product} THEN (SELECT sku from birthstone_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Eternity_product} THEN (SELECT sku from config_eternity_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT stock_id from loose_diamond_group_masters WHERE id = "product_id") ELSE null END`
-    //                 ),
-    //                 "product_sku",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT slug FROM products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT slug from gift_set_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Config_Ring_product} THEN (SELECT slug from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Three_stone_config_product} THEN (SELECT slug from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BirthStone_product} THEN (SELECT slug from birthstone_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Eternity_product} THEN (SELECT slug from config_eternity_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT stock_id from loose_diamond_group_masters WHERE id = "product_id") ELSE null END`
-    //                 ),
-    //                 "product_slug",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `(SELECT metal_masters.name FROM metal_masters WHERE metal_masters.id = CAST (order_details_json ->> 'metal_id' AS integer))`
-    //                 ),
-    //                 "metal",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `(SELECT gold_kts.name FROM gold_kts WHERE gold_kts.id = CAST (order_details_json ->> 'karat_id' AS integer))`
-    //                 ),
-    //                 "Karat",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `(SELECT metal_tones.name FROM metal_tones WHERE metal_tones.id = CAST (order_details_json ->> 'metal_tone' AS integer))`
-    //                 ),
-    //                 "Metal_tone",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `(SELECT name FROM metal_tones WHERE id = CAST (order_details_json ->> 'head_metal_tone' AS integer))`
-    //                 ),
-    //                 "head_metal_tone",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `(SELECT name FROM metal_tones WHERE id = CAST (order_details_json ->> 'shank_metal_tone' AS integer))`
-    //                 ),
-    //                 "shank_metal_tone",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `CASE WHEN (order_details_json ->> 'band_metal_tone') = 'null' THEN null ELSE (SELECT name FROM metal_tones WHERE id = CAST (order_details_json ->> 'band_metal_tone' AS integer)) END`
-    //                 ),
-    //                 "band_metal_tone",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `CAST (order_details_json ->> 'head_metal_tone' AS integer)`
-    //                 ),
-    //                 "head_metal_tone_id",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   ` CAST (order_details_json ->> 'shank_metal_tone' AS integer)`
-    //                 ),
-    //                 "shank_metal_tone_id",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   ` CAST (order_details_json ->> 'band_metal_tone' AS integer)`
-    //                 ),
-    //                 "band_metal_tone_id",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `(SELECT items_sizes.size FROM items_sizes WHERE items_sizes.id = CAST (order_details_json ->> 'size_id' AS integer))`
-    //                 ),
-    //                 "product_size",
-    //               ],
-    //               [
-    //                 Sequelize.literal(
-    //                   `(SELECT items_lengths.length FROM items_lengths WHERE items_lengths.id = CAST (order_details_json ->> 'length_id' AS integer))`
-    //                 ),
-    //                 "product_length",
-    //               ],
-    //             ],
-    //             required: false,
-    //           },
-    //         ],
-    //       },
-    //     ],
-    //   });
-
-    //   let logo_image = IMAGE_PATH;
-    //   let frontend_url = FRONT_END_BASE_URL;
-    //   const taxData = JSON.parse(result.dataValues.order_invoice.order_taxs);
-    //   const productData: any = [];
-
-    //   for (const data of result.dataValues.order_invoice.order) {
-    //     let engravingValue: any;
-    //     let singleEngravingStr: any;
-    //     if (
-    //       data.order_details_json.product_type ==
-    //         AllProductTypes.BirthStone_product &&
-    //       data.order_details_json.engraving &&
-    //       data.order_details_json.engraving.length > 0
-    //     ) {
-    //       for (
-    //         let index = 0;
-    //         index < data.order_details_json.engraving.length;
-    //         index++
-    //       ) {
-    //         const element = data.order_details_json.engraving[index];
-    //         if (element.value) {
-    //           singleEngravingStr = `${element.text}: ${element.value}`;
-    //           engravingValue = engravingValue
-    //             ? engravingValue + "|" + " " + singleEngravingStr
-    //             : singleEngravingStr;
-    //         }
-    //       }
-    //     }
-    //     productData.push({
-    //       ...data.dataValues,
-    //       engraving_value: engravingValue,
-    //       engraving:
-    //         AllProductTypes.Config_Ring_product ==
-    //         data.order_details_json.product_type
-    //           ? data.order_details_json.engraving
-    //           : "",
-    //       product_type: data.order_details_json.product_type,
-    //       metal: data.dataValues.metal ? data.dataValues.metal : "",
-    //       Karat: data.dataValues.Karat ? data.dataValues.Karat : "",
-    //       Metal_tone: data.dataValues.Metal_tone
-    //         ? data.dataValues.Metal_tone
-    //         : "",
-    //       product_size: data.dataValues.product_size
-    //         ? data.dataValues.product_size
-    //         : "",
-    //       product_length: data.dataValues.product_length
-    //         ? data.dataValues.product_length
-    //         : "",
-    //       currency: APP_CURRENCY,
-    //       product_price: getPriceFormat(
-    //         data.dataValues.sub_total + data.dataValues.product_tax
-    //       ),
-    //       sub_total: getPriceFormat(data.dataValues.sub_total),
-    //       font_style: data.order_details_json?.font_style
-    //         ? data.order_details_json?.font_style
-    //         : null,
-    //     });
-    //   }
-
-    //   const userData = await customerUser.findOne({
-    //     where: { id_app_user: orderValidate.dataValues.user_id },
-    //   });
-    //   const mailNewOrderPayload = {
-    //     toEmailAddress: result.dataValues.order_invoice.email,
-    //     contentTobeReplaced: {
-    //       name: userData?.dataValues.full_name
-    //         ? userData?.dataValues.full_name
-    //         : result.dataValues.billing_address.full_name,
-    //       toBeReplace: {
-    //         invoice_number: result.dataValues.invoice_number,
-    //         invoice_date: new Date(
-    //           result.dataValues.invoice_date
-    //         ).toLocaleDateString("en-GB"),
-    //         total_amount: getPriceFormat(result.dataValues.invoice_amount),
-    //         sub_total_amount: getPriceFormat(
-    //           result.dataValues.order_invoice.sub_total
-    //         ),
-    //         currency: APP_CURRENCY,
-    //         total_tax: getPriceFormat(result.dataValues.order_invoice.total_tax),
-    //         discount: result.dataValues.order_invoice.discount,
-    //         shipping_cost: getPriceFormat(
-    //           result.dataValues.order_invoice.shipping_cost
-    //         ),
-    //         order_number: result.dataValues.order_invoice.order_number,
-    //         payment_method:
-    //           PAYMENT_METHOD_ID_FROM_LABEL[
-    //             result.dataValues.order_invoice.payment_method
-    //           ],
-    //         order_date: new Date(
-    //           result.dataValues.order_invoice.order_date
-    //         ).toLocaleDateString("en-GB"),
-    //         billing_address: {
-    //           house_builing: result.dataValues.billing_address.house_builing,
-    //           area_name: result.dataValues.billing_address.area_name,
-    //           city: result.dataValues.billing_city,
-    //           state: result.dataValues.billing_state,
-    //           country: result.dataValues.billing_country,
-    //           pincode: result.dataValues.billing_address.pincode,
-    //         },
-    //         shipping_address: {
-    //           house_builing: result.dataValues.shipping_address.house_builing,
-    //           area_name: result.dataValues.shipping_address.area_name,
-    //           city: result.dataValues.shipping_city,
-    //           state: result.dataValues.shipping_state,
-    //           country: result.dataValues.shipping_country,
-    //           pincode: result.dataValues.shipping_address.pincode,
-    //         },
-    //         tax_array: taxData,
-    //         data: productData,
-    //         logo_image,
-    //         frontend_url,
-    //       },
-    //     },
-    //     attachments: {
-    //       toBeReplace: {
-    //         invoice_number: result.dataValues.invoice_number,
-    //         invoice_date: new Date(
-    //           result.dataValues.invoice_date
-    //         ).toLocaleDateString("en-GB"),
-    //         pdf_app_logo: INVOICE_LOGO_IMAGE_BASE64,
-    //         currency: APP_CURRENCY,
-    //         company_number: COMPANY_NUMBER,
-    //         company_address: COMPANY_ADDRESS,
-    //         total_amount: getPriceFormat(result.dataValues.invoice_amount),
-    //         sub_total_amount: getPriceFormat(
-    //           result.dataValues.order_invoice.sub_total
-    //         ),
-    //         total_tax: getPriceFormat(result.dataValues.order_invoice.total_tax),
-    //         discount: getPriceFormat(result.dataValues.order_invoice.discount),
-    //         shipping_cost: getPriceFormat(
-    //           result.dataValues.order_invoice.shipping_cost
-    //         ),
-    //         order_number: result.dataValues.order_invoice.order_number,
-    //         billing_address: {
-    //           house_builing: result.dataValues.billing_address.house_builing,
-    //           area_name: result.dataValues.billing_address.area_name,
-    //           city: result.dataValues.billing_city,
-    //           state: result.dataValues.billing_state,
-    //           country: result.dataValues.billing_country,
-    //           pincode: result.dataValues.billing_address.pincode,
-    //         },
-    //         shipping_address: {
-    //           house_builing: result.dataValues.shipping_address.house_builing,
-    //           area_name: result.dataValues.shipping_address.area_name,
-    //           city: result.dataValues.shipping_city,
-    //           state: result.dataValues.shipping_state,
-    //           country: result.dataValues.shipping_country,
-    //           pincode: result.dataValues.shipping_address.pincode,
-    //         },
-    //         tax_array: taxData,
-    //         data: productData,
-    //         logo_image,
-    //         frontend_url,
-    //       },
-    //       filename: "invoice.pdf",
-    //       content: "../../../templates/mail-template/Tax-invoice.html",
-    //     },
-    //   };
-
-    //   const admin = {
-    //     toEmailAddress: "info@thecadco.com",
-    //     contentTobeReplaced: {
-    //       name: userData?.dataValues.full_name
-    //         ? userData?.dataValues.full_name
-    //         : result.dataValues.billing_address.full_name,
-    //       toBeReplace: {
-    //         invoice_number: result.dataValues.invoice_number,
-    //         invoice_date: new Date(
-    //           result.dataValues.invoice_date
-    //         ).toLocaleDateString("en-GB"),
-    //         total_amount: getPriceFormat(result.dataValues.invoice_amount),
-    //         sub_total_amount: getPriceFormat(
-    //           result.dataValues.order_invoice.sub_total
-    //         ),
-    //         total_tax: getPriceFormat(result.dataValues.order_invoice.total_tax),
-    //         discount: getPriceFormat(result.dataValues.order_invoice.discount),
-    //         shipping_cost: getPriceFormat(
-    //           result.dataValues.order_invoice.shipping_cost
-    //         ),
-    //         order_number: result.dataValues.order_invoice.order_number,
-    //         payment_method:
-    //           PAYMENT_METHOD_ID_FROM_LABEL[
-    //             result.dataValues.order_invoice.payment_method
-    //           ],
-    //         order_date: new Date(
-    //           result.dataValues.order_invoice.order_date
-    //         ).toLocaleDateString("en-GB"),
-    //         billing_address: {
-    //           house_builing: result.dataValues.billing_address.house_builing,
-    //           area_name: result.dataValues.billing_address.area_name,
-    //           city: result.dataValues.billing_city,
-    //           state: result.dataValues.billing_state,
-    //           country: result.dataValues.billing_country,
-    //         },
-    //         shipping_address: {
-    //           house_builing: result.dataValues.shipping_address.house_builing,
-    //           area_name: result.dataValues.shipping_address.area_name,
-    //           city: result.dataValues.shipping_city,
-    //           state: result.dataValues.shipping_state,
-    //           country: result.dataValues.shipping_country,
-    //         },
-    //         tax_array: taxData,
-    //         data: productData,
-    //         logo_image,
-    //         frontend_url,
-    //       },
-    //     },
-    //   };
-
-    //   await mailNewOrderReceived(mailNewOrderPayload);
-    //   await mailNewOrderAdminReceived(admin);
-    //   for (const items of order_details) {
-    //     if (orderAmontValidate.dataValues.user_id) {
-    //       await CartProducts.destroy({
-    //         where: {
-    //           user_id: orderAmontValidate.dataValues.user_id,
-    //           product_id: items.dataValues.product_id,
-    //         },
-    //       });
-    //     }
-    //   }
-    //   const cart_list_count = await CartProducts.count({
-    //     where: { user_id: orderAmontValidate.dataValues.user_id },
-    //   });
-
-    return resSuccess({ data: 0 });
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const allTypeProductPaymentTransactionWithAffirm = async (
-  req: Request
-) => {
-  try {
-    const { Orders, OrdersDetails, Invoices, OrderTransaction, ProductMetalOption, CustomerUser, CurrencyData, CompanyInfo, CartProducts } = initModels(req);
-    const {
-      order_id,
-      order_number,
-      amount,
-      status,
-      currency,
-      response_json,
-      checkout_id,
-    } = req.body;
-    let invoiceDetails: any;
-    let errors: {
-      error_status: number;
-      error_message: any;
-    }[] = [];
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
-    if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
-      return company_info_id;
-    }
-    const trn = await (req.body.db_connection).transaction();
-
-    const orderValidate = await Orders.findOne({
-      where: {
-        id: order_id, company_info_id: company_info_id?.data
-      },
-    });
-
-    if (!(orderValidate && orderValidate.dataValues)) {
-      return resNotFound({ message: ORDER_NOT_FOUND });
-    }
-
-    const orderNameValidate = await Orders.findOne({
-      where: {
-        id: order_id,
-        order_number: order_number,
-        company_info_id: company_info_id?.data,
-      },
-    });
-
-    if (!(orderNameValidate && orderNameValidate.dataValues)) {
-      return resNotFound({ message: ORDER_NUMBER_IS_INVALID });
-    }
-
-    const orderAmontValidate = await Orders.findOne({
-      where: {
-        id: order_id,
-        order_number: order_number,
-        order_total: amount,
-        company_info_id: company_info_id?.data,
-      },
-    });
-
-    if (!(orderAmontValidate && orderAmontValidate.dataValues)) {
-      return resNotFound({ message: ORDER_AMOUNT_WRONG });
-    }
-
-    const order_details = await OrdersDetails.findAll({
-      where: { order_id: orderAmontValidate.dataValues.id, company_info_id: company_info_id?.data },
-    });
-
-    let i = (await Invoices.count()) + 1;
-    const configData = await getWebSettingData(req.body.db_connection, company_info_id?.data);
-
-    const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
-
-    if (status == "SUCCESS") {
-      const token = Buffer.from(
-        `${configData.affirm_public_key}:${configData.affirm_secret_key}`,
-        "utf8"
-      ).toString("base64");
-
-      const affirmPayment = await axios
-        .post(
-          AFFIRM_TRANSACTION_API_URL,
-          {
-            transaction_id: checkout_id,
-            order_id: order_number,
-          },
-          {
-            headers: {
-              Authorization: `Basic ${token}`,
-            },
-          }
-        )
-        .then((res: any) => {
-          return res;
-        })
-        .catch((error: any) => {
-          return error;
-        });
-
-      if (affirmPayment.status == DEFAULT_STATUS_CODE_SUCCESS) {
-        try {
-          const order_transactions = {
-            order_id: order_id,
-            order_amount: parseFloat(amount),
-            payment_status: PaymentStatus.paid,
-            payment_currency: currency,
-            payment_datetime: getLocalDate(),
-            payment_source_type: "visa",
-            payment_json: response_json,
-            payment_transaction_id: affirmPayment.data.id,
-            created_by: req.body.session_res.id_app_user,
-            company_info_id: company_info_id?.data,
-            created_date: getLocalDate(),
-          };
-          const orders = await OrderTransaction.create(order_transactions, {
-            transaction: trn,
-          });
-
-          await Orders.update(
-            {
-              payment_status: PaymentStatus.paid,
-              modified_date: getLocalDate(),
-              modified_by: req.body.session_res.id_app_user,
-            },
-            { where: { id: order_id, company_info_id: company_info_id?.data }, transaction: trn }
-          );
-
-          await OrdersDetails.update(
-            {
-              payment_status: PaymentStatus.paid,
-            },
-            { where: { order_id: order_id, company_info_id: company_info_id?.data }, transaction: trn }
-          );
-
-          for (let value of order_details) {
-            if (
-              value.dataValues.order_details_json.product_type ==
-              AllProductTypes.Product &&
-              value.dataValues.variant_id
-            ) {
-              const products = await ProductMetalOption.findOne({
-                where: {
-                  id_product: value.dataValues.product_id,
-                  id: value.dataValues.variant_id,
-                  company_info_id: company_info_id?.data,
-                },
-                transaction: trn,
-              });
-              await ProductMetalOption.update(
-                {
-                  remaing_quantity_count:
-                    products.dataValues.remaing_quantity_count &&
-                      products.dataValues.remaing_quantity_count != null
-                      ? products.dataValues.remaing_quantity_count -
-                      value.dataValues.quantity
-                      : products.dataValues.remaing_quantity_count,
-                },
-                { where: { id: products.dataValues.id, company_info_id: company_info_id?.data }, transaction: trn }
-              );
-            }
-          }
-          const configData = await getWebSettingData(req.body.db_connection, company_info_id?.data);
-
-          const invoiceData = {
-            invoice_number: `${configData.order_invoice_number_identity}-${invoice_number}`,
-            invoice_date: getLocalDate(),
-            invoice_amount: amount,
-            billing_address:
-              orderAmontValidate.dataValues.order_billing_address,
-            shipping_address:
-              orderAmontValidate.dataValues.order_shipping_address,
-            order_id: orderAmontValidate.dataValues.id,
-            transaction_id: orders.dataValues.id,
-            created_date: getLocalDate(),
-            created_by: req.body.session_res.id_app_user,
-            company_info_id: company_info_id?.data,
-          };
-          invoiceDetails = await Invoices.create(invoiceData, {
-            transaction: trn,
-          });
-          await trn.commit();
-          // return resSuccess()
-        } catch (error) {
-          await trn.rollback();
-          return resUnknownError({ data: error });
-        }
-      } else {
-        await trn.rollback();
-        return resUnknownError({ data: affirmPayment });
-      }
-    } else if (status == "ERROR") {
-      try {
-        const order_transactions = {
-          order_id: order_id,
-          order_amount: amount,
-          payment_status: PaymentStatus.Failed,
-          payment_datetime: getLocalDate(),
-          payment_json: response_json,
-          created_by: req.body.session_res.id_app_user,
-          company_info_id: company_info_id?.data,
-          created_date: getLocalDate(),
-        };
-        await OrderTransaction.create(order_transactions, { transaction: trn });
-
-        await Orders.update(
-          {
-            order_status: OrderStatus.Failed,
-            payment_status: PaymentStatus.Failed,
-            modified_date: getLocalDate(),
-            modified_by: req.body.session_res.id_app_user,
-          },
-          { where: { id: order_id, company_info_id: company_info_id?.data }, transaction: trn }
-        );
-
-        await OrdersDetails.update(
-          {
-            payment_status: PaymentStatus.Failed,
-          },
-          { where: { order_id: order_id, company_info_id: company_info_id?.data }, transaction: trn }
-        );
-
-        await trn.commit();
-        return resUnknownError({
-          code: UNPROCESSABLE_ENTITY_CODE,
-          message: TRANSACTION_FAIL_MESSAGE,
-        });
-      } catch (error) {
-        await trn.rollback();
-        return resUnknownError({ data: error });
-      }
-    }
-
-    const result: any = await Invoices.findOne({
-      where: { order_id: order_id, company_info_id: company_info_id?.data },
-      attributes: [
-        "id",
-        "invoice_number",
-        "invoice_date",
-        "invoice_amount",
-        "billing_address",
-        "shipping_address",
-        "order_id",
-        [
-          Sequelize.literal(
-            `(SELECT contries.country_name FROM contries WHERE id= CAST (shipping_address ->> 'country_id' AS integer))`
-          ),
-          "shipping_country",
-        ],
-        [
-          Sequelize.literal(
-            `(SELECT state_name FROM states WHERE id=  CAST (shipping_address ->> 'state_id' AS integer))`
-          ),
-          "shipping_state",
-        ],
-        [
-          Sequelize.literal(
-            `(SELECT city_name FROM cities WHERE id =  CAST (shipping_address ->> 'city_id' AS integer))`
-          ),
-          "shipping_city",
-        ],
-        [
-          Sequelize.literal(
-            `(SELECT contries.country_name FROM contries WHERE id= CAST (billing_address ->> 'country_id' AS integer))`
-          ),
-          "billing_country",
-        ],
-        [
-          Sequelize.literal(
-            `(SELECT state_name FROM states WHERE id=  CAST (billing_address ->> 'state_id' AS integer))`
-          ),
-          "billing_state",
-        ],
-        [
-          Sequelize.literal(
-            `(SELECT city_name FROM cities WHERE id =  CAST (billing_address ->> 'city_id' AS integer))`
-          ),
-          "billing_city",
-        ],
-        // [Sequelize.literal(`(SELECT payment_transaction_id FROM order_transactions WHERE order_id = ${invoiceDetails.dataValues.order_id})`), "transactions_id"]
-      ],
-      include: [
-        {
-          model: Orders,
-          as: "order_invoice",
-          attributes: [
-            "id",
-            "order_number",
-            "discount",
-            "email",
-            "total_tax",
-            "order_date",
-            "shipping_cost",
-            "sub_total",
-            "order_taxs",
-            "payment_method",
-            "currency_id"
-          ],
-          where: { company_info_id: company_info_id?.data },
-          include: [
-            {
-              model: OrdersDetails,
-              as: "order",
-              where: { company_info_id: company_info_id?.data },
-              attributes: [
-                "quantity",
-                "sub_total",
-                "product_tax",
-                "order_details_json",
-                "product_details_json",
-                "product_id",
-                [
-                  Sequelize.literal(
-                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM product_images WHERE id = CAST (order_details_json ->> 'image_id' AS integer)) WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM gift_set_product_images WHERE id_product = "product_id" AND image_type = 1 AND is_deleted = '0') WHEN  CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT CONCAT('${configData.image_base_url}', image_path) FROM loose_diamond_group_masters where id = "product_id") ELSE (SELECT CONCAT('${configData.image_base_url}' ,image_path) FROM images where id = CAST (order_details_json ->> 'image_id' AS integer)) END`
-                  ),
-                  "product_image",
-                ],
-                [Sequelize.literal("order_total"), "product_price"],
-                [
-                  Sequelize.literal(
-                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT name FROM products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT product_title from gift_set_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Config_Ring_product} THEN (SELECT product_title from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Three_stone_config_product} THEN (SELECT product_title from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BirthStone_product} THEN (SELECT name from birthstone_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Eternity_product} THEN (SELECT product_title from config_eternity_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BraceletConfigurator} THEN (SELECT product_title from config_bracelet_products WHERE id = "product_id") ELSE null END`
-                  ),
-                  "product_title",
-                ],
-                [
-                  Sequelize.literal(
-                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT sku FROM products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT sku from gift_set_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Config_Ring_product} THEN (SELECT sku from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Three_stone_config_product} THEN (SELECT sku from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BirthStone_product} THEN (SELECT sku from birthstone_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Eternity_product} THEN (SELECT sku from config_eternity_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BraceletConfigurator} THEN (SELECT sku from config_bracelet_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT stock_id from loose_diamond_group_masters WHERE id = "product_id") ELSE null END`
-                  ),
-                  "product_sku",
-                ],
-                [
-                  Sequelize.literal(
-                    `CASE WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Product} THEN (SELECT slug FROM products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.GiftSet_product} THEN (SELECT slug from gift_set_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Config_Ring_product} THEN (SELECT slug from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Three_stone_config_product} THEN (SELECT slug from config_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BirthStone_product} THEN (SELECT slug from birthstone_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.Eternity_product} THEN (SELECT slug from config_eternity_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.BraceletConfigurator} THEN (SELECT slug from config_bracelet_products WHERE id = "product_id") WHEN CAST (order_details_json ->> 'product_type' AS integer) = ${AllProductTypes.LooseDiamond} THEN (SELECT stock_id from loose_diamond_group_masters WHERE id = "product_id") ELSE null END`
-                  ),
-                  "product_slug",
-                ],
-                [
-                  Sequelize.literal(
-                    `(SELECT metal_masters.name FROM metal_masters WHERE metal_masters.id = CAST (order_details_json ->> 'metal_id' AS integer))`
-                  ),
-                  "metal",
-                ],
-                [
-                  Sequelize.literal(
-                    `(SELECT gold_kts.name FROM gold_kts WHERE gold_kts.id = CAST (order_details_json ->> 'karat_id' AS integer))`
-                  ),
-                  "Karat",
-                ],
-                [
-                  Sequelize.literal(
-                    `(SELECT metal_tones.name FROM metal_tones WHERE metal_tones.id = CAST (order_details_json ->> 'metal_tone' AS integer))`
-                  ),
-                  "Metal_tone",
-                ],
-                [
-                  Sequelize.literal(
-                    `(SELECT name FROM metal_tones WHERE id = CAST (order_details_json ->> 'head_metal_tone' AS integer))`
-                  ),
-                  "head_metal_tone",
-                ],
-                [
-                  Sequelize.literal(
-                    `(SELECT name FROM metal_tones WHERE id = CAST (order_details_json ->> 'shank_metal_tone' AS integer))`
-                  ),
-                  "shank_metal_tone",
-                ],
-                [
-                  Sequelize.literal(
-                    `CASE WHEN (order_details_json ->> 'band_metal_tone') = 'null' THEN null ELSE (SELECT name FROM metal_tones WHERE id = CAST (order_details_json ->> 'band_metal_tone' AS integer)) END`
-                  ),
-                  "band_metal_tone",
-                ],
-                [
-                  Sequelize.literal(
-                    `CAST (order_details_json ->> 'head_metal_tone' AS integer)`
-                  ),
-                  "head_metal_tone_id",
-                ],
-                [
-                  Sequelize.literal(
-                    ` CAST (order_details_json ->> 'shank_metal_tone' AS integer)`
-                  ),
-                  "shank_metal_tone_id",
-                ],
-                [
-                  Sequelize.literal(
-                    ` CAST (order_details_json ->> 'band_metal_tone' AS integer)`
-                  ),
-                  "band_metal_tone_id",
-                ],
-                [
-                  Sequelize.literal(
-                    `(SELECT items_sizes.size FROM items_sizes WHERE items_sizes.id = CAST (order_details_json ->> 'size_id' AS integer))`
-                  ),
-                  "product_size",
-                ],
-                [
-                  Sequelize.literal(
-                    `(SELECT items_lengths.length FROM items_lengths WHERE items_lengths.id = CAST (order_details_json ->> 'length_id' AS integer))`
-                  ),
-                  "product_length",
-                ],
-              ],
-              required: false,
-            },
-          ],
-        },
-      ],
-    });
-    let findCurrency
-    if (result.dataValues.order_invoice) {
-      findCurrency = await CurrencyData.findOne({ where: { id: result.dataValues.order_invoice.currency_id, company_info_id: company_info_id?.data } })
-    } else {
-      findCurrency = await CurrencyData.findOne({ where: { is_default: "1", company_info_id: company_info_id?.data } })
-
-    }
-    let logo_image = configData.image_base_url;
-    let frontend_url = configData.fronted_base_url;
-    const taxData = JSON.parse(result.dataValues.order_invoice.order_taxs);
-    const productData: any = [];
-    for (const data of result.dataValues.order_invoice.order) {
-      let engravingValue: any;
-      let singleEngravingStr: any;
-      if (
-        data.order_details_json.product_type ==
-        AllProductTypes.BirthStone_product &&
-        data.order_details_json.engraving &&
-        data.order_details_json.engraving.length > 0
-      ) {
-        for (
-          let index = 0;
-          index < data.order_details_json.engraving.length;
-          index++
-        ) {
-          const element = data.order_details_json.engraving[index];
-          if (element.value) {
-            singleEngravingStr = `${element.text}: ${element.value}`;
-            engravingValue = engravingValue
-              ? engravingValue + "|" + " " + singleEngravingStr
-              : singleEngravingStr;
-          }
-        }
-      }
-      productData.push({
-        ...data.dataValues,
-        engraving_value: engravingValue,
-        engraving:
-          AllProductTypes.Config_Ring_product ==
-            data.order_details_json.product_type
-            ? data.order_details_json.engraving
-            : "",
-        product_type: data.order_details_json.product_type,
-        metal: data.dataValues.metal ? data.dataValues.metal : "",
-        Karat: data.dataValues.Karat ? data.dataValues.Karat : "",
-        Metal_tone: data.dataValues.Metal_tone
-          ? data.dataValues.Metal_tone
-          : "",
-        product_size: data.dataValues.product_size
-          ? data.dataValues.product_size
-          : "",
-        product_length: data.dataValues.product_length
-          ? data.dataValues.product_length
-          : "",
-        currency: findCurrency.dataValues.symbol,
-        product_price: getPriceFormat(
-          data.dataValues.sub_total + data.dataValues.product_tax
-        ),
-        sub_total: getPriceFormat(data.dataValues.sub_total),
-        font_style: data.order_details_json?.font_style
-          ? data.order_details_json?.font_style
-          : null,
-      });
-    }
-
-    const userData = await CustomerUser.findOne({
-      where: { id_app_user: orderValidate.dataValues.user_id, company_info_id: company_info_id?.data },
-    });
-
-    const companyInfoDetails = await CompanyInfo.findOne({
-      where: { id: company_info_id?.data },
-    });
-    let attachmentContent = await getEmailTemplateContent(req);
-    if (attachmentContent.code !== DEFAULT_STATUS_CODE_SUCCESS) {
-      trn.rollback();
-      return attachmentContent
-    }
-    const attachments: any = {
-      invoice_number: result.dataValues.invoice_number,
-      invoice_date: new Date(
-        result.dataValues.invoice_date
-      ).toLocaleDateString("en-GB"),
-      pdf_app_logo: INVOICE_LOGO_IMAGE_BASE64,
-      currency: findCurrency.dataValues.symbol,
-      company_number: companyInfoDetails.dataValues.company_number,
-      company_address: companyInfoDetails.dataValues.company_address,
-      total_amount: getPriceFormat(result.dataValues.invoice_amount),
-      sub_total_amount: getPriceFormat(
-        result.dataValues.order_invoice.sub_total
-      ),
-      total_tax: getPriceFormat(result.dataValues.order_invoice.total_tax),
-      discount: getPriceFormat(result.dataValues.order_invoice.discount),
-      shipping_cost: getPriceFormat(
-        result.dataValues.order_invoice.shipping_cost
-      ),
-      order_number: result.dataValues.order_invoice.order_number,
-      billing_address: {
-        house_builing: result.dataValues.billing_address.house_builing,
-        area_name: result.dataValues.billing_address.area_name,
-        city: result.dataValues.billing_city,
-        state: result.dataValues.billing_state,
-        country: result.dataValues.billing_country,
-        pincode: result.dataValues.billing_address.pincode,
-      },
-      shipping_address: {
-        house_builing: result.dataValues.shipping_address.house_builing,
-        area_name: result.dataValues.shipping_address.area_name,
-        city: result.dataValues.shipping_city,
-        state: result.dataValues.shipping_state,
-        country: result.dataValues.shipping_country,
-        pincode: result.dataValues.shipping_address.pincode,
-      },
-      tax_array: taxData,
-      data: productData,
-      logo_image,
-      frontend_url
-    }
-
-    const data = {
-      id: result?.dataValues?.id,
-      invoice_number: result?.dataValues?.invoice_number,
-    }
-    const invoiceFromS3 = await generateInvoicePDF(data, attachmentContent.data, attachments, company_info_id?.data, req);
-
-    const mailNewOrderPayload = {
-      toEmailAddress: result.dataValues.order_invoice.email,
-      contentTobeReplaced: {
-        name: userData?.dataValues.full_name
-          ? userData?.dataValues.full_name
-          : result.dataValues.billing_address.full_name,
-        toBeReplace: {
-          invoice_number: result.dataValues.invoice_number,
-          invoice_date: new Date(
-            result.dataValues.invoice_date
-          ).toLocaleDateString("en-GB"),
-          total_amount: getPriceFormat(result.dataValues.invoice_amount),
-          sub_total_amount: getPriceFormat(
-            result.dataValues.order_invoice.sub_total
-          ),
-          currency: findCurrency.dataValues.symbol,
-          total_tax: getPriceFormat(result.dataValues.order_invoice.total_tax),
-          discount: result.dataValues.order_invoice.discount,
-          shipping_cost: getPriceFormat(
-            result.dataValues.order_invoice.shipping_cost
-          ),
-          order_number: result.dataValues.order_invoice.order_number,
-          payment_method:
-            PAYMENT_METHOD_ID_FROM_LABEL[
-            result.dataValues.order_invoice.payment_method
-            ],
-          order_date: new Date(
-            result.dataValues.order_invoice.order_date
-          ).toLocaleDateString("en-GB"),
-          billing_address: {
-            house_builing: result.dataValues.billing_address.house_builing,
-            area_name: result.dataValues.billing_address.area_name,
-            city: result.dataValues.billing_city,
-            state: result.dataValues.billing_state,
-            country: result.dataValues.billing_country,
-            pincode: result.dataValues.billing_address.pincode,
-          },
-          shipping_address: {
-            house_builing: result.dataValues.shipping_address.house_builing,
-            area_name: result.dataValues.shipping_address.area_name,
-            city: result.dataValues.shipping_city,
-            state: result.dataValues.shipping_state,
-            country: result.dataValues.shipping_country,
-            pincode: result.dataValues.shipping_address.pincode,
-          },
-          tax_array: taxData,
-          data: productData,
-          logo_image,
-          frontend_url,
-        },
-      },
-      attachments: {
-        filename: `${invoiceFromS3?.data?.filename}`,
-        content: invoiceFromS3?.data?.content,
-      }
-    };
-
-    const admin = {
-      toEmailAddress: "info@thecadco.com",
-      contentTobeReplaced: {
-        mail: 'admin',
-        name: userData?.dataValues.full_name
-          ? userData?.dataValues.full_name
-          : result.dataValues.billing_address.full_name,
-        toBeReplace: {
-          invoice_number: result.dataValues.invoice_number,
-          invoice_date: new Date(
-            result.dataValues.invoice_date
-          ).toLocaleDateString("en-GB"),
-          total_amount: getPriceFormat(result.dataValues.invoice_amount),
-          sub_total_amount: getPriceFormat(
-            result.dataValues.order_invoice.sub_total
-          ),
-          total_tax: getPriceFormat(result.dataValues.order_invoice.total_tax),
-          discount: getPriceFormat(result.dataValues.order_invoice.discount),
-          shipping_cost: getPriceFormat(
-            result.dataValues.order_invoice.shipping_cost
-          ),
-          order_number: result.dataValues.order_invoice.order_number,
-          payment_method:
-            PAYMENT_METHOD_ID_FROM_LABEL[
-            result.dataValues.order_invoice.payment_method
-            ],
-          order_date: new Date(
-            result.dataValues.order_invoice.order_date
-          ).toLocaleDateString("en-GB"),
-          billing_address: {
-            house_builing: result.dataValues.billing_address.house_builing,
-            area_name: result.dataValues.billing_address.area_name,
-            city: result.dataValues.billing_city,
-            state: result.dataValues.billing_state,
-            country: result.dataValues.billing_country,
-          },
-          shipping_address: {
-            house_builing: result.dataValues.shipping_address.house_builing,
-            area_name: result.dataValues.shipping_address.area_name,
-            city: result.dataValues.shipping_city,
-            state: result.dataValues.shipping_state,
-            country: result.dataValues.shipping_country,
-          },
-          tax_array: taxData,
-          data: productData,
-          logo_image,
-          frontend_url,
-        },
-      },
-    };
-    await mailNewOrderReceived(mailNewOrderPayload, company_info_id?.data, req);
-    await mailNewOrderAdminReceived(admin, company_info_id?.data, req);
-    for (const items of order_details) {
-      if (orderAmontValidate.dataValues.user_id) {
-        await CartProducts.destroy({
-          where: {
-            user_id: orderAmontValidate.dataValues.user_id,
-            product_id: items.dataValues.product_id,
-            company_info_id: company_info_id?.data,
-          },
-        });
-      }
-    }
-    const cart_list_count = await CartProducts.sum("quantity", {
-      where: { user_id: orderAmontValidate.dataValues.user_id, company_info_id: company_info_id?.data },
-    });
-
-    return resSuccess({ data: cart_list_count });
-  } catch (error) {
-    throw error;
-  }
-};
 
 export const cartQuantityUpdate = async (req: Request) => {
   try {

@@ -38,7 +38,9 @@ export const MAIL_USER_NAME =
   process.env.MAIL_USER_NAME ;
 export const MAIL_PASSWORD = process.env.MAIL_PASSWORD ;
 export const MAIL_HOST = process.env.MAIL_HOST ;
-export const MAIL_PORT = process.env.MAIL_PORT ;export const MAIL_SECURE = process.env.MAIL_SECURE ;export const MAIL_FROM = process.env.MAIL_FROM ;
+export const MAIL_PORT = process.env.MAIL_PORT ;
+export const MAIL_SECURE = process.env.MAIL_SECURE ;
+export const MAIL_FROM = process.env.MAIL_FROM ;
 export const MAIL_SERVICE = process.env.MAIL_SERVICE ;
 export const STORE_TEMP_IMAGE_PATH =
   process.env.STORE_TEMP_IMAGE_PATH ;
@@ -138,7 +140,8 @@ export const PRICE_FORMULA_LOCALE = process.env.PRICE_FORMULA_LOCALE ;
 export const ORDER_NUMBER_IDENTITY =
   process.env.NEXT_PUBLIC_ORDER_NUMBER_IDENTITY ;
 export const ALLOW_OUT_OF_STOCK_ORDERS =
-  process.env.ALLOW_OUT_OF_STOCK_ORDERS ;export const APP_CURRENCY = process.env.NEXT_PUBLIC_APP_CURRENCY ;
+  process.env.ALLOW_OUT_OF_STOCK_ORDERS ;
+  export const APP_CURRENCY = process.env.NEXT_PUBLIC_APP_CURRENCY ;
   export const APP_CURRENCY_SYMBOL_CODE_FOR_HTML =
   process.env.APP_CURRENCY_SYMBOL_CODE_FOR_HTML ;
   export const PAYMENT_CURRENCY_CODE = process.env.PAYMENT_CURRENCY_CODE ;
@@ -170,3 +173,6 @@ export const STRIPE_SECRET_KEY =
   process.env.STRIPE_SECRET_KEY ;
 export const INVOICE_LOGO_IMAGE_BASE64 =
   process.env.NEXT_PUBLIC_INVOICE_LOGO_IMAGE_BASE64 ;
+
+  export const yoco_secret_key = process.env.yoco_secret_key ;
+;
