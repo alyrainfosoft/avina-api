@@ -7,7 +7,7 @@ import {
   activateInactiveSectionFn,
   getAllSectionsFn
 } from "../../controllers/template-eight.controller";
-import { productSKUListFn } from "../../controllers/template-six.controller";
+// import { productSKUListFn } from "../../controllers/template-six.controller";
 
 export default (app: Router) => {
   // Section CRUD
@@ -19,6 +19,6 @@ export default (app: Router) => {
   // Get all sections (admin)
   app.get("/template-eight/section", [authorization], getAllSectionsFn);
 
-  app.get("/template-eight/product-sku", [authorization], productSKUListFn);
+  // app.get("/template-eight/product-sku", [authorization], productSKUListFn);
 
 };

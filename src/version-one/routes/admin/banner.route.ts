@@ -47,7 +47,6 @@ import {
 import { authorization } from "../../../middlewares/authenticate";
 import { addUpdateBannerProducts } from "../../services/banners/product.service";
 import { addProductDropdownFn } from "../../controllers/masters/master.controller";
-import { productSKUListFn } from "../../controllers/template-six.controller";
 
 export default (app: Router) => {
   app.post(
@@ -103,7 +102,6 @@ export default (app: Router) => {
   /* @product section */
   app.put("/banners/product", [authorization], addUpdateBannerProductsFn);
   app.get("/banners/product/:banner_type", [authorization], getALlBannerProductsFn);
-  app.get("/template-1/product-sku",[authorization], productSKUListFn);
 
     //////////////------ the process ----////////////////
 

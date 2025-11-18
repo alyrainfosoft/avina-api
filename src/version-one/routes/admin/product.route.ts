@@ -133,7 +133,6 @@ import {
 } from "../../controllers/birth-stone-product.controller";
 import { currencyMiddleware } from "../../../middlewares/currency-rate-change";
 import { addProductDropdownFn } from "../../controllers/masters/master.controller";
-import { productSKUListFn } from "../../controllers/template-six.controller";
 
 export default (app: Router) => {
   
@@ -440,8 +439,8 @@ export default (app: Router) => {
   app.get("/add-birthstone/add-product/dropDown/list",[authorization], addProductDropdownFn);
   app.get("/add/add-product/dropDown/list",[authorization], addProductDropdownFn);
   app.get("/add-varriant/add-product/dropDown/list",[authorization], addProductDropdownFn);
-  app.get("/add-product/product-sku",[authorization], productSKUListFn);
-  app.get("/add-product-variant/product-sku",[authorization], productSKUListFn);
+  // app.get("/add-product/product-sku",[authorization], productSKUListFn);
+  // app.get("/add-product-variant/product-sku",[authorization], productSKUListFn);
 
   app.get("/image-upload/product/:id", [authorization], getProductByIdFn);
   app.get("/show-image/product/:id", [authorization], getProductByIdFn);
