@@ -2,9 +2,9 @@ import { Dialect, QueryTypes } from "sequelize";
 import dbContext from "../config/db-context";
 import { prepareMessageFromParams, resNotFound } from "./shared-functions";
 import { ERROR_NOT_FOUND } from "./app-messages";
-import { Product } from "../version-4/model/product.model";
-import { CategoryData } from "../version-4/model/category.model";
-import { ProductCategory } from "../version-4/model/product-category.model";
+import { Product } from "../version-one/model/product.model";
+import { CategoryData } from "../version-one/model/category.model";
+import { ProductCategory } from "../version-one/model/product-category.model";
 const { Sequelize } = require('sequelize');
 
 const subDBCache = {};
