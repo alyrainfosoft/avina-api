@@ -19,7 +19,7 @@ export const DB_HOST = process.env.DB_HOST ;
 // export const DB_HOST = process.env.DB_HOST .cabbcwc2w7zj.us-west-1.rds.amazonaws.com
 export const DB_PORT = process.env.DB_PORT ;
 export const SEQUELIZE_DIALECT = process.env.SEQUELIZE_DIALECT ;
-export const SSL_UNAUTHORIZED = process.env.SSL_UNAUTHORIZED ;
+export const SSL_UNAUTHORIZED = process.env.SSL_UNAUTHORIZED || "false" ;
 // AWS S3
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME ;
 export const S3_REGION = process.env.S3_REGION ;

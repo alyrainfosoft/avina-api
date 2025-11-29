@@ -1,0 +1,46 @@
+name: Deploy to EC2 - Avina Stage
+
+on:
+  push:
+    branches: [ stage ]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 to known hosts
+        run: echo "${{ secrets.EC2_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
+      - name: Create .env file on EC2
+        env:
+          ENV_FILE: ${{ secrets.AVINA_STAGE_ENV_FILE }}
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} "
+            echo '${ENV_FILE}' | sudo tee /home/ubuntu/app/avina-stage/.env > /dev/null"
+
+      - name: Deploy using rsync
+        run: |
+          rsync -chrlvzi --checksum --delete \
+            -e 'ssh -o StrictHostKeyChecking=yes -p 22' \
+            --exclude '.git' \
+            --exclude '.env' \
+            ./ ubuntu@${{ secrets.EC2_HOST }}:/home/ubuntu/app/avina-stage/
+
+      - name: Install dependencies and restart app
+        run: |
+          ssh ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/ubuntu/app/avina-stage
+            npm install
+            npm run build
+            pm2 restart avina-stage
+          EOF
