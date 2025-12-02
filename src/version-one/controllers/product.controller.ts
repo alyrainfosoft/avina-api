@@ -67,14 +67,7 @@ import {
   deleteCartProduct,
   getCartProductListData,
 } from "../services/cart-product.service";
-import {
-  addConfigProductsFromCSVFile,
-  addConfigProductsOneCombinationFromCSVFile,
-  configProductDetailsAPIForAdmin,
-  configProductPriceFind,
-  configProductListInAdmin,
-  threeStoneConfigProductlistInAdmin,
-} from "../services/config-product-bulk.service";
+
 import {
   addGiftSetProductAPI,
   deleteGiftSetProduct,
@@ -349,54 +342,6 @@ export const searchProductGloballyFn: RequestHandler = (req, res) => {
   );
 };
 
-////////////--- config product -----//////////////////
-
-export const addConfigProductBulkFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    addConfigProductsFromCSVFile(req),
-    "addConfigProductBulkFn"
-  );
-};
-
-export const configProductPriceFindFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    configProductPriceFind(req),
-    "configProductPriceFindFn"
-  );
-};
-
-export const configProductListInAdminFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    configProductListInAdmin(req),
-    "configProductListInAdminFn"
-  );
-};
-export const configProductDetailsAPIForAdminFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    configProductDetailsAPIForAdmin(req),
-    "configProductDetailsAPIForAdminFn"
-  );
-};
-export const threeStoneConfigProductlistInAdminFn: RequestHandler = (
-  req,
-  res
-) => {
-  callServiceMethod(
-    req,
-    res,
-    threeStoneConfigProductlistInAdmin(req),
-    "threeStoneConfigProductlistInAdminFn"
-  );
-};
-
 export const addToCartConfigProductAPIFn: RequestHandler = (req, res) => {
   callServiceMethod(
     req,
@@ -497,19 +442,6 @@ export const getByIDGiftSetProductsUsersFn: RequestHandler = (req, res) => {
   );
 };
 
-/* New Config product add API */
-
-export const addConfigProductsOneCombinationFromCSVFileFn: RequestHandler = (
-  req,
-  res
-) => {
-  callServiceMethod(
-    req,
-    res,
-    addConfigProductsOneCombinationFromCSVFile(req),
-    "addConfigProductsOneCombinationFromCSVFileFn"
-  );
-};
 
 /* config product find based on sku */
 

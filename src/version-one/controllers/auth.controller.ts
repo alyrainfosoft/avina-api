@@ -23,11 +23,6 @@ import {
   updateProfileForCustomer,
 } from "../services/auth.service";
 import { callServiceMethod } from "./base.controller";
-import {
-  authenticate3dConfiguratorSystemUser,
-  loginOtpverificationConfigUser,
-  otpvVeificationConfigUser,
-} from "../services/3d-configurator/auth-log.service";
 
 export const testFn: RequestHandler = (req, res) => {
   callServiceMethod(req, res, test(req), "registerSystemUserFn");
@@ -117,36 +112,6 @@ export const updateProfileForCustomerFn: RequestHandler = (req, res) => {
     res,
     updateProfileForCustomer(req),
     "updateProfileForCustomerFn"
-  );
-};
-
-export const authenticate3dConfiguratorSystemUserFn: RequestHandler = (
-  req,
-  res
-) => {
-  callServiceMethod(
-    req,
-    res,
-    authenticate3dConfiguratorSystemUser(req),
-    "authenticate3dConfiguratorSystemUserFn"
-  );
-};
-
-export const loginOtpverificationConfigUserFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    loginOtpverificationConfigUser(req),
-    "loginOtpverificationConfigUserFn"
-  );
-};
-
-export const otpvVeificationConfigUserFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    otpvVeificationConfigUser(req),
-    "otpvVeificationConfigUserFn"
   );
 };
 

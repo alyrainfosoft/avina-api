@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
   addOrUpdateMenuItemWithPermissionFn,
-  authenticate3dConfiguratorSystemUserFn,
   authenticateCustomerUserWithOTPFn,
   authenticateSystemUserFn,
   changeAnyUserPasswordFn,
@@ -12,8 +11,6 @@ import {
   getMenuItemWithPermissionsFn,
   getProfileForCustomerFn,
   importMenuItemsWithPermissionFn,
-  loginOtpverificationConfigUserFn,
-  otpvVeificationConfigUserFn,
   refreshAuthorizationTokenFn,
   registerCustomerUserFn,
   registerSystemUserFn,
@@ -89,11 +86,6 @@ export default (app: Router) => {
     updateProfileForCustomerFn
   );
   app.get("/user-detail/:id", getProfileForCustomerFn);
-  app.post("/config/user/auth", authenticate3dConfiguratorSystemUserFn);
-
-  app.post("/optVerified/config/user/auth", loginOtpverificationConfigUserFn);
-
-  app.post("/optVerified/config", otpvVeificationConfigUserFn);
 
   /* sing up with third party */
 

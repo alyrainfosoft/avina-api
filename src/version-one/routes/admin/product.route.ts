@@ -32,9 +32,7 @@ import {
   addProductsZipFileFn,
   searchProductGloballyFn,
   editproductApiFn,
-  addConfigProductBulkFn,
   cartProductListgustCheckOutFn,
-  configProductPriceFindFn,
   addGiftSetProductAPIFn,
   getAllGiftSetProductsFn,
   getByIDGiftSetProductsFn,
@@ -44,10 +42,8 @@ import {
   deleteGiftSetProductImageFn,
   getAllGiftSetProductsUserSideFn,
   getByIDGiftSetProductsUsersFn,
-  configProductListInAdminFn,
   addToCartConfigProductAPIFn,
   cartConfigProductListByUSerIdFn,
-  addConfigProductsOneCombinationFromCSVFileFn,
   getBySKUConfigProductDetailsFn,
   addProductWithVariantFn,
   addVariantProductsFromCSVFileFn,
@@ -55,8 +51,6 @@ import {
   getVariantProductWishlistByUserIdFn,
   deleteVariantProductWishListFn,
   getAllProductImageNamePublicAPIFn,
-  threeStoneConfigProductlistInAdminFn,
-  configProductDetailsAPIForAdminFn,
   getAllProductSlugFn,
   addProductImageCSVFileFn,
   similarProductListFn,
@@ -115,22 +109,7 @@ import {
   getProductReviewListDataFn,
   statusUpdateforProductReviewFn,
 } from "../../controllers/product-review.controller";
-import {
-  activeInactiveBirthstoneProductFn,
-  addBirthStoneProductAPIFn,
-  addBirthStoneProductImageFn,
-  addBirthStoneProductWithPriceAPIFn,
-  addBirthstoneProductsFromCSVFileFn,
-  birthstoneProductGetByIdUserSideFn,
-  birthstoneProductListUserSideFn,
-  birthstoneProductPriceFindFn,
-  deleteBirthstoneProductFn,
-  editBirthstoneproductApiFn,
-  featuredBirthstoneProductStatusUpdateFn,
-  getAllBirthstoneProductFn,
-  getBirthstoneProductByIdFn,
-  trendingBirthstoneProductStatusUpdateFn,
-} from "../../controllers/birth-stone-product.controller";
+
 import { currencyMiddleware } from "../../../middlewares/currency-rate-change";
 import { addProductDropdownFn } from "../../controllers/masters/master.controller";
 
@@ -233,30 +212,6 @@ export default (app: Router) => {
 
   app.post("/product/review/list",[authorization], getProductReviewByProductIDFn);
 
-  /////////////---- config product----/////////////////////
-
-  app.post(
-    "/product/config/add",
-    [authorization, reqProductBulkUploadFileParser("config_csv")],
-    addConfigProductBulkFn
-  );
-
-  app.get(
-    "/config/product/list",
-    [authorization],
-    configProductListInAdminFn
-  );
-  app.get(
-    "/config/product/:id",
-    [authorization],
-    configProductDetailsAPIForAdminFn
-  );
-  app.get(
-    "/three-stone/product/list",
-    [authorization],
-    threeStoneConfigProductlistInAdminFn
-  );
-
   ///////////------Gift set Product---------///////////////////
 
   app.post(
@@ -297,75 +252,6 @@ export default (app: Router) => {
     "/gift-set/products/image/delete",
     [authorization],
     deleteGiftSetProductImageFn
-  );
-
-  ////////////////////---------- Birth stone product ------------- ///////////////////////
-  app.post(
-    "/product/birth-stone/add",
-    [authorization, saveProductBasicDetailsValidator],
-    addBirthStoneProductAPIFn
-  );
-
-  app.get(
-    "/product/birth-stone/list",
-    [authorization],
-    getAllBirthstoneProductFn
-  );
-
-  app.get(
-    "/product/birth-stone/:id",
-    [authorization],
-    getBirthstoneProductByIdFn
-  );
-
-  app.put(
-    "/product/birth-stone/status",
-    [authorization, activeInactiveProductValidator],
-    activeInactiveBirthstoneProductFn
-  );
-
-  app.post(
-    "/product/birth-stone/add/price-add",
-    [authorization, saveProductBasicDetailsValidator],
-    addBirthStoneProductWithPriceAPIFn
-  );
-
-  app.put(
-    "/product/birth-stone/featured/status",
-    [authorization, featuredProductValidator],
-    featuredBirthstoneProductStatusUpdateFn
-  );
-  app.put(
-    "/product/birth-stone/trending/status",
-    [authorization, trendingProductValidator],
-    trendingBirthstoneProductStatusUpdateFn
-  );
-
-  app.put(
-    "/product/birth-stone/delete",
-    [authorization, deleteProductValidator],
-    deleteBirthstoneProductFn
-  );
-
-  app.put(
-    "/product/birth-stone/edit",
-    [authorization, saveProductBasicDetailsValidator],
-    editBirthstoneproductApiFn
-  );
-
-  app.post(
-    "/product/birth-stone/image/add",
-    [authorization, reqSingleImageParser("image")],
-    addBirthStoneProductImageFn
-  );
-
-
-  /* Birthstone product add with price base on metal and metal tone */
-
-  app.post(
-    "/product/birth-stone/bulk/add",
-    [authorization, reqProductBulkUploadFileParser("config_csv")],
-    addBirthstoneProductsFromCSVFileFn
   );
 
 

@@ -97,8 +97,7 @@ import { initModels } from "../model/index.model";
 import { getDiamondByStockNumber } from "./loose-diamond-bulk-import.service";
 import dbContext from "../../config/db-context";
 import { applyOffer } from "./apply-offer.service";
-import { studProductQuery } from "./stud-config-product.service";
-import { pendantProductQuery } from "./pendant-config-product.service";
+
 import { applyOfferWithBuyNewOneGetOne } from "./apply-offer-buy-with-new.service";
 const crypto = require("crypto");
 const paypal = require("@paypal/checkout-server-sdk");
@@ -6073,96 +6072,6 @@ WHERE
             },
             { transaction: trn }
           );
-        } else if (AllProductTypes.StudConfigurator == product.product_type) {
-          deliverydays.push(OUT_OF_STOCK_PRODUCT_DELIVERY_TIME);
-          const findProduct: any = await req.body.db_connection.query(
-            `
-              ${studProductQuery} AND SCP.id = ${product.product_id} AND SCP.company_info_id = ${company_info_id?.data} AND SCP.is_active = '${ActiveStatus.Active}'
-            `,
-            { type: QueryTypes.SELECT }
-          )
-
-          if (findProduct.length === 0) {
-            await trn.rollback();
-            return resNotFound({ message: prepareMessageFromParams(ERROR_NOT_FOUND, [["field_name", "Product"]]) });
-          }
-
-          const productDetail = await req.body.db_connection.query(`(${studProductQuery} AND SCP.id = ${product.product_id}
-                  )`, { type: QueryTypes.SELECT });
-
-          const ordersDetails = await OrdersDetails.create(
-            {
-              order_id: orders.dataValues.id,
-              product_id: product.product_id,
-              quantity: product.quantity,
-              other_charge: parseFloat(findProduct[0]?.other_changes),
-              makring_charge: parseFloat(findProduct[0]?.laber_charge),
-              diamond_count: findProduct[0]?.total_count,
-              diamond_rate: Number(product?.sub_total) - Number(findProduct[0]?.metal_price),
-              metal_rate: findProduct[0]?.metal_price,
-              sub_total: parseInt(product.sub_total),
-              product_tax: await taxCalculationBasedOnPrice(
-                parseFloat(product.sub_total),
-                taxValues
-              ),
-              discount_amount: parseFloat(product.discount_amount),
-              shipping_cost: parseFloat(product.shipping_cost),
-              shipping_method_id: shipping_method,
-              delivery_status: DeliverStatus.Pendding,
-              payment_status: PaymentStatus.InPaid,
-              order_details_json: product.order_details_json,
-              product_details_json: productDetail[0],
-              company_info_id: company_info_id?.data,
-              offer_details: product.offer_details
-            },
-            { transaction: trn }
-          );
-
-        } else if (AllProductTypes.PendantConfigurator == product.product_type) {
-          deliverydays.push(OUT_OF_STOCK_PRODUCT_DELIVERY_TIME);
-          const findProduct: any = await req.body.db_connection.query(
-            `
-              ${pendantProductQuery} AND CPP.id = ${product.product_id} AND CPP.company_info_id = ${company_info_id?.data} AND CPP.is_active = '${ActiveStatus.Active}'
-            `,
-            { type: QueryTypes.SELECT }
-          )
-
-          if (findProduct.length === 0) {
-            await trn.rollback();
-            return resNotFound({ message: prepareMessageFromParams(ERROR_NOT_FOUND, [["field_name", "Product"]]) });
-          }
-
-          const productDetail = await req.body.db_connection.query(`(${pendantProductQuery} AND CPP.id = ${product.product_id}
-                  )`, { type: QueryTypes.SELECT });
-
-          const ordersDetails = await OrdersDetails.create(
-            {
-              order_id: orders.dataValues.id,
-              product_id: product.product_id,
-              quantity: product.quantity,
-              other_charge: parseFloat(findProduct[0]?.other_changes),
-              makring_charge: parseFloat(findProduct[0]?.laber_charge),
-              diamond_count: findProduct[0]?.total_count,
-              diamond_rate: Number(product?.sub_total) - Number(findProduct[0]?.metal_price),
-              metal_rate: findProduct[0]?.metal_price,
-              sub_total: parseInt(product.sub_total),
-              product_tax: await taxCalculationBasedOnPrice(
-                parseFloat(product.sub_total),
-                taxValues
-              ),
-              discount_amount: parseFloat(product.discount_amount),
-              shipping_cost: parseFloat(product.shipping_cost),
-              shipping_method_id: shipping_method,
-              delivery_status: DeliverStatus.Pendding,
-              payment_status: PaymentStatus.InPaid,
-              order_details_json: product.order_details_json,
-              product_details_json: productDetail[0],
-              company_info_id: company_info_id?.data,
-              offer_details: product.offer_details
-            },
-            { transaction: trn }
-          );
-
         }
       }
       const orderDeliveryDay = Math.max(...deliverydays);

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import attributesRoute from "./attributes.route";
-import bannerRoute from "./banner.route";
 import categoryRoute from "./category.route";
 import customerRoute from "./customer.route";
 import homeAboutRoute from "./homeAbout.route";
@@ -13,12 +12,10 @@ import userManagementRoute from "./user-management.route";
 import productRoute from "./product.route";
 import enquiriesRoute from "./enquiries.route";
 import companyInfoRoute from "./companyinfo.route";
-import filterListData from "./frontend/flter-list-data.route";
 import blogsRoute from "./blogs.route";
 import orderRoute from "./order.route";
 import paymentRoute from "./payment.route";
 import subscriptionRoute from "./subscription.route";
-import configProductNewRoute from "./configProductNew.route";
 import reportsRoute from "./reports.route";
 import looseDiamondRoute from "./loose-diamond.route";
 import infoSectionRoute from "./info-section.route";
@@ -29,26 +26,19 @@ import faqQuestionAnswerRoute from "./faq-question-answer.route";
 import shippingChargeRoute from "./shipping-charge.route";
 import excelExportRoute from "./excel-export.route";
 import aboutUsRoute from "./about-us.route";
-import themeRoute from "./theme.route";
 import mailServiceRoute from "./mail-template.route";
-import clientManageRoute from "./client-manage.route";
-import activityLogRoute from "./activity-log.route";
 import filtersRoute from "./filters.route";
-import configuratorSettingRoute from "./configurator-setting.route";
 import storeAddressRoute from "./store-address.route";
 import mailLogRoute from "./mail-log.route";
-import studConfigProductRoute from "./stud-config-product.route";
 import s3PrsignedRoute from "./s3Presign.route";
 import clientCompanyInfoRoute from "./client-company-info.route";
 import offersDiscountRoute from "./offers-discount.route";
-import configPendantProductRoute from "./config-pendant-product.route";
 import templateEightRoute from "./template-eight.route";
 import priceCorrectionRoute from "./price-correction.route";
 export default () => {
   const app = Router();
   s3PrsignedRoute(app);
   uploadRoute(app);
-  bannerRoute(app);
   masterRoute(app);
   categoryRoute(app);
   staticPageRoute(app);
@@ -61,12 +51,10 @@ export default () => {
   productRoute(app);
   enquiriesRoute(app);
   companyInfoRoute(app);
-  filterListData(app);
   blogsRoute(app);
   orderRoute(app);
   paymentRoute(app);
   subscriptionRoute(app);
-  configProductNewRoute(app);
   reportsRoute(app);
   looseDiamondRoute(app);
   infoSectionRoute(app);
@@ -77,18 +65,10 @@ export default () => {
   shippingChargeRoute(app);
   excelExportRoute(app);
   aboutUsRoute(app);
-  themeRoute(app);
-  clientManageRoute(app);
-  activityLogRoute(app);
   mailServiceRoute(app);
-  themeRoute(app)
-  clientManageRoute(app)
   filtersRoute(app)
-  configuratorSettingRoute(app)
   storeAddressRoute(app)
   mailLogRoute(app);
-  studConfigProductRoute(app);
-  configPendantProductRoute(app);
   clientCompanyInfoRoute(app);
   offersDiscountRoute(app);
   templateEightRoute(app);
