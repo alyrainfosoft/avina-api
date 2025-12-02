@@ -36,6 +36,7 @@ import {
 import { TResponseReturn } from "../../../../data/interfaces/common/common.interface";
 import { Op } from "sequelize";
 import { initModels } from "../../../model/index.model";
+import dbContext from "../../../../config/db-context";
 
 const readXlsxFile = require("read-excel-file/node");
 export const addDiamondGroupMasterWithRangeFromCSVFile = async (
@@ -648,7 +649,7 @@ const getDiamondGroupFromRows = async (rows: any,client_id:any, req: Request) =>
 
 const addGroupToDB = async (list: any, idAppUser: any, client_id: any, req: Request) => {
   const{DiamondGroupMaster} = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   let pcPayloadAdd: any = [];
   try {
     let editActivityLogs:any = [];
@@ -715,7 +716,7 @@ const addGroupToDB = async (list: any, idAppUser: any, client_id: any, req: Requ
     }
     await addActivityLogs(req,client_id,newAddActivityLogs, null, LogsActivityType.Add, LogsType.DiamondGroupMater, idAppUser,trn);
     await trn.commit();
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess();
   } catch (e) {
     console.log(e);

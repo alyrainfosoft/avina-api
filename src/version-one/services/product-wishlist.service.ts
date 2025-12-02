@@ -51,7 +51,7 @@ export const addProductWishList = async (req: Request) => {
   try {
     const { AppUser, Product, ProductWish } = initModels(req);
     const { user_id, product_id, product_type } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -81,7 +81,7 @@ export const addProductWishList = async (req: Request) => {
     const wish_list_count = await ProductWish.count({
       where: { user_id: user_id, company_info_id: company_info_id?.data },
     });
-    await addActivityLogs(req?.body?.db_connection, company_info_id?.data, [{
+    await addActivityLogs(dbContext, company_info_id?.data, [{
       old_data: null,
       new_data: {
         product_wish_list_id: addProductData?.dataValues?.id,
@@ -104,7 +104,7 @@ export const getProductWishListByUserId = async (req: Request) => {
     const { AppUser, Product, ProductWish, ProductMetalOption, ProductImage, MetalMaster, MetalTone, GoldKarat } = initModels(req);
 
     if (!req.body.user_id) return resBadRequest({ message: INVALID_ID });
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -208,7 +208,7 @@ export const deleteProductWishList = async (req: Request) => {
   try {
     const { AppUser, Product, ProductWish, ProductMetalOption, ProductImage, MetalMaster, MetalTone, GoldKarat } = initModels(req);
     const { user_id, product_id } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -606,7 +606,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
       diamond,
     } = req.body;
     const { ConfigEternityProduct, ConfigBraceletProduct, LooseDiamondGroupMasters, AppUser, Product, ProductWish, ProductMetalOption, ConfigProduct, BirthStoneProduct, GiftSetProduct, BirthstoneProductMetalOption, Image, StudConfigProduct } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -617,7 +617,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
     if (!(userExit && userExit.dataValues)) {
       return resNotFound({ message: USER_NOT_FOUND });
     }
-    const trn = await req.body.db_connection.transaction();
+    const trn = await dbContext.transaction();
     try {
       let ProductWishList: any;
       // get IP
@@ -877,7 +877,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
 
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1012,7 +1012,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
         }
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1160,7 +1160,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
         }
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1289,7 +1289,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
 
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1398,7 +1398,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
 
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1783,7 +1783,7 @@ export const addVariantProductIntoWishList = async (req: Request) => {
         }
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1932,7 +1932,7 @@ export const getVariantProductWishlistByUserId = async (req: any) => {
     const { AppUser } = initModels(req);
 
     const { user_id } = req.params;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -1943,7 +1943,7 @@ export const getVariantProductWishlistByUserId = async (req: any) => {
       return resNotFound({ message: USER_NOT_FOUND });
     }
 
-    const products = await req.body.db_connection.query(
+    const products = await dbContext.query(
       `( SELECT
           wishlist.id,
           wishlist.user_id,
@@ -2491,9 +2491,9 @@ export const getVariantProductWishlistByUserId = async (req: any) => {
 
     const productList = []
         for (let index = 0; index < products.length; index++) {
-          const element = products[index];
+          const element:any = products[index];
           const productType = await getProductTypeForPriceCorrection(element.product_type, element.single_product_type)
-          let data = element
+          let data:any = element
           let price = 0
           let compare_price = 0
           if (data.product_type === AllProductTypes.Config_Ring_product) {
@@ -2528,7 +2528,7 @@ export const deleteVariantProductWishList = async (req: Request) => {
     const { AppUser, ProductWish } = initModels(req);
 
     const { whishlist_id, user_id } = req.params;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -2574,7 +2574,7 @@ export const deleteVariantProductWishListWithProduct = async (req: Request) => {
   try {
     const { AppUser, ProductWish, Product } = initModels(req)
     const { whishlist_id, user_id, product_id } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -2664,7 +2664,7 @@ export const getWishListProductsForProductListAndDetail = async (
   const { AppUser, ProductWish } = initModels(req)
   try {
     const { user_id } = req.params;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -2694,7 +2694,7 @@ export const moveProductCartToWishlist = async (req: Request) => {
   try {
     const { CartProducts, ProductWish } = initModels(req)
     const { cart_id } = req.params
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }

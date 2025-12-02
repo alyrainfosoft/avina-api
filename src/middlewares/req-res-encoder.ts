@@ -16,7 +16,7 @@ import {
   resUnauthorizedAccess,
   resUnknownError,
 } from "../utils/shared-functions";
-import getSubSequelize from "../utils/sub-db-connector";
+import dbContext from "../config/db-context";
 
 export const bodyDecipher: RequestHandler = (req, res, next) => {
   if (req.body) {
@@ -134,8 +134,7 @@ export const decryptCompanyInfoKeyForParams: RequestHandler = async(req, res, ne
   if(req?.params?.company_key){
     req.params.company_key = JSON.parse(decryptRequestData(req?.params?.company_key))
     if(req.headers.authorization === PUBLIC_AUTHORIZATION_TOKEN){
-      const dbConnection = req.baseUrl.includes("/api/v4") ? await getSubSequelize(req.params.company_key) : null
-      req.body.db_connection = dbConnection
+      dbContext = dbContext
     }
      next()
   }

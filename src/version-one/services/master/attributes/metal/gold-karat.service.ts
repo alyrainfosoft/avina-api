@@ -28,12 +28,13 @@ import {
   statusUpdateValue,
 } from "../../../../../utils/shared-functions";
 import { initModels } from "../../../../model/index.model";
+import dbContext from "../../../../../config/db-context";
 
 export const addGoldKarat = async (req: Request) => {
   try {
     const { name, metal_master_id, calculate_rate } = req.body;
     const {GoldKarat,Image} = initModels(req);
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       const findName = await GoldKarat.findOne({
         where: [{ name: name }, { is_deleted: DeletedStatus.No },{company_info_id :req?.body?.session_res?.client_id}],
@@ -92,7 +93,7 @@ export const addGoldKarat = async (req: Request) => {
         }
       }], data.dataValues.id, LogsActivityType.Add, LogsType.MetalKarat, req.body.session_res.id_app_user,trn)
       await trn.commit();
-      await refreshAllMaterializedView(req.body.db_connection);
+      await refreshAllMaterializedView(dbContext);
       return resSuccess({ data: payload });
     } catch (e) {
       await trn.rollback();
@@ -236,7 +237,7 @@ export const updateGoldKarat = async (req: Request) => {
     if (findName && findName.dataValues) {
       return resErrorDataExit();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let imageId = null;
       let findImage = null;
@@ -304,7 +305,7 @@ export const updateGoldKarat = async (req: Request) => {
         }
       }], findKarat.dataValues.id, LogsActivityType.Edit, LogsType.MetalKarat, req.body.session_res.id_app_user,trn)
       trn.commit();
-      await refreshAllMaterializedView(req.body.db_connection);
+      await refreshAllMaterializedView(dbContext);
       return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
     } catch (e) {
       await trn.rollback();
@@ -345,7 +346,7 @@ export const deleteGoldKarat = async (req: Request) => {
         }
       }
     }], findKarat.dataValues.id, LogsActivityType.Delete, LogsType.MetalKarat, req.body.session_res.id_app_user)
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess({ message: RECORD_DELETE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -379,7 +380,7 @@ export const statusUpdateForGoldKarat = async (req: Request) => {
         }
       }
     }], findKarat.dataValues.id, LogsActivityType.StatusUpdate, LogsType.MetalKarat, req.body.session_res.id_app_user)
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -389,7 +390,7 @@ export const statusUpdateForGoldKarat = async (req: Request) => {
 export const goldKaratActiveList = async (req: Request) => {
   try {
     const { GoldKarat } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

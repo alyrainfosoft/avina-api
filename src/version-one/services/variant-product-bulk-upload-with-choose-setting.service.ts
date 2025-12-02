@@ -1300,7 +1300,7 @@ const prepareDynamicMessage = (fieldName: string, value: any) => {
 };
 
 const addProductToDB = async (productList: any, idAppUser: number,client_id:number, req: Request) => {
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   const {Product, ProductCategory, ProductMetalOption, ProductDiamondOption} = initModels(req)
   let resProduct,
     productCategory,
@@ -1463,7 +1463,7 @@ const addProductToDB = async (productList: any, idAppUser: number,client_id:numb
           new_data: activitylogs}], null, LogsActivityType.Add, LogsType.ProductBulkUploadWithChooseSetting, idAppUser,trn)
         
     await trn.commit();
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     await trn.rollback();

@@ -347,7 +347,7 @@ export const imageAddAndEditInDBAndS3 = async (
   client_id: number = null,
 ) => {
   try {
-    const db_connection = req?.body?.db_connection ? req?.body?.db_connection : dbContext;
+    const db_connection = dbContext ? dbContext : dbContext;
     const { Image } = initModels(req)
     const model = client_id && client_id != null ? Image : null
 
@@ -426,7 +426,7 @@ export const imageAddAndEditInDBAndS3ForOriginalFileName = async (
   client_id: number = null,
 ) => {
   try {
-    const db_connection = req?.body?.db_connection ? req?.body?.db_connection : dbContext;
+    const db_connection = dbContext ? dbContext : dbContext;
         const { Image } = initModels(req)
 
     if (imageData && imageData.dataValues && imageData.dataValues.id === 0) {
@@ -499,7 +499,7 @@ export const imageAddAndEditInDBAndS3ForOriginalFileName = async (
 
 export const imageDeleteInDBAndS3 = async (req:any, imageData: any, client_id: any) => {
   try {
-    const db_connection = req?.body?.db_connection ? req?.body?.db_connection : dbContext;
+    const db_connection = dbContext ? dbContext : dbContext;
     
     const { Image } = initModels(req)
 
@@ -846,7 +846,7 @@ export const getFreeAPICurrencyPrice = async (code: string, req:any) => {
 
 export const getExchangeCurrencyRate = async (code: any, req:any) => {
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -978,7 +978,7 @@ export const sendMessageInWhatsApp = async (otp: any, phone: any, config_data?: 
 export const addActivityLogs = async (req:any,company_info_id:any,logs: any, ref_id: any, activityType: any, logType: any, id_app_user: any,trn:any = null) => {
   try {
     const {ActivityLogs} = initModels(req);
-    const model = req.body.db_connection ? ActivityLogs : null
+    const model = dbContext ? ActivityLogs : null
 
     const options = trn ? { transaction:trn } : {};
     const logsList = []
@@ -1075,7 +1075,7 @@ export const generateInvoicePDF = async(data:any, template:any, replacements:any
     };
 
     // Upload PDF to S3 and get the S3 file path
-    const resMFTL = await moveFileToS3ByTypeAndLocation(req.body.db_connection,file, `${INVOICE_FILE_LOCATION}`, client_id,req);
+    const resMFTL = await moveFileToS3ByTypeAndLocation(dbContext,file, `${INVOICE_FILE_LOCATION}`, client_id,req);
     let filePath = resMFTL?.data;
 
     // Clean the file path to remove any single quotes
@@ -1105,7 +1105,7 @@ export const fontFileAddAndEditInDBAndS3ForOriginalFileName = async (
 ) => {
   try {
     const {FontStyleFiles} = initModels(req);
-    const db_connection = req.body.db_connection
+    const db_connection = dbContext
     if (!fileData) {
       const moveFileResult = await moveFileToS3ByTypeAndLocation(req,file, folder, client_id, req);
 
@@ -1551,7 +1551,7 @@ export const ensureArray = <T>(value: T | T[]): T[] => {
 
 
 export const getRingConfigProductPriceForCart = async (req: any, product_id, is_band) => {
-  const configProduct: any = await req.body.db_connection.query(
+  const configProduct: any = await dbContext.query(
           `(
  SELECT cp.id,
  
@@ -1633,7 +1633,7 @@ export const getRingConfigProductPriceForCart = async (req: any, product_id, is_
     )`,
           { type: QueryTypes.SELECT }
         );
-    const productDiamondPrice:any = await req.body.db_connection.query(`(SELECT cpdo.config_product_id,
+    const productDiamondPrice:any = await dbContext.query(`(SELECT cpdo.config_product_id,
               
               CASE WHEN ${is_band} != 1 THEN COALESCE(sum(
                   CASE
@@ -1664,7 +1664,7 @@ export const getRingConfigProductPriceForCart = async (req: any, product_id, is_
 
 export const getThreeStoneConfigProductPriceForCart = async (req: any, product_id: any, is_band: any) => {
   
-  const configProduct: any = await req.body.db_connection.query(
+  const configProduct: any = await dbContext.query(
           `(
  SELECT cp.id,
    
@@ -1750,7 +1750,7 @@ export const getThreeStoneConfigProductPriceForCart = async (req: any, product_i
         if(configProduct && configProduct.length == 0){
           return resNotFound({ message: "PRODUCT_NOT_FOUND" });
   }
-    const productDiamondPrice:any = await req.body.db_connection.query(`(SELECT cpdo.config_product_id,
+    const productDiamondPrice:any = await dbContext.query(`(SELECT cpdo.config_product_id,
               
               CASE WHEN ${is_band} != 1 THEN COALESCE(sum(
                   CASE
@@ -1780,7 +1780,7 @@ export const getThreeStoneConfigProductPriceForCart = async (req: any, product_i
 }
 
 export const getEternityConfigProductPrice = async (req: any, product_id: any) => {
-  const productPrice = await req.body.db_connection.query(`SELECT cebp.id,
+  const productPrice = await dbContext.query(`SELECT cebp.id,
          CASE
              WHEN cebpdo.dia_stone IS NOT NULL THEN json_build_object('id', cebpdo.id, 'config_eternity_product_id', cebpdo.config_eternity_product_id, 'dia_clarity', cebpdo.dia_clarity, 'dia_color', cebpdo.dia_color, 'dia_count', cebpdo.dia_count, 'dia_cts', cebpdo.dia_cts, 'dia_cuts', cebpdo.dia_cuts, 'dia_mm_size', cebpdo.dia_mm_size, 'dia_shape', cebpdo.dia_shape, 'dia_stone', cebpdo.dia_stone, 'dia_weight', cebpdo.dia_weight, 'diamond_type', cebpdo.diamond_type, 'id_diamond_group', cebpdo.id_diamond_group, 'rate', dgmp.rate)
              ELSE NULL::json
@@ -1886,7 +1886,7 @@ export const getEternityConfigProductPrice = async (req: any, product_id: any) =
 }
 
 export const getBraceletConfigProductPrice = async (req: any, product_id: any) => {
-  const productPrice = await req.body.db_connection.query(`SELECT  
+  const productPrice = await dbContext.query(`SELECT  
 		CASE
             WHEN cbpm.id_karat IS NULL THEN metal_masters.metal_rate * cbpm.metal_wt
             ELSE metal_masters.metal_rate / metal_masters.calculate_rate * gold_kts.calculate_rate::double precision * cbpm.metal_wt 

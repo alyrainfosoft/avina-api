@@ -31,6 +31,7 @@ import {
   statusUpdateValue,
 } from "../../../../../utils/shared-functions";
 import { initModels } from "../../../../model/index.model";
+import dbContext from "../../../../../config/db-context";
 
 export const addMetal = async (req: Request) => {
   const { name } = req.body;
@@ -58,7 +59,7 @@ export const addMetal = async (req: Request) => {
       return resErrorDataExit();
     }
     const metalMasert  = await MetalMaster.create(payload);
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     await addActivityLogs(req,req?.body?.session_res?.client_id,[{
       old_data: null,
       new_data: {
@@ -190,7 +191,7 @@ export const updateMetal = async (req: Request) => {
       where: { id: id, is_deleted: DeletedStatus.No },
     });
 
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
 
     await addActivityLogs(req,req?.body?.session_res?.client_id,[{
       old_data: { metal_master_id: findMetal?.dataValues?.id, data: {...findMetal?.dataValues} },
@@ -226,7 +227,7 @@ export const deleteMetal = async (req: Request) => {
       },
       { where: { id: findMetal.dataValues.id,company_info_id :req?.body?.session_res?.client_id } }
     );
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     await addActivityLogs(req,req?.body?.session_res?.client_id,[{
       old_data: { mental_master_id: findMetal?.dataValues?.id, data: {...findMetal?.dataValues} },
       new_data: {
@@ -271,7 +272,7 @@ export const statusUpdateForMetal = async (req: Request) => {
         }
       }
     }], findMetal.dataValues.id, LogsActivityType.StatusUpdate, LogsType.MetalMaster, req.body.session_res.id_app_user)
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -333,7 +334,7 @@ export const updateMetalRate = async (req: Request) => {
       old_data: { metal_id: metalMasterId.dataValues.id, data:{...metalMasterId.dataValues.metal_rate} },
       new_data: { metal_id: afterUpdateMetalMasterId, data: {...afterUpdateMetalMasterId?.dataValues} }
     }], metalMasterId.dataValues.id, LogsActivityType.RateUpdate, LogsType.MetalMaster, req.body.session_res.id_app_user)
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
   } catch (error) {
     throw error;

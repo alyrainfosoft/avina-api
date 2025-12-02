@@ -145,7 +145,7 @@ let modelCache = {};
 
 export const initModels = (req: any, deleted?: boolean) => {
     const companyKey = (req?.body?.session_res?.client_key || req?.query?.company_key || req?.params?.company_key || req.body.company_key as string)
-    const sequelize = req.body.db_connection ? req.body.db_connection : dbContext;
+    const sequelize = dbContext ? dbContext : dbContext;
 
     if (modelCache[companyKey] && deleted && deleted == true) {
         delete modelCache[companyKey];

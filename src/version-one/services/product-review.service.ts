@@ -6,12 +6,13 @@ import { PRODUCT_FILE_LOCATION } from "../../utils/app-constants";
 import { Op, QueryTypes, Sequelize } from "sequelize";
 import { ActiveStatus, DeletedStatus, LogsActivityType, LogsType } from "../../utils/app-enumeration";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addProductReview =async (req:Request) => {
     const {user_id, product_id, rating, reviewer_name, comment} = req.body
   try {
         const {AppUser, Product, ProductReview, ReviewImages} = initModels(req);
-        const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+        const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
         if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
           return company_info_id;
         }
@@ -29,7 +30,7 @@ export const addProductReview =async (req:Request) => {
         [fieldname: string]: Express.Multer.File[];
       };
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 const imageLog=[];
     try {
 
@@ -51,7 +52,7 @@ const imageLog=[];
         if(files.images != undefined) {
           let imageFile;
           for (imageFile of files.images) {
-            const resPRF = await moveFileToS3ByTypeAndLocation(req.body.db_connection,
+            const resPRF = await moveFileToS3ByTypeAndLocation(dbContext,
               imageFile,
               `${PRODUCT_FILE_LOCATION}/${productExit.dataValues.sku}/review`,
               company_info_id?.data,
@@ -107,7 +108,7 @@ export const getProductReviewByProductID =async (req:Request) => {
       company_info_id.code = DEFAULT_STATUS_CODE_SUCCESS;
       company_info_id.data = req.body.session_res.client_id;
     } else {
-      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
       if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return decrypted;
@@ -122,7 +123,7 @@ export const getProductReviewByProductID =async (req:Request) => {
     if (!(productExit && productExit.dataValues)) {
       return resNotFound({ message: PRODUCT_NOT_FOUND });
     }
-    const productReview = await req.body.db_connection.query(`SELECT id, reviewer_id, product_id, rating, reviewer_name, comment, created_date as modified_date ,
+    const productReview = await dbContext.query(`SELECT id, reviewer_id, product_id, rating, reviewer_name, comment, created_date as modified_date ,
     (SELECT jsonb_agg(jsonb_build_object('image_path', review_images.image_path))
                                    FROM review_images
                                    WHERE review_images.product_id = product_reviews.product_id AND review_images.review_id = product_reviews.id 
@@ -141,7 +142,7 @@ export const statusUpdateforProductReview =async (req:Request) => {
   try {
     const {ProductReview} = initModels(req);
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

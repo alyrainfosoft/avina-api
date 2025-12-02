@@ -29,14 +29,13 @@ import { LOG_FOR_SUPER_ADMIN, PAYMENT_METHOD_ID_FROM_LABEL } from "../../utils/a
 import { mailNewOrderAdminReceived } from "./mail.service";
 import { mailNewOrderReceived } from "./mail.service";
 import { DEFAULT_STATUS_CODE_SUCCESS, SUCCESS_SUBSCRIPTION_LIST } from "../../utils/app-messages";
-import getSubSequelize from "../../utils/sub-db-connector";
+import dbContext from "../../config/db-context";
 import { initModels } from "../model/index.model";
 
 export const webhookForStripe = async (req: Request) => {
   try {
     const event = req.body;
-    const dbConnection = await getSubSequelize(event.data.object.metadata.company_key);
-   const reqBody = {...req, body: {...req.body, company_key: event.data.object.metadata.company_key, db_connection: dbConnection}}
+    const reqBody = {...req, body: {...req.body, company_key: event.data.object.metadata.company_key, db_connection: dbContext}}
     await addActivityLogs(reqBody,LOG_FOR_SUPER_ADMIN,[{
       old_data: null,
       new_data:event
@@ -50,7 +49,7 @@ export const webhookForStripe = async (req: Request) => {
         event,
         Number(event.data.object.metadata.order_id),
         event.data.object.payment_intent,
-        dbConnection,
+        dbContext,
         reqBody
       );
       return PaymentSucceed;
@@ -84,9 +83,7 @@ export const webhookForPaypal = async (req: any) => {
     const event = req.body;
 
     console.log("----------------------------------++++++++++++++++++++++++++++++", JSON.stringify(event));
-    const dbConnection = await getSubSequelize(event.resource?.purchase_units?.[0]?.description);
-    
-    const reqBody = {...req, body: {...req.body, company_key: event.resource?.purchase_units?.[0]?.description, db_connection: dbConnection}}
+    const reqBody = {...req, body: {...req.body, company_key: event.resource?.purchase_units?.[0]?.description, db_connection: dbContext}}
     
     const { OrderTransaction } = await initModels(reqBody);
     
@@ -106,7 +103,7 @@ export const webhookForPaypal = async (req: any) => {
         event,
         findOrderTransaction.dataValues.order_id,
         findOrderTransaction.dataValues.payment_transaction_id,
-        dbConnection,
+        dbContext,
         reqBody
       );
       return PaymentSucceed;
@@ -124,7 +121,7 @@ export const webhookForPaypal = async (req: any) => {
           event,
           findOrderTransaction.dataValues.order_id,
           findOrderTransaction.dataValues.payment_transaction_id,
-          dbConnection,
+          dbContext,
           reqBody
         );
         return PaymentFailed;
@@ -176,9 +173,7 @@ export const webhookForAffirm = async (req: Request) => {
 export const webhookForRazorpay = async (req: Request) => {
   try {
     const { event, payload } = req.body;
-    const dbConnection = await getSubSequelize(payload.payment.entity.notes.company_key);
-
-   const reqBody = {...req, body: {...req.body, company_key: payload.payment.entity.notes.company_key, db_connection: dbConnection}}
+    const reqBody = {...req, body: {...req.body, company_key: payload.payment.entity.notes.company_key, db_connection: dbContext}}
     
     const {OrderTransaction,Orders} = await initModels(reqBody);
     await addActivityLogs(reqBody,LOG_FOR_SUPER_ADMIN,[{
@@ -234,7 +229,7 @@ export const webhookForRazorpay = async (req: Request) => {
           req.body,
           payload.payment ? payload.payment.entity.notes.order_id : payload.order.entity.notes.order_id,
           findOrderTransaction.dataValues.payment_transaction_id,
-          dbConnection,
+          dbContext,
           reqBody
         );
         return PaymentSucceed;
@@ -1161,7 +1156,7 @@ export const failedTransaction = async (
   payment_transaction_id: any,
   req: any
 ) => {
-  const dbConnection = req.body.db_connection;
+  const dbConnection = dbContext;
   const trn = await dbConnection.transaction();
 
   try {

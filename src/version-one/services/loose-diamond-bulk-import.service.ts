@@ -1198,7 +1198,7 @@ const getDiamondGroupFromRows = async (rows: any, idAppUser: any, client_id: num
 const addGroupToDB = async (list: any, idAppUser: any, client_id: any, req: Request) => {
     const {LooseDiamondGroupMasters,StockChangeLog} = initModels(req);
 
-  const trn = await req.body.db_connection.transaction();
+  const trn = await dbContext.transaction();
   let activitylogs: any = {};
   let StockChangeLogData;
   try {
@@ -1341,7 +1341,7 @@ export const addLooseDiamondImages = async (req: Request) => {
     });
 
     for (let image of files.images) {
-      const resPRF = await moveFileToS3ByTypeAndLocation(req.body.db_connection,
+      const resPRF = await moveFileToS3ByTypeAndLocation(dbContext,
         image,
         `${PRODUCT_FILE_LOCATION}/loose-diamond`,
         req?.body?.session_res?.client_id,
@@ -1421,7 +1421,7 @@ export const looseDiamondAdminList = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       client_id = req?.body?.session_res?.client_id
     } else {
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return company_info_id;
       }
@@ -1719,7 +1719,7 @@ export const looseDiamondDetailsForAdmin = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       client_id = req?.body?.session_res?.client_id
     } else {
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return company_info_id;
       }
@@ -1968,7 +1968,7 @@ export const looseDiamondUserList = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       client_id.data = req.body.session_res.client_id;
     } else {
-      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
       if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return decrypted;
@@ -2269,7 +2269,7 @@ export const looseDiamondDetailsForUser = async (req: Request) => {
   try {
     const {LooseDiamondGroupMasters} = initModels(req);
 
-    const client_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const client_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     const { product_id } = req.params;
     const diamondDetail = await LooseDiamondGroupMasters.findOne({
       where: { is_deleted: DeletedStatus.No, id: product_id, company_info_id: client_id?.data, is_active: ActiveStatus.Active },
@@ -2345,7 +2345,7 @@ export const deleteDiamond = async (req: Request) => {
 export const getAllDiamonds = async (req: Request) => {
   try {
     const {LooseDiamondGroupMasters} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -2369,7 +2369,7 @@ const getLocalDiamonds = async (req: Request) => {
   try {
     const {FiltersData, Master, DiamondShape, Colors, ClarityData, CutsData,LooseDiamondGroupMasters} = initModels(req)
     const query = req.query as unknown as IDiamondFilter;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -3238,7 +3238,7 @@ export const addLooseDiamond = async (req: Request) => {
       session_res
     } = req.body;
     const { LooseDiamondGroupMasters,StockChangeLog } = initModels(req);
-    trn = await req.body.db_connection.transaction();
+    trn = await dbContext.transaction();
 
     if (!Object.values(DIAMOND_ORIGIN)?.includes(stone_type)) {
       return resNotFound({
@@ -3385,7 +3385,7 @@ export const updateLooseDiamond = async (req: Request) => {
       })
     }
 
-    trn = await req.body.db_connection.transaction();
+    trn = await dbContext.transaction();
 
     const besforUpdatedLooseDiamond = await LooseDiamondGroupMasters.findOne({ where: { id: id, is_deleted: DeletedStatus.No, company_info_id: session_res?.client_id }, transaction: trn });
     if (!(besforUpdatedLooseDiamond && besforUpdatedLooseDiamond.dataValues)) {

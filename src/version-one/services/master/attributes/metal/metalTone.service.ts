@@ -28,6 +28,7 @@ import {
   statusUpdateValue,
 } from "../../../../../utils/shared-functions";
 import { initModels } from "../../../../model/index.model";
+import dbContext from "../../../../../config/db-context";
 
 export const addMetalTone = async (req: Request) => {
   try {
@@ -59,7 +60,7 @@ export const addMetalTone = async (req: Request) => {
       return resErrorDataExit();
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let idImage = null;
       if (req.file) {
@@ -101,7 +102,7 @@ export const addMetalTone = async (req: Request) => {
             
 
       await trn.commit();
-      await refreshAllMaterializedView(req.body.db_connection);
+      await refreshAllMaterializedView(dbContext);
       return resSuccess({ data: payload });
     } catch (e) {
       await trn.rollback();
@@ -257,7 +258,7 @@ export const updateMetalTone = async (req: Request) => {
     ) {
       return resErrorDataExit();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let imageId = null;
       let findImage = null;
@@ -316,7 +317,7 @@ export const updateMetalTone = async (req: Request) => {
       }], findMetalTone?.dataValues?.id, LogsActivityType.Edit, LogsType.MetalTone, req?.body?.session_res?.id_app_user,trn)
       
       await trn.commit();
-      await refreshAllMaterializedView(req.body.db_connection);
+      await refreshAllMaterializedView(dbContext);
       return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
     } catch (e) {
       await trn.rollback();
@@ -346,7 +347,7 @@ export const deleteMetalTone = async (req: Request) => {
       },
       { where: { id: findMetalTone.dataValues.id,company_info_id :req?.body?.session_res?.client_id } }
     );
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     await addActivityLogs(req,req?.body?.session_res?.client_id,[{
       old_data: { metal_tone_id: findMetalTone?.dataValues?.id, data: {...findMetalTone?.dataValues} },
       new_data: {
@@ -394,7 +395,7 @@ export const statusUpdateForMetalTone = async (req: Request) => {
     }], findMetalTone?.dataValues?.id, LogsActivityType.StatusUpdate, LogsType.MetalTone, req?.body?.session_res?.id_app_user)
 
 
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -404,7 +405,7 @@ export const statusUpdateForMetalTone = async (req: Request) => {
 export const metalToneActiveList = async (req: Request) => {
   try {
     const { MetalTone } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

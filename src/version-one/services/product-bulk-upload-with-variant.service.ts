@@ -1583,7 +1583,7 @@ const prepareDynamicMessage = (fieldName: string, value: any) => {
 
 const addProductToDB = async (productList: any, idAppUser: number, client_id: number, req: Request) => {
   const {Product, ProductCategory, ProductDiamondOption, ProductMetalOption} = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   let resProduct,
     productCategory,
     pmo,
@@ -1828,7 +1828,7 @@ const addProductToDB = async (productList: any, idAppUser: number, client_id: nu
     // await ProductImage.bulkCreate(imgPayload, { transaction: trn });
     await addActivityLogs(req,client_id,[{ old_data: null, new_data: activityLogs }], null, LogsActivityType.Add, LogsType.Product, idAppUser,trn)
     await trn.commit();
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     await trn.rollback();

@@ -28,6 +28,7 @@ import {
 import { TResponseReturn } from "../../data/interfaces/common/common.interface";
 import { s3UploadObject } from "../../helpers/s3-client.helper";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 const readXlsxFile = require("read-excel-file/node");
 const fs = require("fs");
 const path = require("path");
@@ -296,7 +297,7 @@ const getImageUploadRows = async (rows: any,idAppUser:any,client_id:any, req: Re
         const value = await sharp(fileStream).webp({ quality: 50 }).toBuffer();
 
         const data = await s3UploadObject(
-          req.body.db_connection,
+          dbContext,
           value,
           `products/${row.product_sku}/${row.image}.webp`,
           "image/webp",

@@ -1011,7 +1011,7 @@ const getPipedShortCodeFromField = async (
 };
 const addProductToDB = async (productList: any, idAppUser: number, client_id: number, req: Request) => {
   const {ConfigProduct,ShanksData, HeadsData, SideSettingStyles, DiamondCaratSize, StoneData, Colors, ClarityData, CutsData, ConfigProductMetals, ConfigProductDiamonds, DiamondShape, MetalMaster, GoldKarat} = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   let resProduct,
     productMetalData,
     productDiamondData,
@@ -1287,7 +1287,7 @@ export const ringConfiguratorPriceFindWithUsingMaterializedView = async (req: an
       id_band_metal_tone,
       user_id,
     } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -1317,7 +1317,7 @@ export const ringConfiguratorPriceFindWithUsingMaterializedView = async (req: an
       return resNotFound({ message: PRODUCT_NOT_FOUND });
     }
 
-    const configProduct: any = await req.body.db_connection.query(
+    const configProduct: any = await dbContext.query(
       `(SELECT 
     id,
     product_title,
@@ -1460,7 +1460,7 @@ export const ringConfiguratorPriceFindWithoutUsingMaterializedView = async (req:
       id_band_metal_tone,
       user_id,
     } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -1490,7 +1490,7 @@ export const ringConfiguratorPriceFindWithoutUsingMaterializedView = async (req:
       return resNotFound({ message: "PRODUCT_NOT_FOUND" });
     }
 
-    const configProduct: any = await req.body.db_connection.query(
+    const configProduct: any = await dbContext.query(
       `(
  SELECT cp.id,
     cp.sku,
@@ -1660,7 +1660,7 @@ ON
     if (configProduct && configProduct.length == 0) {
       return resNotFound({ message: "PRODUCT_NOT_FOUND" });
     }
-    const productDiamondPrice: any = await req.body.db_connection.query(`(SELECT count(cpdo.id) AS count,cpdo.config_product_id, 
+    const productDiamondPrice: any = await dbContext.query(`(SELECT count(cpdo.id) AS count,cpdo.config_product_id, 
               sum(cpdo.dia_stone) FILTER (WHERE lower(cpdo.product_type::text) ~~* 'side'::text) AS dia_stone,
               jsonb_agg(DISTINCT jsonb_build_object('dia_count', cpdo.dia_count, 'dia_weight', cpdo.dia_weight, 'product_type', cpdo.product_type)) FILTER (WHERE lower(cpdo.product_type::text) ~~* 'side'::text) AS cpdo,
               CASE WHEN ${is_band} != 1 THEN COALESCE(sum(
@@ -1693,7 +1693,7 @@ ON
           )`, { type: QueryTypes.SELECT });
     let sideDiamondDetails = []
     if (productDiamondPrice.length > 0) {
-      sideDiamondDetails = await req.body.db_connection.query(`
+      sideDiamondDetails = await dbContext.query(`
         SELECT 
               CPD.id,
               CPD.dia_count,
@@ -1796,7 +1796,7 @@ export const threeStonePriceFindWithUsingMaterializedView = async (req: any) => 
       user_id,
     } = req.body;
     const {DiamondGroupMaster} = initModels(req)
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -1826,7 +1826,7 @@ export const threeStonePriceFindWithUsingMaterializedView = async (req: any) => 
       return resNotFound({ message: PRODUCT_NOT_FOUND });
     }
 
-    const configProduct: any = await req.body.db_connection.query(
+    const configProduct: any = await dbContext.query(
       `(SELECT 
     id,
     product_title,
@@ -1974,7 +1974,7 @@ export const threeStonePriceFindWithoutUsingMaterializedView = async (req: any) 
       user_id,
     } = req.body;
     const {DiamondGroupMaster} = initModels(req)
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -2004,7 +2004,7 @@ export const threeStonePriceFindWithoutUsingMaterializedView = async (req: any) 
       return resNotFound({ message: PRODUCT_NOT_FOUND });
     }
 
-    const configProduct: any = await req.body.db_connection.query(
+    const configProduct: any = await dbContext.query(
           `(
  SELECT cp.id,
     cp.sku,
@@ -2184,7 +2184,7 @@ ON
         if(configProduct && configProduct.length == 0){
           return resNotFound({ message: "PRODUCT_NOT_FOUND" });
     }
-    const productDiamondPrice:any = await req.body.db_connection.query(`(SELECT cpdo.config_product_id,
+    const productDiamondPrice:any = await dbContext.query(`(SELECT cpdo.config_product_id,
               sum(cpdo.dia_stone) FILTER (WHERE lower(cpdo.product_type::text) ~~* 'side'::text) AS dia_stone,
               jsonb_agg(DISTINCT jsonb_build_object('dia_count', cpdo.dia_count, 'dia_weight', cpdo.dia_weight, 'product_type', cpdo.product_type)) FILTER (WHERE lower(cpdo.product_type::text) ~~* 'side'::text) AS cpdo,
               CASE WHEN ${is_band} != 1 THEN COALESCE(sum(
@@ -2218,7 +2218,7 @@ ON
     
     let sideDiamondDetails = []
     if (productDiamondPrice.length > 0) {
-      sideDiamondDetails = await req.body.db_connection.query(`
+      sideDiamondDetails = await dbContext.query(`
         SELECT 
               CPD.id,
               CPD.dia_count,
@@ -2274,7 +2274,7 @@ export const publicConfigProductRetailPriceFind = async (req: Request) => {
     } = req.body;
     const {DiamondGroupMaster, ConfigProduct,ConfigProductMetals} = initModels(req)
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -2429,8 +2429,8 @@ export const configProductMazzsRetailPriceFind = async (req: Request) => {
       metal,
       karat,
     } = req.body;
-    const { DiamondGroupMaster, ConfigProduct, ConfigProductMetals } = req.body.db_connection.models;
-        const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const { DiamondGroupMaster, ConfigProduct, ConfigProductMetals } = dbContext.models;
+        const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
         if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
           return company_info_id;
         }

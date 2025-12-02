@@ -5,6 +5,7 @@ import { BigInt, condition, DaysOfWeek, DeletedStatus, discount_based_on, offerM
 import { Op, QueryTypes } from "sequelize";
 import { COUPONCODEREGEX } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const  generateCouponCode = async(req:Request) => {
   let length = 8;
@@ -175,7 +176,7 @@ export const handleOfferCreationOrUpdate = async (req: Request, isEdit: boolean 
     } = req.body;
     const image = req.file;
     let idImage: number | null | any = null;
-    trn = await (req.body.db_connection).transaction();
+    trn = await (dbContext).transaction();
 
     const methodResult = validateEnumValue(offerMethod, method,'method');
       if (methodResult.code !== DEFAULT_STATUS_CODE_SUCCESS) {
@@ -1038,7 +1039,7 @@ export const getAllOfferAndDiscount = async (req: Request) => {
     `;
 
     // Execute the query with dynamic replacements
-    const result: any = await (req.body.db_connection).query(query, {
+    const result: any = await (dbContext).query(query, {
       replacements: {
         is_active: pagination.is_active || null,
         search_text: `%${pagination.search_text}%`, // Wrap search text with `%` for partial matches

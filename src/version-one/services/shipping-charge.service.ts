@@ -67,7 +67,7 @@ export const getShippingChargeByFilter = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       company_info_id.data = req.body.session_res.client_id;
     } else {
-      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
       if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return decrypted;
@@ -127,7 +127,7 @@ export const getShippingChargeByFilter = async (req: Request) => {
           `;
 
     // Execute the query with replacements for dynamic values
-    const result: any = await req.body.db_connection.query(query, {
+    const result: any = await dbContext.query(query, {
       replacements: {
         is_active: pagination.is_active || null,
         per_page_rows: pagination.per_page_rows,
@@ -271,7 +271,7 @@ export const applySippingCharge = async (req: Request) => {
   try {
     const { ShippingCharge } = initModels(req);
     const { amount } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

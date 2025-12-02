@@ -22,6 +22,7 @@ import {
   RECORD_UPDATE_SUCCESSFULLY,
 } from "../../utils/app-messages";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addMetaData = async (req: Request) => {
   const { title, description, key_word, id_page, other_meta_data } = req.body;
@@ -261,7 +262,7 @@ export const statusUpdateForMetaData = async (req: Request) => {
 export const getMetaDataListForUser = async (req: Request) => {
   try {
     const {MetaDataDetails,PageData} = initModels(req)
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

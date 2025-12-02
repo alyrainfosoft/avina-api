@@ -5,6 +5,7 @@ import { Op, Sequelize } from "sequelize";
 import { DEFAULT_STATUS_CODE_SUCCESS, RECORD_UPDATE_SUCCESSFULLY } from "../../utils/app-messages";
 import { initModels } from "../model/index.model";
 import { LOG_FOR_SUPER_ADMIN } from "../../utils/app-constants";
+import dbContext from "../../config/db-context";
 
 export const addFilters = async (req: Request) => {
   try {
@@ -223,7 +224,7 @@ export const getFilterForUser = async (req: Request) => {
     const {Image,FiltersData, SettingTypeData, SizeData, LengthData, StoneData, DiamondShape, CategoryData, MetalMaster, MetalTone, BrandData,Master, Colors, ClarityData, CutsData, Collection} = initModels(req)
 
     const { scope = FilterItemScope.Product } = req.query
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }

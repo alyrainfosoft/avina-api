@@ -43,7 +43,7 @@ export const reqSingleImageParser =
     (req, res, next) => {
       try {
         const session_res = req.body.session_res;
-        const db_connection = req.body.db_connection;
+        const db_connection = dbContext;
         upload().single(field_name)(req, res, (err) => {
           if (err) {
             return res
@@ -66,7 +66,7 @@ export const reqMultiImageParser =
     (req, res, next) => {
       try {
         const session_res = req.body.session_res;
-        const db_connection = req.body.db_connection;
+        const db_connection = dbContext;
         upload().fields(
           fieldArray.map((name) => ({ name, maxCount: 1 }))
         )(req, res, (err) => {
@@ -114,7 +114,7 @@ export const reqProductBulkUploadFileParser =
     (req, res, next) => {
       try {
         const session_res = req.body.session_res;
-        const db_connection = req.body.db_connection;
+        const db_connection = dbContext;
         onlyFileUpload(STORE_TEMP_FILE_PATH,{
           limits: { fileSize: PRODUCT_BULK_UPLOAD_FILE_SIZE * 1000 * 1000 },
         }).single(field_name)(req, res, (err) => {
@@ -140,7 +140,7 @@ export const reqProductBulkZipFileParser =
     (req, res, next) => {
       try {
         const session_res = req.body.session_res;
-        const db_connection = req.body.db_connection;
+        const db_connection = dbContext;
         createFolderIfNot(STORE_TEMP_FILE_PATH);
         upload().single(field_name)(req, res, (err) => {
           console.log("err", err);
@@ -169,7 +169,7 @@ export const reqArrayImageParser =
     (req, res, next) => {
       try {
         const session_res = req.body.session_res;
-        const db_connection = req.body.db_connection;
+        const db_connection = dbContext;
         upload().fields(
           fieldArray.map((name) => ({ name }))
         )(req, res, (err) => {
@@ -195,7 +195,7 @@ export const reqArrayVideoParser =
     (req, res, next) => {
       try {
         const session_res = req.body.session_res;
-        const db_connection = req.body.db_connection;
+        const db_connection = dbContext;
         console.log("here");
         upload().fields(
           fieldArray.map((name) => ({ name }))
@@ -220,7 +220,7 @@ export const reqArrayVideoParser =
 export const reqAnyTypeImageAnyFormat = () => (req, res, next) => {
   try {
     const session_res = req.body.session_res;
-    const db_connection = req.body.db_connection;
+    const db_connection = dbContext;
     uploadAllValue(req, res, (err: any) => {
       if (err) {
         return res

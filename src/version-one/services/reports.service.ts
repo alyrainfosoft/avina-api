@@ -510,7 +510,7 @@ export const topSellingProductReports = async (req: Request) => {
     const endDate = new Date(endDateFilter);
     endDate.setDate(endDate.getDate() + 1);
 
-    const list = await req.body.db_connection.query(
+    const list = await dbContext.query(
       `(SELECT 
             OD.product_id,
             count(OD.product_id) as order_count,

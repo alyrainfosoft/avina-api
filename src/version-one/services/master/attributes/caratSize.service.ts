@@ -28,6 +28,7 @@ import {
   RECORD_UPDATE_SUCCESSFULLY,
 } from "../../../../utils/app-messages";
 import { initModels } from "../../../model/index.model";
+import dbContext from "../../../../config/db-context";
 
 export const addCaratSize = async (req: Request) => {
   try {
@@ -45,7 +46,7 @@ export const addCaratSize = async (req: Request) => {
     if (caratSizeValue && caratSizeValue.dataValues) {
       return resErrorDataExit();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let idImage = null;
       if (req.file) {
@@ -208,7 +209,7 @@ export const updateCaratSize = async (req: Request) => {
       return resErrorDataExit();
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let imageId = null;
       let findImage = null;
@@ -251,7 +252,7 @@ export const updateCaratSize = async (req: Request) => {
         }
       );
       if (image_delete && image_delete === "1" && findImage.dataValues) {
-        await imageDeleteInDBAndS3((req.body.db_connection),findImage,req.body.session_res.client_id);
+        await imageDeleteInDBAndS3((dbContext),findImage,req.body.session_res.client_id);
       }
       const AfterUpdatefindCaratSize = await DiamondCaratSize.findOne({
         where: { id: req.params.id, is_deleted: DeletedStatus.No,company_info_id :req?.body?.session_res?.client_id },transaction:trn 

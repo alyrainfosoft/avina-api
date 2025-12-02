@@ -414,7 +414,7 @@ const getRapnetBodyFromFilter = (filter: IDiamondFilter) => {
 
 const getRapnetDiamondsService = async (body: Object, req: Request) => {
   try {
-    const data = <any>await (req.body.db_connection).query(
+    const data = <any>await (dbContext).query(
       "SELECT * FROM tp_diamond_responses",
       {
         type: QueryTypes.SELECT,

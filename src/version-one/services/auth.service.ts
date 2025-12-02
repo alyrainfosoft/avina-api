@@ -97,7 +97,6 @@ import { TResponseReturn } from "../../data/interfaces/common/common.interface";
 const readXlsxFile = require("read-excel-file/node");
 import { col, fn, Op, QueryTypes, Sequelize, where } from "sequelize";
 import { initModels } from "../model/index.model";
-import { ConfigProduct } from "../model/config-product.model";
 import dbContext from "../../config/db-context";
 import axios from "axios";
 
@@ -990,7 +989,7 @@ export const registerSystemUser = async (req: Request) => {
   try {
     const { username, password, user_type } = req.body;
     const {AppUser} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -1110,7 +1109,7 @@ export const authenticateSystemUser = async (req: Request) => {
     if (appUser.dataValues.user_type === USER_TYPE.Administrator && appUser.dataValues.is_super_admin === true || appUser.dataValues.user_type === USER_TYPE.BusinessUser && appUser.dataValues.is_super_admin === true) {
       const currentDate = getLocalDate(); // Get current time
       
-      // const configData = await getWebSettingData(req.body.db_connection,companyInfo?.dataValues?.id)
+      // const configData = await getWebSettingData(dbContext,companyInfo?.dataValues?.id)
       const expireDate = new Date(currentDate.getTime() + OTP_EXPIRATION_TIME);
       const digits = "0123456789";
       let OTP = "";
@@ -1236,7 +1235,7 @@ export const authenticateCustomerUserWithOTP = async (req: Request) => {
       login_with_otp = false,
       remember_me = false,
     } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -1397,7 +1396,7 @@ export const authenticateCustomerUserWithOTP = async (req: Request) => {
         },
       });
     } else {
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
+      const configData = await getWebSettingData(dbContext,company_info_id?.data)
       const currentDate = getLocalDate(); // Get current time
       const expireDate = new Date(currentDate.getTime() + OTP_EXPIRATION_TIME);
       const digits = "0123456789";
@@ -1511,7 +1510,7 @@ export const changePassword = async (req: Request) => {
     if(req.body.session_res.client_id){
       client_id = req.body.session_res.client_id
     }else{
-      const company_info_id:any = getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+      const company_info_id:any = getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
       if(company_info_id !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
       }
@@ -1561,7 +1560,7 @@ export const changePassword = async (req: Request) => {
 export const forgotPassword = async (req: Request) => {
   try {
     const {AppUser,BusinessUser,CustomerUser} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -1601,7 +1600,7 @@ export const forgotPassword = async (req: Request) => {
     const token = createResetToken(appUser.dataValues.id,company_info_id?.data);
 
     console.log("token", token)
-    const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
+    const configData =  await getWebSettingData(dbContext,company_info_id?.data);
     let link = `${configData.fronted_base_url}/${configData.reset_pass_url}${token}`;
     let logo_image = configData.image_base_url;
     let frontend_url = configData.fronted_base_url;
@@ -1761,18 +1760,18 @@ export const registerCustomerUser = async (req: Request) => {
       confirm_password,
     } = req.body;
     const {CustomerUser, AppUser} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
-    const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
+    const configData = await getWebSettingData(dbContext,company_info_id?.data)
     const digits = "0123456789";
     let OTP = "";
     for (let i = 0; i < configData.otp_generate_digit_count; i++) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       const pass_hash = await bcrypt.hash(password, Number(PASSWORD_SOLT));
 
@@ -1886,18 +1885,18 @@ const customerRegistrationWithSystem = async (req: Request) => {
     const {CustomerUser, AppUser} = initModels(req);
     const { full_name, username, mobile, password, country_id, sign_up_type } =
       req.body;
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
     }
-    const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
+    const configData = await getWebSettingData(dbContext,company_info_id?.data)
     const digits = "0123456789";
     let OTP = "";
     for (let i = 0; i < configData.otp_generate_digit_count; i++) {
       OTP += digits[Math.floor(Math.random() * 10)];
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       const pass_hash = await bcrypt.hash(password, Number(PASSWORD_SOLT));
 
@@ -2076,9 +2075,9 @@ const customerRegistrationWithGoogle = async (req: Request) => {
       token,
     } = req.body;
     const {CustomerUser, AppUser,Image} = initModels(req);
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
       }
@@ -2145,7 +2144,7 @@ const customerRegistrationWithGoogle = async (req: Request) => {
           { transaction: trn }
         );
 
-        const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
+        const configData =  await getWebSettingData(dbContext,company_info_id?.data);
         let logo_image = configData.image_base_url;
         let frontend_url = configData.fronted_base_url;
 
@@ -2322,9 +2321,9 @@ const customerRegistrationWithFacebook = async (req: Request) => {
       token,
     } = req.body;
     const {CustomerUser, AppUser,Image} = initModels(req);
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
       }
@@ -2392,7 +2391,7 @@ const customerRegistrationWithFacebook = async (req: Request) => {
         );
 
         await trn.commit();
-        const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
+        const configData =  await getWebSettingData(dbContext,company_info_id?.data);
         let logo_image = configData.image_base_url;
         let frontend_url = configData.fronted_base_url;
 
@@ -2562,9 +2561,9 @@ const customerRegistrationWithCadcoPanel = async (req: Request) => {
       password,
     } = req.body;
     const {CustomerUser, AppUser,Image} = initModels(req);
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
       }
@@ -2643,7 +2642,7 @@ const customerRegistrationWithCadcoPanel = async (req: Request) => {
         );
 
         await trn.commit();
-        const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
+        const configData =  await getWebSettingData(dbContext,company_info_id?.data);
         let logo_image = configData.image_base_url;
         let frontend_url = configData.fronted_base_url;
 
@@ -2811,7 +2810,7 @@ export const customerRegisterOtpVerified = async (req: Request) => {
   try {
     const {AppUser,CustomerUser,Image} = initModels(req);
     const { remember_me = false } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -2882,7 +2881,7 @@ export const customerRegisterOtpVerified = async (req: Request) => {
         ],
         include: [{ model: Image, as: "image", attributes: [] }],
       });
-      const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
+      const configData =  await getWebSettingData(dbContext,company_info_id?.data);
       let logo_image = configData.image_base_url;
       let frontend_url = configData.fronted_base_url;
 
@@ -2932,7 +2931,7 @@ export const customerRegisterOtpVerified = async (req: Request) => {
 export const resendOtpVerification = async (req: Request) => {
   try {
     const {AppUser,CustomerUser} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -2944,7 +2943,7 @@ export const resendOtpVerification = async (req: Request) => {
     });
    
     if (userData) {
-      const configWebData:any = await getWebSettingData(req.body.db_connection,company_info_id?.data)
+      const configWebData:any = await getWebSettingData(dbContext,company_info_id?.data)
       const digits = "0123456789";
       let OTP = "";
       for (let i = 0; i < (userData.dataValues.user_type == USER_TYPE.Administrator && userData.dataValues.is_super_admin == true ? 6  : configWebData.otp_generate_digit_count); i++) {
@@ -2962,7 +2961,7 @@ export const resendOtpVerification = async (req: Request) => {
         { where: { id: userData.dataValues.id, is_deleted: DeletedStatus.No, ...superAdminWhere(company_info_id?.data) } }
       );
 
-      const configData =  await getWebSettingData(req.body.db_connection,company_info_id?.data);
+      const configData =  await getWebSettingData(dbContext,company_info_id?.data);
       const name = customer?.dataValues.full_name;
       let logo_image = configData.image_base_url;
       let frontend_url = configData.fronted_base_url;
@@ -3032,7 +3031,7 @@ export const resendOtpVerification = async (req: Request) => {
 export const getProfileForCustomer = async (req: Request) => {
   try {
     const {CustomerUser,Image} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -3070,7 +3069,7 @@ export const updateProfileForCustomer = async (req: Request) => {
 
   try {
     const {CustomerUser,Image,AppUser} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -3087,7 +3086,7 @@ export const updateProfileForCustomer = async (req: Request) => {
 
     if (req.file) {
       const moveFileResult = await moveFileToS3ByType(
-        req.body.db_connection,
+        dbContext,
         req.file,
         IMAGE_TYPE.profile,
         company_info_id?.data,
@@ -3101,7 +3100,7 @@ export const updateProfileForCustomer = async (req: Request) => {
       imagePath = moveFileResult.data;
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       if (imagePath) {
         const imageResult = await Image.create(
@@ -3218,7 +3217,7 @@ export const addOrUpdateMenuItemWithPermission = async (req: Request) => {
 
     let transaction:any;
     try {
-       transaction = await (req.body.db_connection).transaction();
+       transaction = await (dbContext).transaction();
 
         // Dynamically build the where condition using OR for `name` and `id`
       let whereCondition: any = {
@@ -3869,7 +3868,7 @@ const handleProcessingError = async (id: number, error: any, req: any) => {
 
     const bulkRoleApiPermissions = [];
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       
       // create parent
@@ -4213,7 +4212,7 @@ export const superAdminOtpVerified = async (req: Request) => {
   try {
     
     const {AppUser} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

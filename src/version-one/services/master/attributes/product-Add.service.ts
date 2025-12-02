@@ -18,6 +18,7 @@ import {
 import { s3UploadObject } from "../../../../helpers/s3-client.helper";
 import { DEFAULT_STATUS_CODE_SUCCESS } from "../../../../utils/app-messages";
 import { initModels } from "../../../model/index.model";
+import dbContext from "../../../../config/db-context";
 const { imageToWebp } = require("image-to-webp");
 const fs = require("fs");
 export const addProductDropdown = async (req: Request) => {
@@ -31,7 +32,7 @@ export const addProductDropdown = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       company_info_id = req.body.session_res.client_id;
     } else {
-      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
       if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return decrypted;
@@ -567,18 +568,18 @@ export const dashboardAPI = async (req: Request) => {
 
     const total_order = await Orders.count();
 
-    const revenue = await (req.body.db_connection).query(
+    const revenue = await (dbContext).query(
       `SELECT sum(order_amount) AS total FROM order_transactions AS OT WHERE OT.payment_status = ${PaymentStatus.paid} AND OT.company_info_id = ${company_info_id}`,
       { type: QueryTypes.SELECT }
     );
 
     const total_revenue = revenue[0];
-    const top_selling_product = await (req.body.db_connection).query(
+    const top_selling_product = await (dbContext).query(
       `SELECT OD.product_id, products.name, products.sku, products.slug, count(OD.product_id) AS 	order_count , (SELECT product_images.image_path FROM product_images WHERE product_images.id_product = OD.product_id AND product_images.image_type = ${PRODUCT_IMAGE_TYPE.Feature} LIMIT 1) FROM order_details as OD INNER JOIN products ON products.id = OD.product_id WHERE (OD.order_details_json ->> 'product_type') = '${AllProductTypes.Product}' AND products.is_active = '${ActiveStatus.Active}' AND products.is_deleted = '${DeletedStatus.No}' AND OD.company_info_id = ${company_info_id} GROUP BY OD.product_id, products.name, products.sku, products.slug ORDER BY count(OD.product_id) DESC LIMIT 10`,
       { type: QueryTypes.SELECT }
     );
 
-    const items = await (req.body.db_connection).query(
+    const items = await (dbContext).query(
       `SELECT sum(order_details.quantity) AS item FROM order_details WHERE order_details.company_info_id = ${company_info_id}`,
       { type: QueryTypes.SELECT }
     );
@@ -699,7 +700,7 @@ export const configuratorDropDownData = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       company_info_id.data = req.body.session_res.client_id;
     } else {
-      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
       if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return decrypted;
@@ -1087,7 +1088,7 @@ export const configuratorDropDownData = async (req: Request) => {
       ],
       attributes: ["id", "length", "slug"],
     });
-    const colorClarityList = await (req.body.db_connection).query(
+    const colorClarityList = await (dbContext).query(
       `SELECT id_color, id_clarity, is_config, CASE WHEN '${query.is_config}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.RingConfigurator}')::int WHEN '${query.is_band}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.EternityBandConfigurator}')::int WHEN '${query.is_bracelet}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.BraceletConfigurator}')::int WHEN '${query.is_pendant}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.PendantConfigurator}')::int WHEN '${query.is_earring}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.EarringConfigurator}')::int WHEN '${query.is_three_stone}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.ThreeStoneConfigurator}')::int ELSE (is_diamond_type::json->> '${ConfiguratorManageKeys.RingConfigurator}')::int END AS is_diamond_type, Colors.name AS color_name, clarities.name AS clarity_name FROM diamond_group_masters AS DGM INNER JOIN colors ON Colors.id = DGM.id_color INNER JOIN clarities ON clarities.id = DGM.id_clarity WHERE CASE WHEN '${query.is_config}' = '1' THEN  DGM.is_config = '1' WHEN '${query.is_three_stone}' = '1' THEN DGM.is_three_stone = '1' WHEN '${query.is_band}' = '1' THEN DGM.is_band = '1' WHEN '${query.is_bracelet}' = '1' THEN DGM.is_bracelet = '1' WHEN '${query.is_pendant}' = '1' THEN DGM.is_pendant = '1' WHEN '${query.is_earring}' = '1' THEN DGM.is_earring = '1' ELSE DGM.is_config = '1' END AND  DGM.is_deleted = '0'AND DGM.is_active = '1' AND DGM.company_info_id = ${company_info_id?.data} GROUP BY DGM.id, Colors.name, clarities.name`,
       { type: QueryTypes.SELECT }
     );
@@ -1096,7 +1097,7 @@ export const configuratorDropDownData = async (req: Request) => {
 
     let eternityProductSizeList;
     if (query.is_band == "1") {
-      eternityProductSizeList = await (req.body.db_connection).query(
+      eternityProductSizeList = await (dbContext).query(
         `SELECT
     DISTINCT 
     product_size,
@@ -1111,12 +1112,12 @@ FROM
       );
     }
 
-    const clarityList = await (req.body.db_connection).query(
+    const clarityList = await (dbContext).query(
       `SELECT id_clarity, is_config, CASE WHEN '${query.is_config}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.RingConfigurator}')::int WHEN '${query.is_band}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.EternityBandConfigurator}')::int WHEN '${query.is_bracelet}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.BraceletConfigurator}')::int WHEN '${query.is_pendant}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.PendantConfigurator}')::int WHEN '${query.is_earring}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.EarringConfigurator}')::int WHEN '${query.is_three_stone}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.ThreeStoneConfigurator}')::int ELSE (is_diamond_type::json->> '${ConfiguratorManageKeys.RingConfigurator}')::int END AS is_diamond_type, clarities.name AS clarity_name FROM diamond_group_masters AS DGM INNER JOIN clarities ON clarities.id = DGM.id_clarity WHERE CASE WHEN '${query.is_config}' = '1' THEN  DGM.is_config = '1' WHEN '${query.is_three_stone}' = '1' THEN DGM.is_three_stone = '1' WHEN '${query.is_band}' = '1' THEN DGM.is_band = '1' WHEN '${query.is_bracelet}' = '1' THEN DGM.is_bracelet = '1' WHEN '${query.is_pendant}' = '1' THEN DGM.is_pendant = '1' WHEN '${query.is_earring}' = '1' THEN DGM.is_earring = '1' ELSE DGM.is_config = '1' END AND  DGM.is_deleted = '0'AND DGM.is_active = '1' AND DGM.company_info_id = ${company_info_id?.data} GROUP BY DGM.id, clarities.name`,
       { type: QueryTypes.SELECT }
     );
 
-    const colorList = await (req.body.db_connection).query(
+    const colorList = await (dbContext).query(
       `SELECT id_color, is_config, CASE WHEN '${query.is_config}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.RingConfigurator}')::int WHEN '${query.is_band}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.EternityBandConfigurator}')::int WHEN '${query.is_bracelet}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.BraceletConfigurator}')::int WHEN '${query.is_pendant}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.PendantConfigurator}')::int WHEN '${query.is_earring}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.EarringConfigurator}')::int WHEN '${query.is_three_stone}' = '1' THEN (is_diamond_type::json->> '${ConfiguratorManageKeys.ThreeStoneConfigurator}')::int ELSE (is_diamond_type::json->> '${ConfiguratorManageKeys.RingConfigurator}')::int END AS is_diamond_type, Colors.name AS color_name FROM diamond_group_masters AS DGM INNER JOIN colors ON Colors.id = DGM.id_color WHERE CASE WHEN '${query.is_config}' = '1' THEN  DGM.is_config = '1' WHEN '${query.is_three_stone}' = '1' THEN DGM.is_three_stone = '1' WHEN '${query.is_band}' = '1' THEN DGM.is_band = '1' WHEN '${query.is_bracelet}' = '1' THEN DGM.is_bracelet = '1' WHEN '${query.is_pendant}' = '1' THEN DGM.is_pendant = '1' WHEN '${query.is_earring}' = '1' THEN DGM.is_earring = '1' ELSE DGM.is_config = '1' END AND  DGM.is_deleted = '0'AND DGM.is_active = '1' AND DGM.company_info_id = ${company_info_id?.data} GROUP BY DGM.id, Colors.name`,
       { type: QueryTypes.SELECT }
     );
@@ -1149,7 +1150,7 @@ export const publicConfiguratorDropDownData = async (req: Request) => {
   try {
     const { MMSizeData, StoneData, DiamondCaratSize, DiamondShape, HeadsData, ShanksData, SideSettingStyles, CutsData, Image, SizeData, LengthData, MetalMaster, MetalTone, GoldKarat } = initModels(req);
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -1306,7 +1307,7 @@ export const publicConfiguratorDropDownData = async (req: Request) => {
     //   ],
     //   attributes: ["id", "size", "slug"],
     // });
-    const colorClarityList = await (req.body.db_connection).query(
+    const colorClarityList = await (dbContext).query(
       `SELECT id_color, id_clarity, is_config, is_diamond_type, Colors.name AS color_name, clarities.name AS clarity_name FROM diamond_group_masters AS DGM INNER JOIN colors ON Colors.id = DGM.id_color INNER JOIN clarities ON clarities.id = DGM.id_clarity WHERE DGM.is_config = '1' AND  DGM.is_deleted = '0'AND DGM.is_active = '1' AND DGM.company_info_id=${company_info_id?.data} GROUP BY DGM.id, Colors.name, clarities.name`,
       { type: QueryTypes.SELECT }
     );
@@ -1346,7 +1347,7 @@ export const convertImageToWebpAPI = async (req: Request) => {
     const webpImage = await imageToWebp(req.file?.path, 100);
     const fileStream = fs.readFileSync(webpImage);
     const data = await s3UploadObject(
-      req.body.db_connection,
+      dbContext,
       fileStream,
       `${prefix}.webp`,
       "image/webp",
@@ -1372,7 +1373,7 @@ export const updateBirthstoneProductTitleSlug = async (req: Request) => {
   const { product_details } = req.body;
   try {
     const { BirthStoneProduct } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }

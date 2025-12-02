@@ -19,6 +19,7 @@ import { Op, QueryTypes, Sequelize } from "sequelize";
 import { initModels } from "../model/index.model";
 import { IMAGE_TYPE_LOCATION, LOG_FOR_SUPER_ADMIN, GLEAMORA_KEY } from "../../utils/app-constants";
 import { s3UploadObject } from "../../helpers/s3-client.helper";
+import dbContext from "../../config/db-context";
 
 // update company details
 export const updateGeneralCompanyInfoByClient = async (req: Request) => {
@@ -35,7 +36,7 @@ export const updateGeneralCompanyInfoByClient = async (req: Request) => {
 
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
              
-                const trn = await (req.body.db_connection).transaction();
+                const trn = await (dbContext).transaction();
                 let headerLogoIdImage = null;
                 console.log("files[loader]", files["loader"]);
                 if (files["header_logo"]) {
@@ -144,7 +145,7 @@ export const updateGeneralCompanyInfoByClient = async (req: Request) => {
                    
                     const destinationPath = IMAGE_TYPE_LOCATION[IMAGE_TYPE.mailTemplateLogo] + "/" + files["mail_tem_logo"][0].originalname;
                     const data = await s3UploadObject(
-                        req.body.db_connection,
+                        dbContext,
                         files["mail_tem_logo"][0].buffer,
                           destinationPath,
                           files["mail_tem_logo"][0].mimetype,

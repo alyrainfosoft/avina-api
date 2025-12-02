@@ -44,6 +44,7 @@ import {
 } from "../../config/env.var";
 import { initModels } from "../model/index.model";
 import { mailSendForOrderStatusUpdate } from "./mail.service";
+import dbContext from "../../config/db-context";
 const crypto = require("crypto");
 const paypal = require("@paypal/checkout-server-sdk");
 
@@ -74,7 +75,7 @@ export const addProductOrder = async (req: Request) => {
       total_tax,
     } = req.body;
     const {AppUser,TaxMaster, CityData,UserAddress, Orders, OrdersDetails, Product} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -120,7 +121,7 @@ export const addProductOrder = async (req: Request) => {
       return resBadRequest({ message: TOTAL_AMOUNT_WRONG });
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     const order_number = crypto.randomInt(1000000000, 9999999999);
 
     try {
@@ -349,7 +350,7 @@ export const addProductOrder = async (req: Request) => {
           }
         }
       }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data);
+      const configData = await getWebSettingData(dbContext,company_info_id?.data);
       const ordersPayload = {
         order_number: `${configData.order_invoice_number_identity}-${order_number}`,
         user_id: user_id,
@@ -398,11 +399,11 @@ export const addProductOrder = async (req: Request) => {
           await trn.rollback();
           return resNotFound({ message: PRODUCT_NOT_FOUND });
         }
-        let diamondRate = await req.body.db_connection.query(
+        let diamondRate = await dbContext.query(
           `SELECT sum(diamond_group_masters.rate) FROM product_diamond_options LEFT OUTER JOIN diamond_group_masters ON diamond_group_masters.id = product_diamond_options.id_diamond_group WHERE product_diamond_options.id_product = ${product.product_id} AND product_diamond_options.company_info_id= ${company_info_id?.data}`,
           { type: QueryTypes.SELECT }
         );
-        const metalRates = await req.body.db_connection.query(
+        const metalRates = await dbContext.query(
           `SELECT CASE WHEN PMO.id_karat IS NULL THEN (metal.metal_rate*PMO.metal_weight) ELSE (metal.metal_rate/metal.calculate_rate*gold_kts.calculate_rate*PMO.metal_weight) END FROM products LEFT OUTER JOIN product_metal_options AS PMO ON PMO.id_product = products.id LEFT OUTER JOIN metal_masters AS metal ON PMO.id_metal = metal.id LEFT OUTER JOIN gold_kts ON PMO.id_karat = gold_kts.id WHERE 
           CASE WHEN PMO.id_karat IS NULL THEN products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} ELSE products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} AND PMO.id_karat = ${product.order_details_json.karat_id} END AND products.company_info_id= ${company_info_id?.data}`,
           { type: QueryTypes.SELECT }
@@ -460,7 +461,7 @@ export const getAllOrdersUser = async (req: Request) => {
   try {
     const {AppUser} = initModels(req);
     const { start_date, end_date, order_status } = req.query;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -484,7 +485,7 @@ export const getAllOrdersUser = async (req: Request) => {
     };
     let noPagination = req.query.no_pagination === "1";
 
-    const result = await req.body.db_connection.query(
+    const result = await dbContext.query(
       `SELECT 
       COUNT(orders.id) OVER() AS totalItems,
 orders.id,
@@ -953,7 +954,7 @@ export const orderDetailsAPI = async (req: Request) => {
   if (req?.body?.session_res?.client_id) {
     company_info_id.data = req.body.session_res.client_id;
   } else {
-    const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+    const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
     if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return decrypted;
@@ -1325,7 +1326,7 @@ export const orderDetailsAPIAdmin = async (req: Request) => {
   }
 
   try {
-    const configData = await getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id);
+    const configData = await getWebSettingData(dbContext,req?.body?.session_res?.client_id);
     const orderDetails = await Orders.findOne({
       where: { order_number: order_number,company_info_id :req?.body?.session_res?.client_id },
       attributes: [
@@ -1874,7 +1875,7 @@ export const addGiftSetProductOrder = async (req: Request) => {
       total_tax,
     } = req.body;
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -1918,7 +1919,7 @@ export const addGiftSetProductOrder = async (req: Request) => {
     //   return resBadRequest({ message: TOTAL_AMOUNT_WRONG });
     // }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     const order_number = crypto.randomInt(1000000000, 9999999999);
 
     try {
@@ -2145,7 +2146,7 @@ export const addGiftSetProductOrder = async (req: Request) => {
           }
         }
       }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data);
+      const configData = await getWebSettingData(dbContext,company_info_id?.data);
       const ordersPayload = {
         order_number: `${configData.order_invoice_number_identity}-${order_number}`,
         user_id: user_id,
@@ -2244,7 +2245,7 @@ export const getAllGiftSetProductOrdersUser = async (req: Request) => {
     const { GiftSetProductOrder, AppUser} = initModels(req);
 
     const { user_id, start_date, end_date, order_status } = req.query;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -2339,7 +2340,7 @@ export const getAllGiftSetProductOrdersUser = async (req: Request) => {
 export const giftSetOrderDetailsAPI = async (req: Request) => {
   const { order_number } = req.body;
   const {GiftSetProductOrder,GiftSetOrdersDetails} = initModels(req);
-  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
   if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
     return company_info_id;
   }
@@ -2788,7 +2789,7 @@ export const addConfigProductOrder = async (req: Request) => {
       total_tax,
     } = req.body;
     const {AppUser,TaxMaster, CityData, UserAddress, Orders, OrdersDetails,Product, OrderTransaction, ConfigOrdersDetails} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -2835,7 +2836,7 @@ export const addConfigProductOrder = async (req: Request) => {
       return resBadRequest({ message: TOTAL_AMOUNT_WRONG });
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     const order_number = crypto.randomInt(1000000000, 9999999999);
 
     try {
@@ -3060,7 +3061,7 @@ export const addConfigProductOrder = async (req: Request) => {
           }
         }
       }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data);
+      const configData = await getWebSettingData(dbContext,company_info_id?.data);
 
       const ordersPayload = {
         order_number: `${configData.order_invoice_number_identity}-${order_number}`,
@@ -3112,11 +3113,11 @@ export const addConfigProductOrder = async (req: Request) => {
             return resNotFound({ message: PRODUCT_NOT_FOUND });
           }
 
-          let diamondRate = await req.body.db_connection.query(
+          let diamondRate = await dbContext.query(
             `SELECT sum(diamond_group_masters.rate*product_diamond_options.weight*product_diamond_options.count) FROM product_diamond_options LEFT OUTER JOIN diamond_group_masters ON diamond_group_masters.id = product_diamond_options.id_diamond_group WHERE product_diamond_options.id_product = ${product.product_id} AND product_diamond_options.company_info_id=${company_info_id?.data}`,
             { type: QueryTypes.SELECT }
           );
-          const metalRates = await req.body.db_connection.query(
+          const metalRates = await dbContext.query(
             `SELECT CASE WHEN PMO.id_karat IS NULL THEN (metal.metal_rate*PMO.metal_weight) ELSE (metal.metal_rate/metal.calculate_rate*gold_kts.calculate_rate*PMO.metal_weight) END FROM products LEFT OUTER JOIN product_metal_options AS PMO ON PMO.id_product = products.id LEFT OUTER JOIN metal_masters AS metal ON PMO.id_metal = metal.id LEFT OUTER JOIN gold_kts ON PMO.id_karat = gold_kts.id WHERE products.company_info_id=${company_info_id?.data} AND CASE WHEN PMO.id_karat IS NULL THEN products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} ELSE products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} AND PMO.id_karat = ${product.order_details_json.karat_id} END`,
             { type: QueryTypes.SELECT }
           );
@@ -3153,15 +3154,15 @@ export const addConfigProductOrder = async (req: Request) => {
               await trn.rollback();
               return resNotFound({ message: PRODUCT_NOT_FOUND });
             }
-            let diamondRate: any = await req.body.db_connection.query(
+            let diamondRate: any = await dbContext.query(
               `SELECT sum(PDGM.rate*CPDO.dia_count) FROM config_product_diamonds AS CPDO  LEFT OUTER JOIN diamond_group_masters AS PDGM ON CPDO.id_diamond_group = PDGM.id WHERE CPDO.company_info_id=${company_info_id?.data} AND CPDO.config_product_id = ${product.product_id} AND CASE WHEN ${product.order_details_json.is_band} = 1 THEN  CPDO.product_type <> '' ELSE CPDO.product_type <> 'band' END`,
               { type: QueryTypes.SELECT }
             );
-            const metalRates: any = await req.body.db_connection.query(
+            const metalRates: any = await dbContext.query(
               `SELECT CASE WHEN CPMO.karat_id IS NULL THEN (SUM(metal_wt*(metal_master.metal_rate))+COALESCE(sum(CPMO.labor_charge), 0)) ELSE  (SUM(metal_wt*(metal_master.metal_rate/metal_master.calculate_rate*gold_kts.calculate_rate))+COALESCE(sum(CPMO.labor_charge), 0))  END  AS metal_rate FROM config_product_metals AS CPMO LEFT OUTER JOIN metal_masters AS metal_master ON metal_master.id = CPMO.metal_id LEFT OUTER JOIN gold_kts ON gold_kts.id = CPMO.karat_id WHERE CPMO.company_info_id=${company_info_id?.data} AND CPMO.config_product_id =  ${product.product_id} AND CASE WHEN 0 = 1 THEN  CPMO.head_shank_band <> '' ELSE CPMO.head_shank_band <> 'band' END GROUP BY config_product_id, CPMO.karat_id, CPMO.metal_id `,
               { type: QueryTypes.SELECT }
             );
-            let diamondCount: any = await req.body.db_connection.query(
+            let diamondCount: any = await dbContext.query(
               `SELECT sum(CPDO.dia_count) FROM config_product_diamonds AS CPDO  LEFT OUTER JOIN diamond_group_masters AS PDGM ON CPDO.id_diamond_group = PDGM.id WHERE CPDO.company_info_id=${company_info_id?.data} AND CPDO.config_product_id = ${product.product_id} AND CASE WHEN ${product.order_details_json.is_band} = 1 THEN  CPDO.product_type <> '' ELSE CPDO.product_type <> 'band' END`,
               { type: QueryTypes.SELECT }
             );
@@ -3218,7 +3219,7 @@ export const getAllConfigOrdersUser = async (req: Request) => {
   try {
     const { user_id, start_date, end_date, order_status } = req.query;
     const {AppUser,Orders} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -3309,7 +3310,7 @@ export const getAllConfigOrdersUser = async (req: Request) => {
 export const configOrderDetailsAPI = async (req: Request) => {
   const { order_number } = req.body;
   const {Orders} = initModels(req);
-  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
   if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
     return company_info_id;
   }
@@ -3382,7 +3383,7 @@ export const addProductWithPaypalOrder = async (req: Request) => {
       discount,
       total_tax,
     } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     const {AppUser,TaxMaster,CityData, UserAddress, Orders, OrdersDetails, Product, CurrencyData} = initModels(req);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
@@ -3428,7 +3429,7 @@ export const addProductWithPaypalOrder = async (req: Request) => {
       return resBadRequest({ message: TOTAL_AMOUNT_WRONG });
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     const order_number = crypto.randomInt(1000000000, 9999999999);
 
     try {
@@ -3655,7 +3656,7 @@ export const addProductWithPaypalOrder = async (req: Request) => {
           }
         }
       }
-      const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
+      const configData = await getWebSettingData(dbContext,company_info_id?.data)
 
       const ordersPayload = {
         order_number: `${configData.order_invoice_number_identity}-${order_number}`,
@@ -3705,11 +3706,11 @@ export const addProductWithPaypalOrder = async (req: Request) => {
           await trn.rollback();
           return resNotFound({ message: PRODUCT_NOT_FOUND });
         }
-        let diamondRate = await req.body.db_connection.query(
+        let diamondRate = await dbContext.query(
           `SELECT sum(diamond_group_masters.rate) FROM product_diamond_options LEFT OUTER JOIN diamond_group_masters ON diamond_group_masters.id = product_diamond_options.id_diamond_group WHERE product_diamond_options.id_product = ${product.product_id} AND product_diamond_options.company_info_id=${company_info_id?.data}`,
           { type: QueryTypes.SELECT }
         );
-        const metalRates = await req.body.db_connection.query(
+        const metalRates = await dbContext.query(
           `SELECT CASE WHEN PMO.id_karat IS NULL THEN (metal.metal_rate*PMO.metal_weight) ELSE (metal.metal_rate/metal.calculate_rate*gold_kts.calculate_rate*PMO.metal_weight) END FROM products LEFT OUTER JOIN product_metal_options AS PMO ON PMO.id_product = products.id LEFT OUTER JOIN metal_masters AS metal ON PMO.id_metal = metal.id LEFT OUTER JOIN gold_kts ON PMO.id_karat = gold_kts.id WHERE products.company_info_id = ${company_info_id?.data} AND CASE WHEN PMO.id_karat IS NULL THEN products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} ELSE products.id = ${product.product_id} AND PMO.id_metal = ${product.order_details_json.metal_id} AND PMO.id_karat = ${product.order_details_json.karat_id} END`,
           { type: QueryTypes.SELECT }
         );

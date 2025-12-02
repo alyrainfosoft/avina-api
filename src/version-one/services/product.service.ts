@@ -159,7 +159,7 @@ export const getAllProduct = async (req: Request) => {
     pagination.total_items = totalItems;
     pagination.total_pages = Math.ceil(totalItems / pagination.per_page_rows);
 
-    const result = await req.body.db_connection.query(`(SELECT products.id,
+    const result = await dbContext.query(`(SELECT products.id,
 products.name,
 products.sku,
 products.slug,
@@ -587,7 +587,7 @@ export const activeInactiveProduct = async (req: Request) => {
         }
       }
     }], findProduct.dataValues.id, LogsActivityType.StatusUpdate, LogsType.Product, req.body.session_res.id_app_user)
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     return resUnknownError({ data: e });
@@ -595,7 +595,7 @@ export const activeInactiveProduct = async (req: Request) => {
 };
 
 export const deleteProduct = async (req: Request) => {
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
     const {Product, ProductDiamondOption, ProductCategory, ProductMetalOption, ProductImage, ProductVideo, ProductWish, CartProducts} = initModels(req);
 
   try {
@@ -724,7 +724,7 @@ export const deleteProduct = async (req: Request) => {
       }
     }], productToBeDelete.dataValues.id, LogsActivityType.Delete, LogsType.Product, req.body.session_res.id_app_user)
     await trn.commit();
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     await trn.rollback();
@@ -808,7 +808,7 @@ export const saveProductBasicDetails = async (req: Request) => {
       return validPC;
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       if (id_product === 0) {
         const resProduct = await Product.create(
@@ -916,7 +916,7 @@ export const saveProductBasicDetails = async (req: Request) => {
         }
       }
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess({ data: resIdProduct });
     } catch (e) {
       await trn.rollback();
@@ -1310,7 +1310,7 @@ export const saveMetalDiamondDetails = async (req: Request) => {
       return resNotFound({ message: PRODUCT_NOT_FOUND });
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       const resSSST = await saveSettingStyleType({
         settingStyleType: setting_style_type,
@@ -1430,7 +1430,7 @@ const saveSettingStyleType = async (payload: ISaveSettingStyleTypePayload, clien
     },
     { where: { id: idProduct,company_info_id :client_id }, transaction: trn }
   );
-  // await refreshMaterializedProductListView(req.body.db_connection);
+  // await refreshMaterializedProductListView(dbContext);
   return resSuccess();
 };
 
@@ -1468,7 +1468,7 @@ const saveProductSize = async (payload: ISaveProductSizePayload,client_id:number
     },
     { where: { id: idProduct,company_info_id :client_id }, transaction: trn }
   );
-  // await refreshMaterializedProductListView(req.body.db_connection);
+  // await refreshMaterializedProductListView(dbContext);
   return resSuccess();
 };
 
@@ -1506,7 +1506,7 @@ const saveProductLength = async (payload: ISaveProductLengthPayload,client_id:nu
     },
     { where: { id: idProduct,company_info_id :client_id }, transaction: trn }
   );
-  // await refreshMaterializedProductListView(req.body.db_connection);
+  // await refreshMaterializedProductListView(dbContext);
   return resSuccess();
 };
 
@@ -2041,7 +2041,7 @@ export const addProductImages = async (req:Request) => {
 
     sku = productToBeUpdate.dataValues.sku;
 
-    const trn = await req.body.db_connection.transaction();
+    const trn = await dbContext.transaction();
     try {
       const imageFiles: Express.Multer.File[] = req.files as Express.Multer.File[];
 
@@ -2113,14 +2113,14 @@ export const addProductImages = async (req:Request) => {
 
           let resMFTL = null
           if (imageType == IMAGE_UPLOAD_TYPE.Meta_image) {
-              resMFTL = await moveOriginalFileToS3ByTypeAndLocation(req.body.db_connection,
+              resMFTL = await moveOriginalFileToS3ByTypeAndLocation(dbContext,
               file,
               `${PRODUCT_FILE_LOCATION}/${sku}`,
               req.body.session_res.client_id,
               req
             );
           } else {
-             resMFTL = await moveFileToS3ByTypeAndLocation(req.body.db_connection,
+             resMFTL = await moveFileToS3ByTypeAndLocation(dbContext,
               file,
               `${PRODUCT_FILE_LOCATION}/${sku}`,
               req.body.session_res.client_id,
@@ -2151,7 +2151,7 @@ export const addProductImages = async (req:Request) => {
       }
 
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess();
     } catch (e) {
       console.error(e);
@@ -2189,7 +2189,7 @@ export const addProductVideos = async (req: Request) => {
       return resNotFound({ message: VIDEOS_NOT_FOUND });
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let videoFile;
       for (videoFile of files.videos) {
@@ -2218,7 +2218,7 @@ export const addProductVideos = async (req: Request) => {
         );
       }
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess();
     } catch (e) {
       await trn.rollback();
@@ -2271,7 +2271,7 @@ export const deleteProductImages = async (req: Request) => {
         );
       }
     }
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     return resUnknownError({ data: e });
@@ -2320,7 +2320,7 @@ export const deleteProductVideos = async (req: Request) => {
         );
       }
     }
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     return resUnknownError({ data: e });
@@ -2467,7 +2467,7 @@ const processProductList = async (productList) => {
 export const productListUserSide = async (req: any) => {
   try {
     const {Collection, BrandData, Offers} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -2621,7 +2621,7 @@ export const productListUserSide = async (req: any) => {
       category = "watch";
     }
 
-    const productTotalCount = await req.body.db_connection.query(`WITH filtered_pmo AS (
+    const productTotalCount = await dbContext.query(`WITH filtered_pmo AS (
          SELECT DISTINCT ON (pmo.id_product) pmo.id,
             pmo.id_product,
             pmo.metal_weight,
@@ -2786,7 +2786,7 @@ export const productListUserSide = async (req: any) => {
 
 
 
-   const productList = await req.body.db_connection.query(`WITH filtered_pmo AS (
+   const productList = await dbContext.query(`WITH filtered_pmo AS (
          SELECT DISTINCT ON (pmo.id_product) pmo.id,
             pmo.id_product,
             pmo.metal_weight,
@@ -3016,7 +3016,7 @@ export const productListUserSide = async (req: any) => {
       (offer: any) => offer.offer_type === `${offerType.ProductType}`
     );
 
-    const findRoundingValue = await req.body.db_connection.query(`
+    const findRoundingValue = await dbContext.query(`
       SELECT * FROM price_corrections WHERE product_type In (:product_type) AND company_info_id = :company_info_id AND is_active = :is_active
     `, { type: QueryTypes.SELECT,
       replacements: {
@@ -3128,13 +3128,13 @@ export const productListUserSide = async (req: any) => {
 export const productGetByIdUserSide = async (req: any) => {
   const { DiamondGroupMaster, Tag, SizeData, LengthData, DiamondShape, MetalTone, GoldKarat, MetalMaster, Image,DiamondCaratSize} = initModels(req);
   const { slug, user_id } = req.body;
-  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
   try {
     
-    const products: any = await req.body.db_connection.query(
+    const products: any = await dbContext.query(
       `SELECT
 	P.ID,
 	P.NAME,
@@ -3560,7 +3560,7 @@ FROM
       order: [["id", "ASC"]],
     });
 
-    const center_diamond_details = await req.body.db_connection.query(
+    const center_diamond_details = await dbContext.query(
       `SELECT gemstones.name as diamond, product_diamond_options.count AS count, diamond_shapes.name as shape,  mm_sizes.value as MM_size,
        colors.value as diamond_color, clarities.value as diamond_clarity, cuts.value as diamond_cut,
         (product_diamond_options.weight*product_diamond_options.count) AS weight, product_diamond_options.weight as diamond_size_value,
@@ -3578,7 +3578,7 @@ FROM
       { type: QueryTypes.SELECT }
     );
 
-    const childProducts: any = await req.body.db_connection.query(
+    const childProducts: any = await dbContext.query(
       `SELECT
 	P.ID,
 	P.NAME,
@@ -3653,7 +3653,7 @@ FROM
       childProducts.length > 0
         ? childProducts.length == 1 && childProducts[0].id === products[0].id
           ? []
-          : await req.body.db_connection.query(
+          : await dbContext.query(
             `(SELECT carat_sizes.id, count,weight, carat_sizes.value as carat_size_value,images.image_path as image_path FROM product_diamond_options 
 LEFT JOIN diamond_group_masters ON id_diamond_group = diamond_group_masters.id
 LEFT JOIN carat_sizes ON id_carat = carat_sizes.id
@@ -3668,7 +3668,7 @@ WHERE product_diamond_options.company_info_id = ${company_info_id?.data} AND id_
       childProducts.length > 0
         ? childProducts.length == 1 && childProducts[0].id === products[0].id
           ? []
-          : await req.body.db_connection.query(
+          : await dbContext.query(
             `(SELECT diamond_shapes.id, diamond_shapes.name, diamond_shapes.sort_code,diamond_shapes.slug,images.image_path as image_path FROM product_diamond_options 
 LEFT JOIN diamond_group_masters ON id_diamond_group = diamond_group_masters.id
 LEFT JOIN diamond_shapes ON diamond_group_masters.id_shape = diamond_shapes.id
@@ -3792,11 +3792,11 @@ const productType = products[0].product_type == SingleProductType.DynemicPrice |
 
 export const featuredProductListUserSide = async (req: any) => {
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
-    const productList = await req.body.db_connection.query(
+    const productList = await dbContext.query(
       `SELECT products.id, products.name, products.sku, products.slug, products.sort_description,
   products.discount_type, products.discount_value, products.setting_style_type,products.product_type,
   products.gender, products.making_charge, products.finding_charge, products.other_charge, products.additional_detail, products.certificate,
@@ -3871,11 +3871,11 @@ ORDER BY products.id DESC
 
 export const trendingProductListUserSide = async (req: any) => {
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
-    const productList = await req.body.db_connection.query(
+    const productList = await dbContext.query(
       `SELECT products.id, products.name, products.sku, products.slug, products.sort_description,
     products.discount_type, products.discount_value, products.setting_style_type,products.product_type,
     products.gender, products.making_charge, products.finding_charge, products.other_charge, products.additional_detail,products.certificate,
@@ -3979,7 +3979,7 @@ export const featuredProductStatusUpdate = async (req: Request) => {
         }
       }
     }], findProduct.dataValues.id, LogsActivityType.StatusUpdate, LogsType.Product, req.body.session_res.id_app_user)
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
   } catch (e) {
     return resUnknownError({ data: e });
@@ -4011,7 +4011,7 @@ export const trendingProductStatusUpdate = async (req: Request) => {
       },
       { where: { id: findProduct.dataValues.id,company_info_id :req?.body?.session_res?.client_id } }
     );
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     await addActivityLogs(req,req?.body?.session_res?.client_id,[{
       old_data: { product_id: findProduct.dataValues.id, data: {...findProduct.dataValues} },
       new_data: {
@@ -4058,7 +4058,7 @@ export const saveProductMetalOption = async (req: Request) => {
       !product_platinum_options
     )
       return resBadRequest({ message: METAL_IS_REQUIRES });
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       if (size) {
@@ -4326,7 +4326,7 @@ export const saveProductMetalOption = async (req: Request) => {
         }
       }
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess();
     } catch (error) {
       await trn.rollback();
@@ -4447,7 +4447,7 @@ export const addProductAllDetailsApi = async (req: Request) => {
     )
       return resBadRequest({ message: METAL_IS_REQUIRES });
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       if (id_product === 0) {
         const productSKU = await Product.findOne({
@@ -5141,10 +5141,10 @@ export const addProductAllDetailsApi = async (req: Request) => {
       await addActivityLogs(req,req?.body?.session_res?.client_id,[{ old_data: null, new_data: activitylogs }], null, LogsActivityType.Add, LogsType.Product, req.body.session_res.id_app_user,trn)
 
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess();
     } catch (e) {
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       await trn.rollback();
       return resUnknownError({ data: e });
     }
@@ -5283,7 +5283,7 @@ export const editproductApi = async (req: Request) => {
       slug = `${slug}-${sameSlugCount}`;
     }
     let activitylogs: any = { category: [], metals: [], diamonds: [] }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       await Product.update(
         {
@@ -5923,7 +5923,7 @@ export const editproductApi = async (req: Request) => {
       await addActivityLogs(req,req?.body?.session_res?.client_id,[{ old_data: { products: productToBeUpdate.dataValues, category: productCategory.map((t: any) => t.dataValues), metals: productMetal.map((t: any) => t.dataValues), diamonds: productDiamond.map((t: any) => t.dataValues) }, new_data: activitylogs }], productToBeUpdate.dataValues.id, LogsActivityType.Edit, LogsType.Product, req.body.session_res.id_app_user,trn)
 
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess();
     } catch (e) {
       await trn.rollback();
@@ -5939,7 +5939,7 @@ export const wishlistCartListCount = async (req: Request) => {
     const { ProductWish, CartProducts, ConfigCartProduct } = initModels(req);
     const { user_id } = req.body;
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -5966,7 +5966,7 @@ export const wishlistCartListCount = async (req: Request) => {
 
 export const searchProductGlobally = async (req: any) => {
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -5983,7 +5983,7 @@ export const searchProductGlobally = async (req: any) => {
     const searchValue = req.query.search_text
       .trim();
     
-    const productList = await req.body.db_connection.query(`
+    const productList = await dbContext.query(`
       WITH filtered_pmo AS (
          SELECT DISTINCT ON (pmo.id_product) pmo.id,
             pmo.id_product,
@@ -6082,7 +6082,7 @@ export const searchProductGlobally = async (req: any) => {
   GROUP BY products.id,filtered_pmo.compare_price,filtered_pmo.id_karat,metal_master.metal_rate,filtered_pmo.metal_weight,
   sum_price.sum_price,metal_master.calculate_rate,filtered_pmo.karat_calculate_rate,product_image.image_path,categories.category_name
         `,{ type: QueryTypes.SELECT, replacements: { searchValue } })
-   const findRoundingValue = await req.body.db_connection.query(`
+   const findRoundingValue = await dbContext.query(`
       SELECT * FROM price_corrections WHERE product_type In (:product_type) AND company_info_id = :company_info_id AND is_active = :is_active
     `, { type: QueryTypes.SELECT,
       replacements: {
@@ -6118,7 +6118,7 @@ export const getBySKUConfigProductDetails = async (req: Request) => {
   try {
     const { slug } = req.params;
     const { ConfigProduct, DiamondGroupMaster, ConfigProductMetals, ConfigProductDiamonds } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -6429,7 +6429,7 @@ export const addProductWithVariant = async (req: Request) => {
     let activitylogs: any = { category: [], metals: [], diamonds: [] }
     let productId: any;
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     // product add and edit process
     try {
       // product add and edit
@@ -7066,10 +7066,10 @@ export const addProductWithVariant = async (req: Request) => {
         await addActivityLogs(req,req?.body?.session_res?.client_id,[{ old_data: null, new_data: activitylogs }], null, LogsActivityType.Edit, LogsType.Product, req.body.session_res.id_app_user,trn)
       }
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess();
     } catch (error) {
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       await trn.rollback();
       return resUnknownError({ data: error });
     }
@@ -7084,7 +7084,7 @@ export const getAllProductImageNamePublicAPI = async (req: Request) => {
   try {
     const { Product, ProductImage, MetalTone } = initModels(req);
     const { sku, images } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -7160,7 +7160,7 @@ export const getAllProductImageNamePublicAPI = async (req: Request) => {
     if (result.length > 0) {
       await ProductImage.bulkCreate(result);
     }
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess({ data: result });
   } catch (error) {
     throw error;
@@ -7169,7 +7169,7 @@ export const getAllProductImageNamePublicAPI = async (req: Request) => {
 
 export const getAllProductSlug = async (req:Request) => {
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     const { Product } = initModels(req);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
@@ -7207,7 +7207,7 @@ export const similarProductList = async (req: any) => {
     } = req.query;
     const { Product, ProductMetalOption, ProductDiamondOption, ProductCategory } = initModels(req);
     const { slug } = req.params;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -7370,8 +7370,8 @@ export const similarProductList = async (req: any) => {
       return resNotFound({ message: PRODUCT_NOT_FOUND });
     }
 
-    const configData = await getWebSettingData(req.body.db_connection,company_info_id?.data)
-    const similarProduct = await req.body.db_connection.query(`(WITH filtered_pmo AS (
+    const configData = await getWebSettingData(dbContext,company_info_id?.data)
+    const similarProduct = await dbContext.query(`(WITH filtered_pmo AS (
       SELECT DISTINCT ON (pmo.id_product) pmo.id,
          pmo.id_product,
          pmo.id_metal_group,
@@ -7576,7 +7576,7 @@ export const deleteMultipleProducts = async (req: Request) => {
     })
     await addActivityLogs(req,req?.body?.session_res?.client_id,[{ old_data: productList, new_data: updatedProducts }], productList.map((t: any) => t.dataValues.id).join(","), LogsActivityType.Delete, LogsType.Product, req.body.session_res.id_app_user)
 
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess({ message: RECORD_DELETE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -7620,7 +7620,7 @@ export const statusUpdateForMultipleProducts = async (req: Request) => {
     })
     await addActivityLogs(req,req?.body?.session_res?.client_id,[{ old_data: productList, new_data: updatedProducts }], productList.map((t: any) => t.dataValues.id).join(","), LogsActivityType.Delete, LogsType.Product, req.body.session_res.id_app_user)
 
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -7632,7 +7632,7 @@ export const getProductImagesUsingS3AndAddInDB = async (req: Request) => {
     const { Product,ProductImage,MetalTone } = initModels(req);
     const { sku } = req.body;
     let result = [];
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -7652,7 +7652,7 @@ export const getProductImagesUsingS3AndAddInDB = async (req: Request) => {
         where: { is_deleted: DeletedStatus.No,company_info_id:company_info_id?.data },
       });
 
-      const s3Images = await s3ListObjects(req.body.db_connection,`products/${productSKU}/`,company_info_id?.data);
+      const s3Images = await s3ListObjects(dbContext,`products/${productSKU}/`,company_info_id?.data);
       if (product && product.dataValues) {
         for (const tone of metalTones) {
           const filteredImages = s3Images.filter((img) =>
@@ -7686,10 +7686,10 @@ export const getProductImagesUsingS3AndAddInDB = async (req: Request) => {
     }
 
     if (result.length > 0) {
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       await ProductImage.bulkCreate(result);
     }
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess({ data: result });
   } catch (error) {
     throw error;
@@ -7710,7 +7710,7 @@ export const addProductSearchValue = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       company_info_id.data = req.body.session_res.client_id;
     } else {
-      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
       if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return decrypted;
@@ -7758,18 +7758,18 @@ export const addProductSearchValue = async (req: Request) => {
 
 export const productSearchListForUser = async (req: Request) => {
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
     const userId = req.body.session_res.id_app_user || 0;
-    const popularSearch = await req.body.db_connection.query(
+    const popularSearch = await dbContext.query(
       `(SELECT value FROM product_search_histories WHERE product_search_histories.company_info_id = ${company_info_id?.data} GROUP BY value ORDER BY COUNT(value) DESC LIMIT 10
 )`,
       { type: QueryTypes.SELECT }
     );
 
-    const recentSearch = await req.body.db_connection.query(
+    const recentSearch = await dbContext.query(
       `(SELECT id,value FROM product_search_histories WHERE product_search_histories.company_info_id = ${company_info_id?.data} AND user_id = ${userId} ORDER BY modified_date DESC LIMIT 10)`,
       { type: QueryTypes.SELECT }
     );
@@ -7786,7 +7786,7 @@ export const deleteProductSearchValueForUser = async (req: Request) => {
   try {
     const { ProductSearchHistories } = initModels(req);
     const ids = req.params.ids.split(",");
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -7803,7 +7803,7 @@ export const popularSearchList = async (req: Request) => {
     let pagination: IQueryPagination = {
       ...getInitialPaginationFromQuery(req.query),
     };
-    const totalItems = await req.body.db_connection.query(
+    const totalItems = await dbContext.query(
       `(SELECT value as ids FROM product_search_histories 
       ${req.query.search_text
         ? `WHERE product_search_histories.company_info_id = ${req?.body?.session_res?.client_id} AND value LIKE '%${req.query.search_text}%'`
@@ -7820,7 +7820,7 @@ ORDER BY COUNT(value) DESC
     pagination.total_pages = Math.ceil(
       totalItems.length / pagination.per_page_rows
     );
-    const popularSearch = await req.body.db_connection.query(
+    const popularSearch = await dbContext.query(
       `(SELECT value,COUNT(value), jsonb_agg(product_search_histories.id) as ids FROM product_search_histories 
       ${req.query.search_text
         ? `WHERE product_search_histories.company_info_id = ${req?.body?.session_res?.client_id} AND value ILIKE '%${req.query.search_text}%'`
@@ -7857,7 +7857,7 @@ export const recentSearchList = async (req: Request) => {
     let pagination: IQueryPagination = {
       ...getInitialPaginationFromQuery(req.query),
     };
-    const totalItems = await req.body.db_connection.query(
+    const totalItems = await dbContext.query(
       `(SELECT product_search_histories.* FROM product_search_histories  
         LEFT JOIN app_users ON app_users.id = user_id
         LEFT JOIN customer_users ON customer_users.id_app_user = app_users.id
@@ -7880,7 +7880,7 @@ export const recentSearchList = async (req: Request) => {
       (req.query.sort_by && req.query.sort_by.toString()) || "modified_date";
     pagination.order_by =
       (req.query.order_by && req.query.order_by.toString()) || "desc";
-    const recentSearch = await req.body.db_connection.query(
+    const recentSearch = await dbContext.query(
       `(SELECT product_search_histories.*,customer_users.full_name,customer_users.email FROM product_search_histories  
         LEFT JOIN app_users ON app_users.id = user_id
         LEFT JOIN customer_users ON customer_users.id_app_user = app_users.id
@@ -7904,11 +7904,11 @@ export const recentSearchList = async (req: Request) => {
 
 export const withoutVariantProductExport = async (req: Request) => {
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
-    const products = await req.body.db_connection.query(
+    const products = await dbContext.query(
       `SELECT 
 1 as id_parent,
 main_cat.category_name as category,
@@ -8009,7 +8009,7 @@ export const getProductsBasedOnTheSettingStyle = async (req: any) => {
   try {
     const { Image,SettingTypeData, SizeData, LengthData, MetalTone, MetalMaster, GoldKarat, DiamondCaratSize, DiamondShape} = initModels(req);
     const { setting_style, user_id } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         
         return company_info_id;
@@ -8023,7 +8023,7 @@ export const getProductsBasedOnTheSettingStyle = async (req: any) => {
       return resUnprocessableEntity({ message: prepareMessageFromParams(DATA_NOT_FOUND, [["field_name", "Setting Style"]]) });
     }
 
-      const products: any = await req.body.db_connection.query(
+      const products: any = await dbContext.query(
         `SELECT
     P.ID,
     P.NAME,
@@ -8474,7 +8474,7 @@ export const getProductsBasedOnTheSettingStyle = async (req: any) => {
     
 export const getProductQuantityDetails = async (req: Request) => {
   try {
-    const products = await req.body.db_connection.query(
+    const products = await dbContext.query(
       `SELECT 
         p.id,
         p.sku,

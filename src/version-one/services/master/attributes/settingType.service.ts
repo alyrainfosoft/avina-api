@@ -27,6 +27,7 @@ import {
   statusUpdateValue,
 } from "../../../../utils/shared-functions";
 import { initModels } from "../../../model/index.model";
+import dbContext from "../../../../config/db-context";
 
 export const addSettingType = async (req: Request) => {
   try {
@@ -54,7 +55,7 @@ export const addSettingType = async (req: Request) => {
     ) {
       return resErrorDataExit();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       let idImage = null;
@@ -235,7 +236,7 @@ export const updateSettingType = async (req: Request) => {
     ) {
       return resErrorDataExit();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let imageId = null;
       let findImage = null;

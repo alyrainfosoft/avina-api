@@ -100,7 +100,7 @@ export const addOrEditMailTemplate = async (req: Request) => {
       validatedMessageType = message_type; // If valid, store it
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       if (templateId) {

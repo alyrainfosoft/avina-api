@@ -12,6 +12,7 @@ import { Op, QueryTypes, Transaction } from "sequelize";
 import { addActivityLogs, getCompanyIdBasedOnTheCompanyKey, getLocalDate, imageAddAndEditInDBAndS3, resSuccess, resUnknownError } from "../../../utils/shared-functions";
 import { DEFAULT_STATUS_CODE_SUCCESS } from "../../../utils/app-messages";
 import { initModels } from "../../model/index.model";
+import dbContext from "../../../config/db-context";
 
 const updateConfigFlag = async (
   list: any,
@@ -2172,7 +2173,7 @@ const updateDiamondColorClarity = async (
     //   where: { is_deleted: DeletedStatus.No, is_active: ActiveStatus.Active },
     //   transaction: trn,
     // });
-    const diamondGroupMaster = await (req.body.db_connection).query(
+    const diamondGroupMaster = await (dbContext).query(
       `WITH ranked_diamonds AS (
     SELECT 
         id_color, 
@@ -2490,7 +2491,7 @@ GROUP BY id_color, id_clarity, id, is_diamond_type;
 };
 export const updateConfiguratorMasterData = async (req: Request) => {
   const { MetalMaster, GoldKarat, StoneData, MetalTone, CutsData } = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   try {
     const {
       metal_master,
@@ -2844,7 +2845,7 @@ export const allMasterListData = async (req: Request) => {
       ],
     });
 
-    const colorClarityData = await (req.body.db_connection).query(
+    const colorClarityData = await (dbContext).query(
       `WITH ranked_diamonds AS (
     SELECT 
         id_color, 
@@ -2960,7 +2961,7 @@ GROUP BY id_color, id_clarity, id, color_name, clarity_name ORDER BY ID ASC;`,
 
 export const updateImageForSideSettingForConfig = async (req: Request) => {
   const { SideSettingStyles } = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   try {
     const { side_setting = [] } = req.body
     const { config_type } = req.params
@@ -2970,7 +2971,7 @@ export const updateImageForSideSettingForConfig = async (req: Request) => {
         if (req?.body?.session_res?.client_id) {
           company_info_id.data = req.body.session_res.client_id;
         } else {
-          const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+          const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
     
           if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
             return decrypted;
@@ -3119,7 +3120,7 @@ export const getSideSettingImageForConfig = async (req: Request) => {
     if (req?.body?.session_res?.client_id) {
       company_info_id.data = req.body.session_res.client_id;
     } else {
-      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, req.body.db_connection);
+      const decrypted = await getCompanyIdBasedOnTheCompanyKey(req.query, dbContext);
 
       if (decrypted.code !== DEFAULT_STATUS_CODE_SUCCESS) {
         return decrypted;

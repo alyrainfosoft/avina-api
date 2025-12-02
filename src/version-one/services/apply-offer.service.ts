@@ -2,6 +2,7 @@ import { QueryTypes } from "sequelize";
 import { ActiveStatus, condition, couponType, DeletedStatus, isCombined, offerType, userSegments } from "../../utils/app-enumeration";
 import { getLocalDate, resSuccess, resUnknownError } from "../../utils/shared-functions";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const applyOffer = async (req: Request, cart_list: any, client_id: number) => {
   try {
@@ -310,7 +311,7 @@ const fetchActiveOffers = async (req: any, client_id: number) => {
        AND offers.is_deleted = '${DeletedStatus.No}'
        AND offers.company_info_id = ${client_id}
       GROUP BY offers.id`;
-  return await req.body.db_connection.query(activeOffersQuery, { type: QueryTypes.SELECT });
+  return await dbContext.query(activeOffersQuery, { type: QueryTypes.SELECT });
 };
 
 // // Simulate a database query function to get user data from the `app_user` table
@@ -390,7 +391,7 @@ const getTotalOfferUsageCount = async (offer_id: any,req:any): Promise<number> =
         (o.offer_details->>'offer_id')::int = :offer_id
   `;
 
-  const orderDatabase: any = await req.body.db_connection.query(productDetailsQuery, {
+  const orderDatabase: any = await dbContext.query(productDetailsQuery, {
     replacements: { offer_id: offer_id },
     type: QueryTypes.SELECT,
   });
@@ -414,7 +415,7 @@ const getUserOfferUsageCount = async (user_id: any, offer_id: any,req:any): Prom
       AND (o.offer_details->>'offer_id')::int = :offer_id
 `;
 
-  const orderDatabase = await req.body.db_connection.query(productDetailsQuery, {
+  const orderDatabase = await dbContext.query(productDetailsQuery, {
     replacements: { user_id: user_id ? user_id : 207, offer_id: offer_id },// need to remove befor uploaded
     type: QueryTypes.SELECT,
   });
@@ -463,7 +464,7 @@ const isProductEligible = async (offer: any, product_id: any,req:any): Promise<b
         p.id = :product_id
   `;
 
-  const productDetails: any = await req.body.db_connection.query(productDetailsQuery, {
+  const productDetails: any = await dbContext.query(productDetailsQuery, {
     replacements: { product_id: product_id },
     type: QueryTypes.SELECT,
   });

@@ -4,6 +4,7 @@ import { ActiveStatus, DeletedStatus, IMAGE_TYPE, LogsActivityType, LogsType } f
 import { DEFAULT_STATUS_CODE_SUCCESS, NOT_FOUND_MESSAGE, RECORD_DELETE_SUCCESSFULLY, RECORD_UPDATE_SUCCESSFULLY } from "../../utils/app-messages";
 import { Op, Sequelize } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addAboutUsSection = async (req: Request) => {
     try {
@@ -21,7 +22,7 @@ export const addAboutUsSection = async (req: Request) => {
         button_text_hover_color,
         content,
       } = req.body;
-      const trn = await (req.body.db_connection).transaction();
+      const trn = await (dbContext).transaction();
       try {
         const { AboutUsData } = initModels(req);
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -115,7 +116,7 @@ export const addAboutUsSection = async (req: Request) => {
       if (!(findAboutUsSection && findAboutUsSection.dataValues)) {
         return resNotFound({ message: NOT_FOUND_MESSAGE });
       }
-      const trn = await (req.body.db_connection).transaction();
+      const trn = await (dbContext).transaction();
       try {
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
         let imageId = null;
@@ -369,7 +370,7 @@ export const addAboutUsSection = async (req: Request) => {
   export const aboutUsSectionListForUser = async (req: Request) => {
     try {
       const { AboutUsData,Image } = initModels(req);
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
       }
@@ -409,7 +410,7 @@ export const addAboutUsSection = async (req: Request) => {
   export const aboutUsSectionDetailForUser = async (req: Request) => {
     try {
       const { AboutUsData, Image } = initModels(req);
-      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+      const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
       if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
         return company_info_id;
       }

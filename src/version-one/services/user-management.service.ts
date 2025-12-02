@@ -205,7 +205,7 @@ export const getBusinessUserById = async (req: Request) => {
 };
 
 export const addBusinessUser = async (req: Request) => {
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   const { BusinessUser, AppUser, Role, Image } = initModels(req);
   try {
     const { email, password, name, phone_number, id_role, is_active } =
@@ -242,7 +242,7 @@ export const addBusinessUser = async (req: Request) => {
     const pass_hash = await bcrypt.hash(password, Number(PASSWORD_SOLT));
 
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         req.file,
         IMAGE_TYPE.profile,
         req?.body?.session_res?.client_id,
@@ -319,7 +319,7 @@ export const addBusinessUser = async (req: Request) => {
 };
 
 export const updateBusinessUser = async (req: Request) => {
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   const { BusinessUser, AppUser, Role, Image } = initModels(req);
 
   try {
@@ -415,7 +415,7 @@ export const updateBusinessUser = async (req: Request) => {
     }
 
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         req.file,
         IMAGE_TYPE.profile,
         req?.body?.session_res?.client_id,
@@ -506,7 +506,7 @@ export const updateBusinessUser = async (req: Request) => {
 };
 
 export const deleteBusinessUser = async (req: Request) => {
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   const { BusinessUser, AppUser, Role, Image } = initModels(req);
 
   try {

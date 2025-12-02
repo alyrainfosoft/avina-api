@@ -17,7 +17,7 @@ import { PUBLIC_AUTHORIZATION_TOKEN, SECURE_COMMUNICATION } from "../../config/e
 import { PUBLIC_API_URL } from "../../utils/app-constants";
 import {ExceptionLogs} from "../model/exception-logs.model";
 import dbContext from "../../config/db-context";
-import getSubSequelize from "../../utils/sub-db-connector";
+// Removed getSubSequelize import - using dbContext directly
 const crypto = require("crypto");
 
 export async function callServiceMethod(
@@ -37,8 +37,8 @@ export async function callServiceMethod(
     };
     if (data.code !== DEFAULT_STATUS_CODE_SUCCESS) {
 
-      const dbConnection = req.body.db_connection;
-      delete req.body.db_connection;
+      const dbConnection = dbContext;
+      delete dbContext;
         await ExceptionLogs(dbConnection || dbContext).create({
           request_body:req?.body,
           request_query:req?.query,
@@ -59,8 +59,8 @@ export async function callServiceMethod(
         data: err.data && typeof err != "object" ? parseData(err) : null,
       },
     };
-     const dbConnection = req.body.db_connection;
-      delete req.body.db_connection;
+     const dbConnection = dbContext;
+      delete dbContext;
      await ExceptionLogs(dbConnection || dbContext).create({
       request_body:req?.body,
       request_query:req?.query,

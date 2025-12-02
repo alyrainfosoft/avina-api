@@ -4,6 +4,7 @@ import { getLocalDate, resSuccess, resUnknownError } from "../../utils/shared-fu
 import { QueryTypes } from "sequelize";
 import { initModels } from "../model/index.model";
 import app from "../../config/app";
+import dbContext from "../../config/db-context";
 
 export const applyOfferWithBuyNewOneGetOne = async (req: Request, cart_list: any, client_id: number) => {
   try {
@@ -515,7 +516,7 @@ export const fetchActiveOffers = async (req: any) => {
        AND offers.is_deleted = '${DeletedStatus.No}'
       GROUP BY offers.id`;
   
-  return await req.body.db_connection.query(activeOffersQuery, { type: QueryTypes.SELECT });
+  return await dbContext.query(activeOffersQuery, { type: QueryTypes.SELECT });
 };
 
 function calculateDiscountOfBuyXGetY(product: any, offer: any) {
@@ -617,7 +618,7 @@ const getTotalOfferUsageCount = async (offer_id: any, req: any): Promise<any> =>
     WHERE 
         (o.offer_details->>'offer_id')::int = :offer_id
   `;
-  const orderDatabase: any = await req.body.db_connection.query(productDetailsQuery, {
+  const orderDatabase: any = await dbContext.query(productDetailsQuery, {
     replacements: { offer_id: offer_id },
     type: QueryTypes.SELECT,
   });
@@ -636,7 +637,7 @@ const getUserOfferUsageCount = async (user_id: any, offer_id: any, req:any): Pro
       o.user_id = :user_id 
       AND (o.offer_details->>'offer_id')::int = :offer_id
 `;
-  const orderDatabase = await req.body.db_connection.query(productDetailsQuery, {
+  const orderDatabase = await dbContext.query(productDetailsQuery, {
     replacements: { user_id: user_id ? user_id : 207, offer_id: offer_id },
     type: QueryTypes.SELECT
   });
@@ -660,7 +661,7 @@ const isProductEligible = async (offer: any, product_id: any,req:any): Promise<b
     WHERE 
         p.id = :product_id
   `;
-  const productDetails: any = await req.body.db_connection.query(productDetailsQuery, {
+  const productDetails: any = await dbContext.query(productDetailsQuery, {
     replacements: { product_id: product_id },
     type: QueryTypes.SELECT,
   });

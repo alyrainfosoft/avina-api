@@ -37,6 +37,7 @@ import axios from "axios";
 import { Sequelize } from "sequelize";
 import { initModels } from "../model/index.model";
 import { PAYMENT_METHOD_ID_FROM_LABEL } from "../../utils/app-constants";
+import dbContext from "../../config/db-context";
 export const PaymentTransaction = async (req: Request) => {
   const {Orders, OrdersDetails, OrderTransaction, Invoices, ProductMetalOption, CurrencyData,CustomerUser,CartProducts} = initModels(req);
   const { order_id, order_number, amount, token } = req.body;
@@ -46,7 +47,7 @@ export const PaymentTransaction = async (req: Request) => {
     error_message: any;
   }[] = [];
 
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
 
   const orderValidate = await Orders.findOne({
     where: {
@@ -86,7 +87,7 @@ export const PaymentTransaction = async (req: Request) => {
   });
 
   let i = (await Invoices.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
+  const configData =  await getWebSettingData(dbContext,orderAmontValidate?.dataValues?.company_info_id);
 
   const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
 
@@ -761,7 +762,7 @@ export const invoivesDetailsApi = async (req: Request) => {
     const { Invoices,Orders, CurrencyData,StoreAddress,OrdersDetails } = initModels(req);
     const { order_id } = req.body;
 
-    const configData =  await getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id);
+    const configData =  await getWebSettingData(dbContext,req?.body?.session_res?.client_id);
     const result = await Invoices.findOne({
       where: { order_id: order_id },
       attributes: [
@@ -1051,7 +1052,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
     error_message: any;
   }[] = [];
   const {GiftSetProductOrder,GiftSetOrdersDetails, GiftSetProductInvoice, GiftSetProductOrderTransaction,OrdersDetails,CustomerUser} = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
 
   const orderValidate = await GiftSetProductOrder.findOne({
     where: {
@@ -1091,7 +1092,7 @@ export const giftProductPaymentTransaction = async (req: Request) => {
   });
 
   let i = (await GiftSetProductInvoice.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
+  const configData =  await getWebSettingData(dbContext,orderAmontValidate?.dataValues?.company_info_id);
 
   const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
 
@@ -1658,7 +1659,7 @@ export const configProductPaymentTransaction = async (req: Request) => {
     error_message: any;
   }[] = [];
 
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
 
   const orderValidate = await Orders.findOne({
     where: {
@@ -1702,7 +1703,7 @@ export const configProductPaymentTransaction = async (req: Request) => {
   });
 
   let i = (await Invoices.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
+  const configData =  await getWebSettingData(dbContext,orderAmontValidate?.dataValues?.company_info_id);
 
   const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
 
@@ -2358,7 +2359,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
   //   error_message: any;
   // }[] = [];
 
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
 
   const orderValidate = await Orders.findOne({
     where: {
@@ -2400,7 +2401,7 @@ export const PaymentTransactionWithPaypal = async (req: Request) => {
   });
 
   let i = (await Invoices.count()) + 1;
-  const configData =  await getWebSettingData(req.body.db_connection,orderAmontValidate?.dataValues?.company_info_id);
+  const configData =  await getWebSettingData(dbContext,orderAmontValidate?.dataValues?.company_info_id);
   const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
 
   if (status == "SUCCESS") {

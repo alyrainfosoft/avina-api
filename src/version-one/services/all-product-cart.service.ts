@@ -117,7 +117,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       variant_id,
       shopNow = false
     } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -437,7 +437,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -450,7 +450,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -690,7 +690,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -703,7 +703,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -1018,7 +1018,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1031,7 +1031,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -1198,7 +1198,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1211,7 +1211,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -1383,7 +1383,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1396,7 +1396,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -1964,7 +1964,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -1977,7 +1977,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -2190,7 +2190,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -2203,7 +2203,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -2466,7 +2466,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
       } else {
         let imagePath = null;
         if (req.file) {
-          const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+          const moveFileResult = await moveFileToS3ByType(dbContext,
             req.file,
             IMAGE_TYPE.ConfigProduct,
             company_info_id?.data,
@@ -2479,7 +2479,7 @@ export const addToCartAllProductAPI = async (req: Request) => {
 
           imagePath = moveFileResult.data;
         }
-        const trn = await (req.body.db_connection).transaction();
+        const trn = await (dbContext).transaction();
         try {
           let idImage = null;
           if (imagePath) {
@@ -2589,7 +2589,7 @@ export const cartAllProductListByUSerId = async (req: Request) => {
   const { user_id } = req.body;
   const { AppUser, CartProducts, MetalTone } = initModels(req);
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -2943,7 +2943,7 @@ export const cartAllWithBirthstoneProductRetailListByUSerId = async (
   const { user_id } = req.body;
   const { AppUser, CartProducts, CouponData, TaxMaster } = initModels(req);
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -3545,7 +3545,7 @@ WHERE birthstone_PMO.id = "variant_id") WHEN "product_type" = ${AllProductTypes.
 
     let shippingChargeValue: any = 0;
     let shippingChargeWithoutFormate: any = 0;
-    const shippingCharge = await applyShippingCharge(req.body.db_connection, amount, req?.query);
+    const shippingCharge = await applyShippingCharge(dbContext, amount, req?.query);
     if (shippingCharge.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       shippingChargeValue = 0;
       shippingChargeWithoutFormate = 0
@@ -3588,7 +3588,7 @@ export const getShopNowCartList = async (
   const { cart_ids } = req.params;
   const { CartProducts, CouponData, TaxMaster } = initModels(req);
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -4184,7 +4184,7 @@ WHERE birthstone_PMO.id = "variant_id") WHEN "product_type" = ${AllProductTypes.
 
     let shippingChargeValue: any = 0;
     let shippingChargeWithoutFormate: any = 0;
-    const shippingCharge = await applyShippingCharge(req.body.db_connection, amount, req?.query);
+    const shippingCharge = await applyShippingCharge(dbContext, amount, req?.query);
     if (shippingCharge.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       shippingChargeValue = 0;
       shippingChargeWithoutFormate = 0
@@ -4224,7 +4224,7 @@ WHERE birthstone_PMO.id = "variant_id") WHEN "product_type" = ${AllProductTypes.
 export const mergeCartAddProductAPI = async (req: Request) => {
   try {
     const { AppUser, CartProducts } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -4353,7 +4353,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
     }
 
     const deliverydays: any = [];
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -4481,7 +4481,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
 
     const variantQuantityToCheck = {};
     const productDataForMail = [];
-    const configData = await getWebSettingData(req.body.db_connection, company_info_id?.data);
+    const configData = await getWebSettingData(dbContext, company_info_id?.data);
     for (let product of product_details) {
       if (!product.product_id) {
         return resBadRequest({ message: INVALID_ID });
@@ -4640,7 +4640,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
       }
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     const order_number = crypto.randomInt(1000000000, 9999999999);
 
     try {
@@ -5114,7 +5114,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             await trn.rollback();
             return resNotFound({ message: SINGLE_PRODUCT_NOT_FOUND });
           }
-          let diamondRate = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await req.body.db_connection.query(
+          let diamondRate = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await dbContext.query(
             `SELECT SUM((CASE
                 WHEN DIAMOND_GROUP_MASTERS.RATE IS NOT NULL
                 AND DIAMOND_GROUP_MASTERS.RATE != 0 THEN DIAMOND_GROUP_MASTERS.RATE
@@ -5125,7 +5125,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             WHERE PRODUCT_DIAMOND_OPTIONS.ID_PRODUCT = ${product.product_id} AND PRODUCT_DIAMOND_OPTIONS.is_deleted = '${DeletedStatus.No}' ${product.product_type == AllProductTypes.SingleTreasure || product.product_type == AllProductTypes.SettingProduct  ? `AND PRODUCT_DIAMOND_OPTIONS.ID_TYPE = 2` : ''}`,
             { type: QueryTypes.SELECT }
           );
-          const metalRates = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await req.body.db_connection.query(
+          const metalRates = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await dbContext.query(
             `SELECT CASE
                 WHEN PMO.ID_KARAT IS NULL THEN (METAL.METAL_RATE * PMO.METAL_WEIGHT)
                 ELSE (METAL.METAL_RATE / METAL.CALCULATE_RATE * GOLD_KTS.CALCULATE_RATE * PMO.METAL_WEIGHT)
@@ -5182,7 +5182,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             await trn.rollback();
             return resNotFound({ message: RING_CONFIG_PRODUCT_NOT_FOUND });
           }
-          const productDetail: any = await req.body.db_connection.query(`(SELECT config_products.*, 
+          const productDetail: any = await dbContext.query(`(SELECT config_products.*, 
             JSON_BUILD_OBJECT(	'id', center_diamond_group_id,
               'dia_cts', center_dia_cts,
                 'dia_size', center_dia_size,
@@ -5248,7 +5248,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
               GROUP BY config_products.id, DGM.id, cen_stone.name, cen_shape.name,
               cen_colors.value, cen_clarity.value, cen_cuts.value, cen_mm_size.value,cen_carat_sizes.value)`, { type: QueryTypes.SELECT })
 
-          let SideDiamondRate: any = await req.body.db_connection.query(
+          let SideDiamondRate: any = await dbContext.query(
             `SELECT SUM(PDGM.RATE * CPDO.DIA_COUNT * CPDO.DIA_WEIGHT)
                 FROM CONFIG_PRODUCT_DIAMONDS AS CPDO
                 LEFT OUTER JOIN DIAMOND_GROUP_MASTERS AS PDGM ON CPDO.ID_DIAMOND_GROUP = PDGM.ID
@@ -5260,7 +5260,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             { type: QueryTypes.SELECT }
           );
 
-          let centerDiamondRate = await req.body.db_connection.query(`(SELECT  
+          let centerDiamondRate = await dbContext.query(`(SELECT  
                 CASE WHEN config_products.center_dia_type = 1 THEN DGM.rate ELSE DGM.synthetic_rate END *
                 CASE WHEN gemstones.is_diamond = 1 THEN 
                   CASE WHEN DGM.average_carat IS NOT NULL 
@@ -5271,7 +5271,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
               LEFT JOIN gemstones ON gemstones.id = DGM.id_stone
               LEFT JOIN carat_sizes ON carat_sizes.id = DGM.id_carat
               WHERE config_products.id = ${product.product_id})`, {type: QueryTypes.SELECT })
-          const metalRates: any = await req.body.db_connection.query(
+          const metalRates: any = await dbContext.query(
             `SELECT CASE
                 WHEN CPMO.KARAT_ID IS NULL 
                 THEN (SUM(METAL_WT * (METAL_MASTER.METAL_RATE)) + COALESCE(SUM(CPMO.LABOR_CHARGE),0))
@@ -5288,7 +5288,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             GROUP BY cpmo.karat_id, cpmo.metal_id, CPMO.CONFIG_PRODUCT_ID`,
             { type: QueryTypes.SELECT }
           );
-          let diamondCount: any = await req.body.db_connection.query(
+          let diamondCount: any = await dbContext.query(
             `SELECT sum(CPDO.dia_count) FROM config_product_diamonds AS CPDO  LEFT OUTER JOIN diamond_group_masters AS PDGM ON CPDO.id_diamond_group = PDGM.id WHERE CPDO.config_product_id = ${product.product_id} AND CASE WHEN ${product.order_details_json.is_band} = 1 THEN  CPDO.product_type <> '' ELSE LOWER(CPDO.product_type) <> 'band' END`,
             { type: QueryTypes.SELECT }
           );
@@ -5333,7 +5333,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             return resNotFound({ message: RING_CONFIG_PRODUCT_NOT_FOUND });
           }
 
-          let sideDiamondRate: any = await req.body.db_connection.query(
+          let sideDiamondRate: any = await dbContext.query(
             `SELECT SUM(CASE
             WHEN lower(CPDO.product_type::text) = 'side'::text THEN pdgm.rate * cpdo.dia_count::double precision *
                 +CASE
@@ -5356,7 +5356,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
                 END`,
             { type: QueryTypes.SELECT }
           );
-          let centerDiamondRate = await req.body.db_connection.query(`(SELECT  
+          let centerDiamondRate = await dbContext.query(`(SELECT  
                 CASE WHEN config_products.center_dia_type = 1 THEN DGM.rate ELSE DGM.synthetic_rate END *
                 CASE WHEN gemstones.is_diamond = 1 THEN 
                   CASE WHEN DGM.average_carat IS NOT NULL 
@@ -5367,7 +5367,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
               LEFT JOIN gemstones ON gemstones.id = DGM.id_stone
               LEFT JOIN carat_sizes ON carat_sizes.id = DGM.id_carat
               WHERE config_products.id = ${product.product_id})`, {type: QueryTypes.SELECT })
-          const metalRates: any = await req.body.db_connection.query(
+          const metalRates: any = await dbContext.query(
             `SELECT CASE
                 WHEN CPMO.KARAT_ID IS NULL 
                 THEN (SUM(METAL_WT * (METAL_MASTER.METAL_RATE)) + COALESCE(SUM(CPMO.LABOR_CHARGE),0))
@@ -5384,11 +5384,11 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             GROUP BY cpmo.karat_id, cpmo.metal_id, CPMO.CONFIG_PRODUCT_ID`,
             { type: QueryTypes.SELECT }
           );
-          let diamondCount: any = await req.body.db_connection.query(
+          let diamondCount: any = await dbContext.query(
             `SELECT sum(CPDO.dia_count) FROM config_product_diamonds AS CPDO  LEFT OUTER JOIN diamond_group_masters AS PDGM ON CPDO.id_diamond_group = PDGM.id WHERE CPDO.config_product_id = ${product.product_id} AND CASE WHEN ${product.order_details_json.is_band} = 1 THEN  CPDO.product_type <> '' ELSE CPDO.product_type <> 'band' END`,
             { type: QueryTypes.SELECT }
           );
-          const productDetail: any = await req.body.db_connection.query(`(SELECT config_products.*, 
+          const productDetail: any = await dbContext.query(`(SELECT config_products.*, 
                   JSON_BUILD_OBJECT(	'id', center_diamond_group_id,
                     'dia_cts', center_dia_cts,
                       'dia_size', center_dia_size,
@@ -5538,7 +5538,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             return resNotFound({ message: GIFT_SET_PRODUCT_NOT_FOUND });
           }
 
-          const productDetail = await req.body.db_connection.query(`(SELECT birthstone_products.*,
+          const productDetail = await dbContext.query(`(SELECT birthstone_products.*,
             JSONB_AGG(DISTINCT JSONB_BUILD_OBJECT('id', BPMO.id,
                'metal_weight', BPMO.metal_weight,
                'plu_no', BPMO.plu_no,
@@ -5629,7 +5629,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
             await trn.rollback();
             return resNotFound({ message: ETERNITY_BAND_PRODUCT_NOT_FOUND });
           }
-          const productDetail = await req.body.db_connection.query(`(SELECT CEP.*, 
+          const productDetail = await dbContext.query(`(SELECT CEP.*, 
                   JSON_BUILD_OBJECT(	'id', CEP.diamond_group_id,
                     'dia_cts', CEP.dia_cts,
                     'rate', DGM.rate,
@@ -5691,7 +5691,7 @@ export const addAllTypeProductWithPaypalOrder = async (req: Request) => {
                     GROUP BY CEP.id, DGM.id, cen_stone.name, cen_shape.name,
                     cen_colors.value, cen_clarity.value, cen_cuts.value, cen_mm_size.value,cen_carat_sizes.value)`, { type: QueryTypes.SELECT });
 
-          let diamondRate: any = await req.body.db_connection.query(
+          let diamondRate: any = await dbContext.query(
             `(SELECT 
     SUM(
         (CASE WHEN ${productData.dataValues.dia_type} = 1 THEN PDGM.rate ELSE PDGM.synthetic_rate END) 
@@ -5715,7 +5715,7 @@ WHERE
     CPDO.ID = ${product.product_id} AND CPDO.is_deleted = '${DeletedStatus.No}')`,
             { type: QueryTypes.SELECT }
           );
-          const metalRates: any = await req.body.db_connection.query(
+          const metalRates: any = await dbContext.query(
             `SELECT CASE
                 WHEN CPMO.KARAT_ID IS NULL THEN (SUM(METAL_WT * (METAL_MASTER.METAL_RATE)) + COALESCE(SUM(CPMO.LABOUR_CHARGE),0))
                 ELSE (SUM(METAL_WT * (METAL_MASTER.METAL_RATE / METAL_MASTER.CALCULATE_RATE * GOLD_KTS.CALCULATE_RATE)) + COALESCE(SUM(CPMO.LABOUR_CHARGE),0))
@@ -5775,16 +5775,16 @@ WHERE
             return resNotFound({ message: BRACELET_PRODUCT_NOT_FOUND });
           }
 
-          let diamondRate: any = await req.body.db_connection.query(
+          let diamondRate: any = await dbContext.query(
             `(SELECT (COALESCE(SUM(${productData.dataValues.product_diamond_type == 1 ? `PDGM.RATE` : `PDGM.SYNTHETIC_RATE`} * CPDO.DIA_COUNT * CPDO.DIA_WT),0)) AS sum FROM CONFIG_BRACELET_PRODUCT_DIAMONDS AS CPDO LEFT JOIN DIAMOND_GROUP_MASTERS AS PDGM ON PDGM.ID = ID_DIAMOND_GROUP_MASTER AND PDGM.IS_DELETED = '${DeletedStatus.No}' WHERE CPDO.CONFIG_PRODUCT_ID = ${product.product_id} GROUP BY CONFIG_PRODUCT_ID)`,
             { type: QueryTypes.SELECT }
           );
 
-          const metalRates: any = await req.body.db_connection.query(
+          const metalRates: any = await dbContext.query(
             `(SELECT CASE WHEN CPMO.ID_KARAT IS NULL THEN (SUM(METAL_WT * (METAL_MASTER.METAL_RATE)) + COALESCE(SUM(CPMO.LABOUR_CHARGE),0)) ELSE (SUM(METAL_WT * (METAL_MASTER.METAL_RATE / METAL_MASTER.CALCULATE_RATE * GOLD_KTS.calculate_rate))) + COALESCE(SUM(CPMO.LABOUR_CHARGE), 0) END AS METAL_RATE FROM CONFIG_BRACELET_PRODUCT_METALS AS CPMO LEFT OUTER JOIN METAL_MASTERS AS METAL_MASTER ON METAL_MASTER.ID = CPMO.ID_METAL LEFT OUTER JOIN GOLD_KTS ON GOLD_KTS.ID = CPMO.ID_KARAT WHERE CPMO.CONFIG_PRODUCT_ID = ${product.product_id} GROUP BY CONFIG_PRODUCT_ID, CPMO.ID_KARAT, CPMO.ID_METAL)`,
             { type: QueryTypes.SELECT }
           );
-          const productDetail = await req.body.db_connection.query(
+          const productDetail = await dbContext.query(
             `(SELECT CBP.*, 
       
                 JSONB_AGG(DISTINCT jsonb_build_object('id', CBPM.id,
@@ -6019,7 +6019,7 @@ WHERE
             return resNotFound({ message: SINGLE_PRODUCT_NOT_FOUND });
           }
 
-          let diamondRate = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await req.body.db_connection.query(
+          let diamondRate = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await dbContext.query(
             `SELECT SUM((CASE
                 WHEN DIAMOND_GROUP_MASTERS.RATE IS NOT NULL
                 AND DIAMOND_GROUP_MASTERS.RATE != 0 THEN DIAMOND_GROUP_MASTERS.RATE
@@ -6030,7 +6030,7 @@ WHERE
             WHERE PRODUCT_DIAMOND_OPTIONS.ID_PRODUCT = ${product.product_id} AND PRODUCT_DIAMOND_OPTIONS.is_deleted = '${DeletedStatus.No}' ${product.product_type == AllProductTypes.SingleTreasure || product.product_type == AllProductTypes.SettingProduct  ? `AND PRODUCT_DIAMOND_OPTIONS.ID_TYPE = 2` : ''}`,
             { type: QueryTypes.SELECT }
           );
-          const metalRates = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await req.body.db_connection.query(
+          const metalRates = products.dataValues.product_type == SingleProductType.VariantType ? 0 : await dbContext.query(
             `SELECT CASE
                 WHEN PMO.ID_KARAT IS NULL THEN (METAL.METAL_RATE * PMO.METAL_WEIGHT)
                 ELSE (METAL.METAL_RATE / METAL.CALCULATE_RATE * GOLD_KTS.CALCULATE_RATE * PMO.METAL_WEIGHT)
@@ -6225,7 +6225,7 @@ WHERE
         } else {
           await trn.commit();
           // return resSuccess({data: orders})
-          // await refreshMaterializedProductListView(req.body.db_connection);
+          // await refreshMaterializedProductListView(dbContext);
           return resSuccess({ data: { orderData: orders.dataValues } });
         }
       }
@@ -6373,7 +6373,7 @@ export const allTypeProductPaymentTransactionWithPaypal = async (
     //   let i = (await Invoives.count()) + 1;
 
     //   const invoice_number = i.toString().padStart(INVOICE_NUMBER_DIGIT, "0");
-    //   const trn = await (req.body.db_connection).transaction();
+    //   const trn = await (dbContext).transaction();
 
     //   if (status == "SUCCESS") {
     //     try {
@@ -6924,11 +6924,11 @@ export const allTypeProductPaymentTransactionWithAffirm = async (
       error_status: number;
       error_message: any;
     }[] = [];
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     const orderValidate = await Orders.findOne({
       where: {
@@ -6970,7 +6970,7 @@ export const allTypeProductPaymentTransactionWithAffirm = async (
     });
 
     let i = (await Invoices.count()) + 1;
-    const configData = await getWebSettingData(req.body.db_connection, company_info_id?.data);
+    const configData = await getWebSettingData(dbContext, company_info_id?.data);
 
     const invoice_number = i.toString().padStart(configData.invoice_number_generate_digit_count, "0");
 
@@ -7062,7 +7062,7 @@ export const allTypeProductPaymentTransactionWithAffirm = async (
               );
             }
           }
-          const configData = await getWebSettingData(req.body.db_connection, company_info_id?.data);
+          const configData = await getWebSettingData(dbContext, company_info_id?.data);
 
           const invoiceData = {
             invoice_number: `${configData.order_invoice_number_identity}-${invoice_number}`,
@@ -7567,7 +7567,7 @@ export const cartQuantityUpdate = async (req: Request) => {
   try {
     const { CartProducts } = initModels(req);
     const { cart_id } = req.params;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }

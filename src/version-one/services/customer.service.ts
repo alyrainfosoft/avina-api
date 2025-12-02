@@ -31,6 +31,7 @@ import {
 } from "../../utils/shared-functions";
 import { PASSWORD_SOLT } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addCustomers = async (req: Request) => {
   try {
@@ -49,7 +50,7 @@ export const addCustomers = async (req: Request) => {
 
     let imagePath = null;
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         req.file,
         IMAGE_TYPE.customer,
         req?.body?.session_res?.client_id,
@@ -63,7 +64,7 @@ export const addCustomers = async (req: Request) => {
       imagePath = moveFileResult.data;
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       let idImage = null;
@@ -285,7 +286,7 @@ export const updateCustomers = async (req: Request) => {
     let imagePath = null;
 
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         req.file,
         IMAGE_TYPE.customer,
         req?.body?.session_res?.client_id,
@@ -299,7 +300,7 @@ export const updateCustomers = async (req: Request) => {
       imagePath = moveFileResult.data;
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       if (imagePath) {
         const imageResult = await Image.create(
@@ -466,7 +467,7 @@ export const deleteCustomers = async (req: Request) => {
     if (!(CustomersExists && CustomersExists.dataValues)) {
       return resNotFound();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       await AppUser.update(
         {
@@ -529,7 +530,7 @@ export const statusUpdateCustomers = async (req: Request) => {
     if (!(CustomersExists && CustomersExists.dataValues)) {
       return resNotFound();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       await AppUser.update(
         {

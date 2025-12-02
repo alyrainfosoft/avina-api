@@ -31,6 +31,7 @@ import {
 } from "../../utils/app-enumeration";
 import { Op, Sequelize } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 // add mega menu
 export const addMegaMenu = async (req: Request) => {
@@ -204,7 +205,7 @@ export const updateMegaMenu = async (req: Request) => {
 // delete mega menu
 
 export const deleteMegaMenu = async (req: Request) => {
-  const trn = await req.body.db_connection.transaction();
+  const trn = await dbContext.transaction();
     const {MegaMenus,MegaMenuAttributes} = initModels(req);
 
   try {
@@ -268,7 +269,7 @@ export const deleteMegaMenu = async (req: Request) => {
 export const statusUpdateForMegaMenu = async (req: Request) => {
   const {MegaMenus} = initModels(req);
 
-  const trn = await req.body.db_connection.transaction();
+  const trn = await dbContext.transaction();
   try {
     const { id } = req.params;
     const findMenu = await MegaMenus.findOne({
@@ -391,7 +392,7 @@ export const addMegaMenuAttribute = async (req: Request) => {
     if (findSameName && findSameName.dataValues) {
       return resErrorDataExit();
     }
-    const trn = await req.body.db_connection.transaction();
+    const trn = await dbContext.transaction();
     try {
       let idImage = null;
       if (req.file) {
@@ -527,7 +528,7 @@ export const updateMegaMenuAttribute = async (req: Request) => {
     if (megaMenu && megaMenu.dataValues) {
       return resErrorDataExit();
     }
-    const trn = await req.body.db_connection.transaction();
+    const trn = await dbContext.transaction();
     try {
       let imageId = null;
       let findImage = null;
@@ -931,7 +932,7 @@ export const getMegaMenuForUser = async (req: Request) => {
     const { MegaMenus, MegaMenuAttributes,Image, CategoryData, SettingTypeData, Collection, BrandData, DiamondShape, MetalMaster, MetalTone, StaticPageData, PageData } = initModels(req);
 
     const result = await MegaMenus.findAll({
-      where: { is_active: ActiveStatus.Active, is_deleted: DeletedStatus.No, company_info_id: (await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection)).data },
+      where: { is_active: ActiveStatus.Active, is_deleted: DeletedStatus.No, company_info_id: (await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext)).data },
       attributes: ["id", "name", "menu_type"],
       include: [{
         required: false,

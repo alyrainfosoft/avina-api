@@ -21,6 +21,7 @@ import {
 } from "../../utils/shared-functions";
 import { LOG_FOR_SUPER_ADMIN, GLEAMORA_KEY } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addCompanyInfo = async (req: Request) => {
   const {CompanyInfo,Image} = initModels(req);
@@ -123,7 +124,7 @@ export const updateCompanyInfo = async (req: Request) => {
       where: { id: id },
     });
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       let darkIdImage = null;

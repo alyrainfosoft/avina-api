@@ -839,7 +839,7 @@ export const addRoleConfiguration = async (req: Request) => {
       }
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       const roleResult = await Role.create(
         {
@@ -909,7 +909,7 @@ export const addRoleConfiguration = async (req: Request) => {
 
 export const updateRoleConfiguration = async (req: Request) => {
   const { Role, AppUser, BusinessUser } = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   try {
     const idRole = parseInt(req.params.id);
     const {is_super_admin,is_sub_admin} = req.body;
@@ -1053,7 +1053,7 @@ await AppUser.update(
 
 export const changeStatusRoleConfiguration = async (req: Request) => {
   const { Role, AppUser } = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   try {
     const idRole = parseInt(req.params.id);
     const updateRoleserdata =  await AppUser.findOne({where:{id:req?.body?.session_res?.id_app_user}});
@@ -1607,7 +1607,7 @@ export const addMenuItems = async (req: Request) => {
   try {
     const { MenuItem } = initModels(req);
     const { menu } = req.body;
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let menuItemData = [];
       let SubMenuItemData = [];

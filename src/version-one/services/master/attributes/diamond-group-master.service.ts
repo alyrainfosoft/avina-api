@@ -49,6 +49,7 @@ import {
 } from "../../../../config/env.var";
 import { initModels } from "../../../model/index.model";
 import { TResponseReturn } from "../../../../data/interfaces/common/common.interface";
+import dbContext from "../../../../config/db-context";
 
 const readXlsxFile = require("read-excel-file/node");
 
@@ -111,7 +112,7 @@ export const addDiamondGroup = async (req: Request) => {
     // if(sameRangeDiamondGroup && sameRangeDiamondGroup.dataValues) {
     //   return resErrorDataExit({message: DIAMOND_GROUP_MASTER_RANGE_VALIDATION});
     // }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       let idImage = null;
@@ -384,7 +385,7 @@ export const updateDiamondGroup = async (req: Request) => {
     // if(sameRangeDiamondGroup && sameRangeDiamondGroup.dataValues) {
     //   return resErrorDataExit({message: DIAMOND_GROUP_MASTER_RANGE_VALIDATION});
     // }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let imageId = null;
       let findImage = null;
@@ -459,7 +460,7 @@ export const updateDiamondGroup = async (req: Request) => {
 
       await trn.commit();
 
-      await refreshAllMaterializedView(req.body.db_connection);
+      await refreshAllMaterializedView(dbContext);
       return resSuccess({ data: afterUpdatediamondMasterId });
     } catch (e) {
       await trn.rollback();
@@ -496,7 +497,7 @@ export const deleteDiamondGroup = async (req: Request) => {
       }
     }], DiamondGroup.dataValues.id, LogsActivityType.Delete, LogsType.DiamondGroupMater, req.body.session_res.id_app_user)
 
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess({ message: RECORD_DELETE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -527,7 +528,7 @@ export const statusUpdateDiamondGroup = async (req: Request) => {
         modified_date: getLocalDate(),
       }
     }], findDiamondGroup.dataValues.id, LogsActivityType.StatusUpdate, LogsType.DiamondGroupMater, req.body.session_res.id_app_user)
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess({ message: RECORD_UPDATE_SUCCESSFULLY });
   } catch (error) {
     throw error;
@@ -552,7 +553,7 @@ export const configStatusUpdateDiamondGroupMasterData = async (
         { where: { id: DiamondGroup.dataValues.id,company_info_id :req?.body?.session_res?.client_id } }
       );
       if (metalActionInfo) {
-        await refreshAllMaterializedView(req.body.db_connection);
+        await refreshAllMaterializedView(dbContext);
         await addActivityLogs(req,req?.body?.session_res?.client_id,[{
           old_data: DiamondGroup.dataValues, new_data: {
             ...DiamondGroup.dataValues, is_config: req.body.is_config,
@@ -598,7 +599,7 @@ export const diamondTypeUpdateDiamondGroupMasterData = async (req: Request) => {
     } else {
       return resNotFound();
     }
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
   } catch (error) {
     throw error;
   }
@@ -1087,7 +1088,7 @@ const getDiamondGroupFromRows = async (rows: any,client_id:any, req: Request) =>
 
 const addGroupToDB = async (list: any, id_app_user: any, client_id: any, req: Request) => {
   const { DiamondGroupMaster } = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   let pcPayloadAdd: any = [];
   try {
     let editActivityLogs:any = [];
@@ -1161,7 +1162,7 @@ const addGroupToDB = async (list: any, id_app_user: any, client_id: any, req: Re
     await addActivityLogs(req,client_id,newAddActivityLogs, null, LogsActivityType.Add, LogsType.DiamondGroupMater, id_app_user,trn);
     
     await trn.commit();
-    await refreshAllMaterializedView(req.body.db_connection);
+    await refreshAllMaterializedView(dbContext);
     return resSuccess();
   } catch (e) {
     await trn.rollback();

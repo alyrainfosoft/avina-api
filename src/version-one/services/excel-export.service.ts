@@ -4,11 +4,12 @@ import { Op, QueryTypes, Sequelize } from "sequelize";
 import { DEFAULT_STATUS_CODE_SUCCESS } from "../../utils/app-messages";
 import { getCompanyIdBasedOnTheCompanyKey, resSuccess } from "../../utils/shared-functions";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const dynamicProductExport = async (req: Request) => {
   try {
   
-    const products = await (req.body.db_connection).query(
+    const products = await (dbContext).query(
       `WITH ranked AS (
     SELECT 
         products.id AS product_id,
@@ -181,7 +182,7 @@ ORDER BY r.product_id, r.pmrn`,
 export const variantProductExport = async (req: Request) => {
   try {
 
-    const products = await (req.body.db_connection).query(
+    const products = await (dbContext).query(
       `WITH ranked AS (
     SELECT 
         products.id AS product_id,
@@ -333,7 +334,7 @@ export const ringConfiguratorProductExport = async (req: Request) => {
   try {
     const {ConfigProduct,HeadsData, ShanksData,SideSettingStyles, MetalMaster, GoldKarat, DiamondGroupMaster, ConfigProductMetals, ConfigProductDiamonds, StoneData, DiamondCaratSize, DiamondShape, MMSizeData, ClarityData, Colors, CutsData} = initModels(req);
 
-    const products = await req.body.db_connection.query(
+    const products = await dbContext.query(
       `WITH ranked AS (
     SELECT 
         config_products.id AS product_id,
@@ -517,7 +518,7 @@ export const threeStoneConfiguratorProductExport = async (req: Request) => {
   try {
         const {ConfigProduct,HeadsData, ShanksData,SideSettingStyles, MetalMaster, GoldKarat, DiamondGroupMaster, ConfigProductMetals, ConfigProductDiamonds, StoneData, DiamondCaratSize, DiamondShape, MMSizeData, ClarityData, Colors, CutsData} = initModels(req);
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -761,7 +762,7 @@ export const eternityBandConfiguratorProductExport = async (req: Request) => {
   try {
         const {ConfigEternityProduct,SideSettingStyles, MetalMaster, GoldKarat, DiamondGroupMaster, ConfigEternityProductMetalDetail, ConfigEternityProductDiamondDetails, StoneData, DiamondCaratSize, DiamondShape, MMSizeData, ClarityData, Colors, CutsData} = initModels(req);
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -963,7 +964,7 @@ export const braceletConfiguratorProductExport = async (req: Request) => {
   try {
     const { ConfigBraceletProduct, SideSettingStyles, HookTypeData, LengthData, MetalMaster, GoldKarat,MMSizeData,
       ConfigBraceletProductMetals, ConfigBraceletProductDiamonds, DiamondCaratSize, StoneData,DiamondShape, Colors, ClarityData, CutsData } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

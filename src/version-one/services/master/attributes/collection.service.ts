@@ -25,6 +25,7 @@ import {
   RECORD_UPDATE_SUCCESSFULLY,
 } from "../../../../utils/app-messages";
 import { initModels } from "../../../model/index.model";
+import dbContext from "../../../../config/db-context";
 
 export const addCollection = async (req: Request) => {
   try {
@@ -260,7 +261,7 @@ export const statusUpdateForCollection = async (req: Request) => {
 export const getCollectionList = async (req: Request) => {
   try {
     const {Collection,CategoryData} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

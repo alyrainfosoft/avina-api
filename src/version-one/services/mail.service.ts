@@ -4,6 +4,7 @@ import {  getLocalDate, getWebSettingData, prepareMessageFromParams, resBadReque
 import { Op } from "sequelize";
 import { EMAIL_TEMPLATE_NOT_FOUND } from "../../utils/app-messages";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 async function prepareAndSendEmail(
   req: any,
@@ -43,7 +44,7 @@ async function prepareAndSendEmail(
       ],
     }));
 
-    const configData = await getWebSettingData(req.body.db_connection,client_id);
+    const configData = await getWebSettingData(dbContext,client_id);
 
     const mailLogoPath = await Image.findOne({where:{id:companyInfo.dataValues.mail_tem_logo}})
    

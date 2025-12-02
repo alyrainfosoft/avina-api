@@ -23,7 +23,7 @@ import { initModels } from "../model/index.model";
 export const addSubscriptions = async (req: Request) => {
   try {
     const {SubscriptionData} = initModels(req)
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

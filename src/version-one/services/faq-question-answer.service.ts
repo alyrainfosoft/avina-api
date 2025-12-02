@@ -18,6 +18,7 @@ import {
   RECORD_UPDATE_SUCCESSFULLY,
 } from "../../utils/app-messages";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addFAQCategory = async (req: Request) => {
   try {
@@ -443,7 +444,7 @@ export const getAllFAQSectionForUser = async (req: Request) => {
   try {
     const {FAQData} = initModels(req);
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

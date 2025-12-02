@@ -5,6 +5,7 @@ import { ActiveStatus, DeletedStatus, IMAGE_TYPE, LogsActivityType, LogsType } f
 import { DEFAULT_STATUS_CODE_SUCCESS, NOT_FOUND_MESSAGE, RECORD_DELETE_SUCCESSFULLY, RECORD_UPDATE_SUCCESSFULLY, SECTION_TYPE_NOT_FOUND_MESSAGE } from "../../../utils/app-messages";
 import { Op, QueryTypes, Sequelize } from "sequelize";
 import { SINGLE_ENTRY_SECTION_TYPES, TEMPLATE_EIGHT_SECTION_TYPES } from "../../../utils/app-constants";
+import dbContext from "../../../config/db-context";
 
 function buildSectionPayload(reqBody: any) {
   return {
@@ -79,7 +80,7 @@ export const upsertSection = async (req: Request) => {
     if (!(TEMPLATE_EIGHT_SECTION_TYPES.includes(payload.section_type))) {
         return resNotFound({ message: SECTION_TYPE_NOT_FOUND_MESSAGE });
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
     
 
@@ -268,7 +269,7 @@ export const getAllSections = async (req: Request) => {
         let products = [];
         for (let index = 0; index < section.dataValues.product_ids.length; index++) {
           const element = section.dataValues.product_ids[index];
-          const productData = await (req.body.db_connection).query(
+          const productData = await (dbContext).query(
             `(WITH filtered_pmo AS (
          SELECT DISTINCT ON (pmo.id_product) pmo.id,
             pmo.id_product,
@@ -391,7 +392,7 @@ export const getAllSections = async (req: Request) => {
 export const getAllSectionsUser = async (req: any) => {
   try {
     const { TemplateEightData, Image } = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -435,7 +436,7 @@ export const getAllSectionsUser = async (req: any) => {
         let products = [];
         for (let index = 0; index < section.dataValues.product_ids.length; index++) {
           const element = section.dataValues.product_ids[index];
-          const productData = await (req.body.db_connection).query(
+          const productData: any = await (dbContext).query(
             `(WITH filtered_pmo AS (
          SELECT DISTINCT ON (pmo.id_product) pmo.id,
             pmo.id_product,
@@ -543,10 +544,10 @@ export const getAllSectionsUser = async (req: any) => {
      LEFT JOIN without_center_diamond_price ON without_center_diamond_price.id_product = products.id
   WHERE products.is_deleted = '${DeletedStatus.No}'::"bit" AND products.is_active = '${ActiveStatus.Active}'::"bit" AND products.parent_id IS NULL AND products.id = ${element?.id}
   GROUP BY products.id)`, { type: QueryTypes.SELECT });
-          if (productData[0] && Array.isArray(productData[0].pmo)) {
-            productData[0].pmo = await Promise.all(productData[0].pmo.map(async pmoItem => ({
+          if (productData[0] && Array.isArray(productData[0]?.pmo)) {
+            productData[0].pmo = await Promise.all(productData[0]?.pmo.map(async pmoItem => ({
               ...pmoItem,
-              Price: await req.formatPrice(pmoItem.Price, productData[0].product_type)
+              Price: await req.formatPrice(pmoItem.Price, productData[0]?.product_type)
             })));
           }
           products.push({ sort_order: element.sort_order, product: productData[0] });

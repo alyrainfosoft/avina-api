@@ -10,11 +10,12 @@ import { initModels } from "../model/index.model";
 import { create } from "domain";
 import { COMPANY_INFO_KEY } from "../../config/env.var";
 import axios from "axios";
+import dbContext from "../../config/db-context";
 
 export const getCADCOProductDetailsForClient = async (req: Request) => {
   try {
       const { company_key, product_ids, diamond_color, diamond_clarity } = req.body
-    const productDetails = await req.body.db_connection.query(`WITH ranked AS (
+    const productDetails = await dbContext.query(`WITH ranked AS (
     SELECT 
         products.id AS product_id,
         PMO.id AS PMO_ID,
@@ -1438,7 +1439,7 @@ const setDiamondGroupMasterOptions = async (productList:any,
 
 const addProductToDB = async (productList: any, idAppUser: number, client_id: number, req: Request) => {
   const {Product, ProductCategory, ProductDiamondOption, ProductMetalOption,ProductImage} = initModels(req);
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   let resProduct,
     productCategory,
     pmo,
@@ -1592,7 +1593,7 @@ const addProductToDB = async (productList: any, idAppUser: number, client_id: nu
     await ProductDiamondOption.bulkCreate(pdoPayload, { transaction: trn });
     await addActivityLogs(req,client_id,[{ old_data: null, new_data: activityLogs }], null, LogsActivityType.Add, LogsType.Product, idAppUser,trn)
     await trn.commit();
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     console.log(e);

@@ -27,9 +27,9 @@ import {
   resUnknownError,
 } from "../utils/shared-functions";
 
-import getSubSequelize from "../utils/sub-db-connector";
 import { initModels } from "../version-one/model/index.model";
 import { Op } from "sequelize";
+import dbContext from "../config/db-context";
 
 
 export const publicAuthentication: RequestHandler = (req, res, next) => {
@@ -97,7 +97,6 @@ export const tokenVerification: RequestHandler = async (req, res, next) => {
     if (req.headers.authorization === PUBLIC_AUTHORIZATION_TOKEN) {
       // this is the client db connection 
       //All customer side public api validation
-      const dbConnection = req.baseUrl.includes("/api/v4") ? await getSubSequelize(company_key) : null
 
       req.body["session_res"] = {
         id: null,
@@ -105,7 +104,6 @@ export const tokenVerification: RequestHandler = async (req, res, next) => {
         userType: USER_TYPE.Guest,
         id_role: null,
       };
-      req.body["db_connection"] = dbConnection;
       
       // Temporary session because we don't have authentication api
       // req.body["session_res"] = {
@@ -118,7 +116,6 @@ export const tokenVerification: RequestHandler = async (req, res, next) => {
 
       // this is the client db connection 
       //Public authentication key 
-      const dbConnection = req.baseUrl.includes("/api/v4") ? await getSubSequelize(company_key) : null
 
       req.body["session_res"] = {
         id: null,
@@ -128,7 +125,6 @@ export const tokenVerification: RequestHandler = async (req, res, next) => {
         client_id: null,
         otp: null
       };
-      req.body["db_connection"] = dbConnection;
     } else {
       //Admin api validati
       const result = await verifyJWT(req.headers.authorization);
@@ -152,9 +148,7 @@ export const tokenVerification: RequestHandler = async (req, res, next) => {
         }
 
         // this is the client db connection
-        const dbConnection = req.baseUrl.includes("/api/v4") ? await getSubSequelize(!!result.data.client_key ? result.data.client_key : company_key) : null
-
-        req.body["db_connection"] = dbConnection;
+        req.body["db_connection"] = dbContext;
         req.body["session_res"] = result.data;
       } else {
         return res.status(result.code).send(result);
@@ -195,15 +189,12 @@ export const tokenVerificationForV4: RequestHandler = async (req, res, next) => 
     if (req.headers.authorization === PUBLIC_AUTHORIZATION_TOKEN) {
       // this is the client db connection 
       //All customer side public api validation
-      const dbConnection = req.baseUrl.includes("/api/v4") ? await getSubSequelize(company_key) : null
-
       req.body["session_res"] = {
         id: null,
         id_app_user: null,
         userType: USER_TYPE.Guest,
         id_role: null,
       };
-      req.body["db_connection"] = dbConnection;
       
       // Temporary session because we don't have authentication api
       // req.body["session_res"] = {
@@ -216,7 +207,6 @@ export const tokenVerificationForV4: RequestHandler = async (req, res, next) => 
 
       // this is the client db connection 
       //Public authentication key 
-      const dbConnection = req.baseUrl.includes("/api/v4") ? await getSubSequelize(company_key) : null
 
       req.body["session_res"] = {
         id: null,
@@ -226,7 +216,6 @@ export const tokenVerificationForV4: RequestHandler = async (req, res, next) => 
         client_id: null,
         otp: null
       };
-      req.body["db_connection"] = dbConnection;
     } else {
       //Admin api validati
       const result = await verifyJWT(req.headers.authorization);
@@ -250,9 +239,6 @@ export const tokenVerificationForV4: RequestHandler = async (req, res, next) => 
         }
 
         // this is the client db connection
-        const dbConnection = req.baseUrl.includes("/api/v4") ? await getSubSequelize(!!result.data.client_key ? result.data.client_key : company_key) : null
-
-        req.body["db_connection"] = dbConnection;
         req.body["session_res"] = result.data;
       } else {
         return res.status(result.code).send(result);
@@ -268,8 +254,8 @@ export const tokenVerificationForV4: RequestHandler = async (req, res, next) => 
 //Admin request authentication
 export const authorization: RequestHandler = async (req, res, next) => {
   try {
-    // console.log("===========================", req.body.db_connection)
-    const models = req.body.db_connection ? initModels(req) : null;
+    // console.log("===========================", dbContext)
+    const models = dbContext ? initModels(req) : null;
     const userModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.AppUser : null;
     const roleModel = req.baseUrl.includes(SUPER_ADMIN_AUTH_API_VERSIONS) ? models.Role : null;
 

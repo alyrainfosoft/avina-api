@@ -81,7 +81,7 @@ export const addHomeAboutSubContent = async (req: Request) => {
   
       let imagePath = null;
       if (req.file) {
-        const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+        const moveFileResult = await moveFileToS3ByType(dbContext,
           req.file,
           IMAGE_TYPE.homeAbout,
           req?.body?.session_res?.client_id,
@@ -95,7 +95,7 @@ export const addHomeAboutSubContent = async (req: Request) => {
         imagePath = moveFileResult.data;
       }
   
-      const trn = await (req.body.db_connection).transaction();
+      const trn = await (dbContext).transaction();
   
       try {
         let idImage = null;
@@ -262,7 +262,7 @@ export const updateHomeAboutSubContent = async (req: Request) => {
   let imagePath = null;
 
   if (req.file) {
-    const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+    const moveFileResult = await moveFileToS3ByType(dbContext,
       req.file,
       IMAGE_TYPE.homeAbout,
       req?.body?.session_res?.client_id,
@@ -276,7 +276,7 @@ export const updateHomeAboutSubContent = async (req: Request) => {
     imagePath = moveFileResult.data;
   }
 
-  const trn = await (req.body.db_connection).transaction();
+  const trn = await (dbContext).transaction();
   try {
     if (imagePath) {
       const imageResult = await Image.create(

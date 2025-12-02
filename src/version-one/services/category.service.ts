@@ -26,6 +26,7 @@ import {
   resSuccess,
 } from "../../utils/shared-functions";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 // export const addCategory = async (req: Request) => {
 //     const {parent_id ,name, position, slug, created_by } = req.body
@@ -77,7 +78,7 @@ export const addCategory = async (req: Request) => {
     const { CategoryData, Image } = initModels(req);
     let imagePath = null;
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         req.file,
         IMAGE_TYPE.category,
         req?.body?.session_res?.client_id,
@@ -91,7 +92,7 @@ export const addCategory = async (req: Request) => {
       imagePath = moveFileResult.data;
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       let idImage = null;
@@ -161,7 +162,7 @@ export const addCategory = async (req: Request) => {
       }], category?.dataValues?.id, LogsActivityType.Add, LogsType.Category, req?.body?.session_res?.id_app_user, trn)
 
       await trn.commit();
-      // await refreshMaterializedProductListView(req.body.db_connection);
+      // await refreshMaterializedProductListView(dbContext);
       return resSuccess({ data: payload });
 
     } catch (e) {
@@ -344,7 +345,7 @@ export const updateCategory = async (req: Request) => {
     let imagePath = null;
 
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         req.file,
         IMAGE_TYPE.category,
         req?.body?.session_res?.client_id,
@@ -358,7 +359,7 @@ export const updateCategory = async (req: Request) => {
       imagePath = moveFileResult.data;
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       if (imagePath) {
         const imageResult = await Image.create(
@@ -447,7 +448,7 @@ export const updateCategory = async (req: Request) => {
         return resSuccess({ data: CategoryInformation });
       }
 
-      // await refreshMaterializedProductListView(req.body.db_connection)
+      // await refreshMaterializedProductListView(dbContext)
       return resSuccess();
     } catch (e) {
       await trn.rollback();

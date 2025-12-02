@@ -27,6 +27,7 @@ import {
 } from "../../utils/shared-functions";
 import { Op, Sequelize } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addBlogs = async (req: Request) => {
   const {
@@ -48,7 +49,7 @@ export const addBlogs = async (req: Request) => {
     let bannerImagePath = null;
 
     if (files["images"] != null) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         files["images"][0],
         IMAGE_TYPE.blog,
         req?.body?.session_res?.client_id,
@@ -63,7 +64,7 @@ export const addBlogs = async (req: Request) => {
     }
 
     if (files["banner_image"] != null) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         files["banner_image"][0],
         IMAGE_TYPE.blog,
         req?.body?.session_res?.client_id,
@@ -77,7 +78,7 @@ export const addBlogs = async (req: Request) => {
       bannerImagePath = moveFileResult.data;
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       let idImage = null;
@@ -314,7 +315,7 @@ export const updateBlogs = async (req: Request) => {
     let bannerImagePath = null;
 
     if (files["images"] != null) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         files["images"][0],
         IMAGE_TYPE.blog,
         req?.body?.session_res?.client_id,
@@ -329,7 +330,7 @@ export const updateBlogs = async (req: Request) => {
     }
 
     if (files["banner_image"] != null) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         files["banner_image"][0],
         IMAGE_TYPE.blog,
         req?.body?.session_res?.client_id,
@@ -353,7 +354,7 @@ export const updateBlogs = async (req: Request) => {
         id: blogInfo.dataValues.id_banner_image,company_info_id :req?.body?.session_res?.client_id
       },
     });
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     try {
       let idImage = null;
@@ -671,7 +672,7 @@ export const getBlogsDataUser = async (req: Request) => {
   try {
     const {BlogsData,Image,BlogCategoryData} = initModels(req);
 
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -729,7 +730,7 @@ export const getBlogsDataUser = async (req: Request) => {
 export const bolgDetailAPI = async (req: Request) => {
   try {
     const {BlogsData,Image,BlogCategoryData} = initModels(req);
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

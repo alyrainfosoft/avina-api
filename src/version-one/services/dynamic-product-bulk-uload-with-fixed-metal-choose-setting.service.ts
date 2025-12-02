@@ -60,6 +60,7 @@ import {
 import { TResponseReturn } from "../../data/interfaces/common/common.interface";
 import { Op } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 const readXlsxFile = require("read-excel-file/node");
 
 export const addDynamicChooseSettingWithFixedMetalProductsFromCSVFile = async (req: Request) => {
@@ -2054,7 +2055,7 @@ const setFileTone = async (productList: any,client_id:number, req: Request) => {
 };
 
 const addProductToDB = async (productList: any, idAppUser: number,client_id:number, req: Request) => {
-  const trn = await req.body.db_connection.transaction();
+  const trn = await dbContext.transaction();
   let resProduct,
     productCategory,
     pmo,
@@ -2309,7 +2310,7 @@ const addProductToDB = async (productList: any, idAppUser: number,client_id:numb
     await ProductImage.bulkCreate(imgPayload, { transaction: trn });
     await addActivityLogs(req,client_id,[{ old_data: null, new_data: activityLogs }], null, LogsActivityType.Add, LogsType.Product, idAppUser,trn)
     await trn.commit();
-    // await refreshMaterializedProductListView(req.body.db_connection);
+    // await refreshMaterializedProductListView(dbContext);
     return resSuccess();
   } catch (e) {
     console.log(e);

@@ -27,6 +27,7 @@ import {
   statusUpdateValue,
 } from "../../../../utils/shared-functions";
 import { initModels } from "../../../model/index.model";
+import dbContext from "../../../../config/db-context";
 
 export const addHookType = async (req: Request) => {
   try {
@@ -53,7 +54,7 @@ export const addHookType = async (req: Request) => {
     ) {
       return resErrorDataExit();
     }
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let idImage = null;
       if (req.file) {
@@ -233,7 +234,7 @@ export const updateHookType = async (req: Request) => {
       return resErrorDataExit();
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
     try {
       let imageId = null;
       let findImage = null;

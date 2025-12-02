@@ -41,6 +41,7 @@ import { moveFileToS3ByType } from "../../helpers/file.helper";
 import { applyOffer } from "./apply-offer.service";
 import { applyOfferWithBuyOneGetOne } from "./apply-offer-buy.service";
 import { applyOfferWithBuyNewOneGetOne } from "./apply-offer-buy-with-new.service";
+import dbContext from "../../config/db-context";
 const crypto = require("crypto");
 
 export const addToCartProductAPI = async (req: Request) => {
@@ -56,7 +57,7 @@ export const addToCartProductAPI = async (req: Request) => {
       length,
       SKU,
     } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -125,7 +126,7 @@ export const cartProductListByUSerId = async (req: Request) => {
   const { user_id } = req.body;
   let cartProductList = [];
   const { AppUser, Product, CartProducts, MetalTone, ProductImage, ProductMetalOption, MetalMaster, GoldKarat, ProductDiamondOption, DiamondGroupMaster, DiamondShape } = initModels(req);
-  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+  const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
   if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
     return company_info_id;
   }
@@ -334,7 +335,7 @@ export const deleteCartProduct = async (req: Request) => {
   try {
     const { CartProducts } = initModels(req);
     const { user_id, cart_id } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -697,7 +698,7 @@ export const cartProductListgustCheckOut = async (req: any) => {
         },
       });
     }
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -1294,7 +1295,7 @@ WHERE birthstone_PMO.id = "variant_id") WHEN "product_type" = ${AllProductTypes.
     
         let shippingChargeValue: any = 0;
         let shippingChargeWithoutFormate: any = 0;
-        const shippingCharge = await applyShippingCharge(req.body.db_connection, amount, req?.query);
+        const shippingCharge = await applyShippingCharge(dbContext, amount, req?.query);
         if (shippingCharge.code !== DEFAULT_STATUS_CODE_SUCCESS) {
           shippingChargeValue = 0;
           shippingChargeWithoutFormate = 0
@@ -1345,7 +1346,7 @@ export const addToCartConfigProductAPI = async (req: Request) => {
       SKU,
       is_band,
     } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }
@@ -1376,7 +1377,7 @@ export const addToCartConfigProductAPI = async (req: Request) => {
 
     let imagePath = null;
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType(req.body.db_connection,
+      const moveFileResult = await moveFileToS3ByType(dbContext,
         req.file,
         IMAGE_TYPE.ConfigProduct,
         company_info_id?.data,
@@ -1390,7 +1391,7 @@ export const addToCartConfigProductAPI = async (req: Request) => {
       imagePath = moveFileResult.data;
     }
 
-    const trn = await req.body.db_connection.transaction();
+    const trn = await dbContext.transaction();
 
     try {
       let idImage = null;
@@ -1461,7 +1462,7 @@ export const cartConfigProductListByUSerId = async (req: Request) => {
   const { user_id } = req.body;
   const { AppUser, MetalTone, CartProducts, ConfigCartProduct, Image, ConfigProduct, Product } = initModels(req);
   try {
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query, dbContext);
     if (company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS) {
       return company_info_id;
     }

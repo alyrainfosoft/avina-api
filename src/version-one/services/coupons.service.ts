@@ -42,6 +42,7 @@ import {
 import { Op, Sequelize } from "sequelize";
 import { IQueryPagination } from "../../data/interfaces/common/common.interface";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 
 export const addCoupon = async (req: Request) => {
@@ -352,7 +353,7 @@ export const applyCoupon = async (req: Request) => {
     let discount = 0;
     let discountedAmount = 0;
     let cartProductList = [];
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }
@@ -884,7 +885,7 @@ export const removeCoupon = async (req: Request) => {
   try {
     const {CartProducts,CouponData} = initModels(req);
     const { cart_id } = req.body;
-    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,req.body.db_connection);
+    const company_info_id = await getCompanyIdBasedOnTheCompanyKey(req?.query,dbContext);
     if(company_info_id.code !== DEFAULT_STATUS_CODE_SUCCESS){
       return company_info_id;
     }

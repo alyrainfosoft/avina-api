@@ -28,6 +28,7 @@ import {
 import { MasterError } from "../../../utils/app-constants";
 import { moveFileToS3ByType } from "../../../helpers/file.helper";
 import { initModels } from "../../model/index.model";
+import dbContext from "../../../config/db-context";
 
 
 export const addMaster = async (req: Request) => {
@@ -48,7 +49,7 @@ export const addMaster = async (req: Request) => {
     let filePath = null;
 
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType((req.body.db_connection),
+      const moveFileResult = await moveFileToS3ByType((dbContext),
         req.file,
         IMAGE_TYPE.Master,
         req?.body?.session_res?.client_id,
@@ -122,7 +123,7 @@ export const addMaster = async (req: Request) => {
       }
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     let imageId;
     try {
@@ -207,7 +208,7 @@ export const updateMaster = async (req: Request) => {
     let filePath = null;
 
     if (req.file) {
-      const moveFileResult = await moveFileToS3ByType((req.body.db_connection),
+      const moveFileResult = await moveFileToS3ByType((dbContext),
         req.file,
         IMAGE_TYPE.Master,
         req?.body?.session_res?.client_id,
@@ -287,7 +288,7 @@ export const updateMaster = async (req: Request) => {
       }
     }
 
-    const trn = await (req.body.db_connection).transaction();
+    const trn = await (dbContext).transaction();
 
     if (MasterData) {
       const imageUpdate = await Image.findOne({
@@ -403,7 +404,7 @@ export const masterList = async (req: Request) => {
 
     pagination.total_items = totalItems;
     pagination.total_pages = Math.ceil(totalItems / pagination.per_page_rows);
-    const configData:any = getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id)
+    const configData:any = getWebSettingData(dbContext,req?.body?.session_res?.client_id)
     const Masters = await Master.findAll({
       where,
       limit: pagination.per_page_rows,
@@ -451,7 +452,7 @@ export const masterDetail = async (req: Request) => {
     const { Master,Image } = initModels(req);
 
     const { id, master_type } = req.params;
-    const configData:any = getWebSettingData(req.body.db_connection,req?.body?.session_res?.client_id)
+    const configData:any = getWebSettingData(dbContext,req?.body?.session_res?.client_id)
     const MasterData = await Master.findOne({
       where: {
         id: id,
