@@ -34,6 +34,7 @@ import {
 import { fetchConfigurationByKey } from "./auth.service";
 import { APP_KEY, APP_MENU, SUPER_ADMIN_CREATED_ROLES_COMPANY_KEY, TEMPLATE_MENU, THEME_SECTION_TYPE_LIST } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const getAllRoles = async (req: Request) => {
   try {

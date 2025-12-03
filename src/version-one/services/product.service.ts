@@ -3025,12 +3025,12 @@ export const productListUserSide = async (req: any) => {
         is_active: ActiveStatus.Active
       }
     });
-    const dynamicProductRoundingValue = findRoundingValue.find((item: any) => item.product_type === PRICE_CORRECTION_PRODUCT_TYPE.DynamicProduct);
-    const chooseSettingProductRoundingValue = findRoundingValue.find((item: any) => item.product_type === PRICE_CORRECTION_PRODUCT_TYPE.ChooseSettingProduct);
+    const dynamicProductRoundingValue:any = findRoundingValue.find((item: any) => item.product_type === PRICE_CORRECTION_PRODUCT_TYPE.DynamicProduct);
+    const chooseSettingProductRoundingValue:any = findRoundingValue.find((item: any) => item.product_type === PRICE_CORRECTION_PRODUCT_TYPE.ChooseSettingProduct);
 
     const productListWithCurrency: any = []
     for (const product of productList) {
-      let data = product;
+      let data:any = product;
       let appliedOffers: any = [];
       let appliedChooseSettingOffers: any = [];
       let totalDiscount = 0;
@@ -6091,7 +6091,7 @@ export const searchProductGlobally = async (req: any) => {
         is_active: ActiveStatus.Active
       }
     });
-    const dynamicProductRoundingValue = findRoundingValue.find((item: any) => item.product_type === PRICE_CORRECTION_PRODUCT_TYPE.DynamicProduct);
+    const dynamicProductRoundingValue:any = findRoundingValue.find((item: any) => item.product_type === PRICE_CORRECTION_PRODUCT_TYPE.DynamicProduct);
     const productListWithCurrency = await Promise.all(productList.map(async(product: any) => {
       const productType = product.product_type == SingleProductType.DynemicPrice || SingleProductType.cataLogueProduct ? PRICE_CORRECTION_PRODUCT_TYPE.DynamicProduct : null
       const productRoundValue = product.product_type == SingleProductType.DynemicPrice || SingleProductType.cataLogueProduct ? dynamicProductRoundingValue && dynamicProductRoundingValue.round_off ? {value: dynamicProductRoundingValue.round_off, flag: true} : {value: 0, flag: false} : {value: 0, flag: false}

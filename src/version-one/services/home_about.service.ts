@@ -6,6 +6,7 @@ import { ActiveStatus, DeletedStatus, IMAGE_TYPE, LogsActivityType, LogsType } f
 import { DEFAULT_STATUS_CODE_SUCCESS, RECORD_DELETE_SUCCESSFULLY, RECORD_UPDATE_SUCCESSFULLY } from "../../utils/app-messages";
 import { getInitialPaginationFromQuery, getLocalDate, resErrorDataExit, resNotFound, resSuccess, resBadRequest, addActivityLogs } from "../../utils/shared-functions";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addAndUpdateAboutMain = async (req: Request) => {
     const { id, sort_title, title, content, updated_by } = req.body

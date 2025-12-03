@@ -14,6 +14,7 @@ import {
   getLocalDate,
   resUnknownError,
 } from "../utils/shared-functions";
+import dbContext from "../config/db-context";
 
 const upload = (options?: multer.Options) =>
   multer(

@@ -46,6 +46,7 @@ import {
   DISCOUNT_TYPE_PLACE_ID,
 } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 const readXlsxFile = require("read-excel-file/node");
 
 export const addRetailConfigProductsFromCSVFile = async (req: Request) => {

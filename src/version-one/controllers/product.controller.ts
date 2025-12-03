@@ -68,17 +68,6 @@ import {
   getCartProductListData,
 } from "../services/cart-product.service";
 
-import {
-  addGiftSetProductAPI,
-  deleteGiftSetProduct,
-  deleteGiftSetProductImage,
-  editGiftSetProductApi,
-  getAllGiftSetProducts,
-  getAllGiftSetProductsUserSide,
-  getByIDGiftSetProducts,
-  getByIDGiftSetProductsUsers,
-  statusUpdateGiftSetProduct,
-} from "../services/gift_set_product.service";
 import { addVariantProductsFromCSVFile } from "../services/product-bulk-upload-with-variant.service";
 import { addProductImageCSVFile } from "../services/product-image-bulk-upload.service";
 import { addChooseSettingProductsFromCSVFile } from "../services/variant-product-bulk-upload-with-choose-setting.service";
@@ -359,89 +348,6 @@ export const cartConfigProductListByUSerIdFn: RequestHandler = (req, res) => {
     "cartConfigProductListByUSerIdFn"
   );
 };
-///////////------Gift set Product---------///////////////////
-
-export const addGiftSetProductAPIFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    addGiftSetProductAPI(req),
-    "addGiftSetProductAPIFn"
-  );
-};
-
-export const getAllGiftSetProductsFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    getAllGiftSetProducts(req),
-    "getAllGiftSetProductsFn"
-  );
-};
-
-export const getByIDGiftSetProductsFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    getByIDGiftSetProducts(req),
-    "getByIDGiftSetProductsFn"
-  );
-};
-
-export const editGiftSetProductApiFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    editGiftSetProductApi(req),
-    "editGiftSetProductApiFn"
-  );
-};
-
-export const statusUpdateGiftSetProductFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    statusUpdateGiftSetProduct(req),
-    "statusUpdateGiftSetProductFn"
-  );
-};
-
-export const deleteGiftSetProductFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    deleteGiftSetProduct(req),
-    "deleteGiftSetProductFn"
-  );
-};
-
-export const deleteGiftSetProductImageFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    deleteGiftSetProductImage(req),
-    "deleteGiftSetProductImageFn"
-  );
-};
-
-export const getAllGiftSetProductsUserSideFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    getAllGiftSetProductsUserSide(req),
-    "getAllGiftSetProductsUserSideFn"
-  );
-};
-
-export const getByIDGiftSetProductsUsersFn: RequestHandler = (req, res) => {
-  callServiceMethod(
-    req,
-    res,
-    getByIDGiftSetProductsUsers(req),
-    "getByIDGiftSetProductsUsers"
-  );
-};
-
 
 /* config product find based on sku */
 

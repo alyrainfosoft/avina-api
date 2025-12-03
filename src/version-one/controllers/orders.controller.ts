@@ -1,7 +1,6 @@
 import { RequestHandler } from "express";
 import { callServiceMethod } from "./base.controller";
 import { addConfigProductOrder, addGiftSetProductOrder, addProductOrder, addProductWithPaypalOrder, configOrderDetailsAPI, deliveryStatusUpdate, getAllConfigOrdersUser, getAllGiftSetOrdersListAdmin, getAllGiftSetProductOrdersUser, getAllOrdersListAdmin, getAllOrdersUser, giftSetDeliveryStatusUpdate, giftSetOrderDetailsAPI, giftSetOrderDetailsAPIAdmin, giftSetOrderStatusUpdate, moveOrderToArchive, orderDetailsAPI, orderDetailsAPIAdmin, orderStatusUpdate, orderTransactionList } from "../services/orders.service";
-import { getAllGiftSetProductsUserSide } from "../services/gift_set_product.service";
 
 export const addProductOrderFn: RequestHandler = (req, res) => {
     callServiceMethod(req, res, addProductOrder(req), "addProductOrderFn");

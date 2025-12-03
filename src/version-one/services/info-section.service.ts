@@ -13,6 +13,7 @@ import {
   RECORD_UPDATE_SUCCESSFULLY,
 } from "../../utils/app-messages";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addUpdateInfoSection = async (req: Request) => {
   try {

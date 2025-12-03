@@ -4,6 +4,7 @@ import { ActiveStatus, DeletedStatus, LogsActivityType, LogsType, Pagination } f
 import { Op } from "sequelize";
 import { DEFAULT_STATUS_CODE_SUCCESS, RECORD_DELETE_SUCCESSFULLY, RECORD_UPDATE_SUCCESSFULLY } from "../../utils/app-messages";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addStoreAddress = async (req: Request) => {
   try {

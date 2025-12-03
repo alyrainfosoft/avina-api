@@ -1,38 +1,15 @@
 import dbContext from "../../config/db-context";
-import { ConfiguratorLogs } from "./3D_configurator/3D-configurator-logs.model";
 import { AboutUsData } from "./about-us.model";
 import { Action } from "./action.model";
 import { ActivityLogs } from "./activity-logs.model";
 import { UserAddress } from "./address.model";
 import { AppUser } from "./app-user.model";
-import { Banner } from "./banner.model";
-import { BirthstoneProductCategory } from "./birth-stone-product/birth-stone-product-category.model";
-import { BirthStoneProductDiamondOption } from "./birth-stone-product/birth-stone-product-diamond-option.model";
-import { BirthstoneProductEngraving } from "./birth-stone-product/birth-stone-product-engraving.model";
-import { BirthstoneProductMetalOption } from "./birth-stone-product/birth-stone-product-metal-option.model";
-import { BirthStoneProduct } from "./birth-stone-product/birth-stone-product.model";
 import { BlogCategoryData } from "./blog-category.model";
 import { BlogsData } from "./blogs.model";
 import { BusinessUser } from "./business-user.model";
 import { CartProducts } from "./cart-product.model";
 import { CategoryData } from "./category.model";
 import { CompanyInfo } from "./companyinfo.model";
-import { ConfigBraceletProductDiamonds } from "./config-bracelet-product-diamond.model";
-import { ConfigBraceletProductMetals } from "./config-bracelet-product-metals.model";
-import { ConfigBraceletProduct } from "./config-bracelet-product.model";
-import { ConfigCartProduct } from "./config-cart-product.model";
-import { ConfigEternityProductDiamondDetails } from "./config-eternity-product-diamonds.model";
-import { ConfigEternityProductMetalDetail } from "./config-eternity-product-metals.model";
-import { ConfigEternityProduct } from "./config-eternity-product.model";
-import { ConfigOrdersDetails } from "./config-order-details.model";
-import { ConfigPendantDiamonds } from "./config-pendant-diamonds.model";
-import { ConfigPendantMetals } from "./config-pendant-metals.model";
-import { ConfigPendantProduct } from "./config-pendant-products.model";
-import { ConfigProductDiamonds } from "./config-product-diamonds.model";
-import { ConfigProductMetals } from "./config-product-metal.model";
-import { ConfigProduct } from "./config-product.model";
-import { ConfiguratorSettingFile } from "./configurator-setting-file.model";
-import { ConfiguratorSetting } from "./configurator-setting.model";
 import { CouponData } from "./coupon.model";
 import { CustomerUser } from "./customer-user.model";
 import { DiamondRanges } from "./diamond-range.model";
@@ -42,14 +19,6 @@ import { Enquiries } from "./enquiries.model";
 import { ExceptionLogs } from "./exception-logs.model";
 import { FAQData } from "./faq-question-answer.model";
 import { FiltersData } from "./filters.model";
-import { GiftSetProduct } from "./gift-set-product/gift_set_product.model";
-import { GiftSetProductImages } from "./gift-set-product/gift_set_product_image.model";
-import { GiftSetProductInvoice } from "./gift-set-product/gift_set_product_invoice.model";
-import { GiftSetProductOrder } from "./gift-set-product/gift_set_product_order.model";
-import { GiftSetProductOrderTransaction } from "./gift-set-product/gift_set_product_transaction.model";
-import { GiftSetOrdersDetails } from "./gift-set-product/git_set_product_order_details.model";
-import { HomeAboutMain } from "./home-about/home-about-main.model";
-import { HomeAboutSub } from "./home-about/home-about-sub.model";
 import { Image } from "./image.model";
 import { InfoSection } from "./info-section.model";
 import { Invoices } from "./invoices.model";
@@ -122,9 +91,7 @@ import { ShippingCharge } from "./shipping-charges.model";
 import { StaticPageData } from "./static_page.model";
 import { StockChangeLog } from "./stock-change-log.model";
 import { StoreAddress } from "./store-address.model";
-import { StudConfigProduct } from "./stud-config-product.model";
-import { StudDiamonds } from "./stud-diamonds.model";
-import { StudMetal } from "./stud-metals.model";
+
 import { SubscriptionData } from "./subscription.model";
 import { SystemConfiguration } from "./system-configuration.model";
 import { TemplateTwoBanner } from "./template-2-banner.model";
@@ -135,11 +102,7 @@ import { TemplateSevenData } from "./template-seven.model";
 import { TemplateSixData } from "./template-six.model";
 import { TemplateThreeData } from "./template-three.model";
 import { TestimonialData } from "./testimonial.model";
-import { FontStyleFiles } from "./theme/font-style-files.model";
-import { ThemeAttributeCustomers } from "./theme/theme-attribute-customers.model";
-import { ThemeAttributes } from "./theme/theme-attributes.model";
-import { Themes } from "./theme/themes.model";
-import { WebConfigSetting } from "./theme/web-config-setting.model";
+
 
 let modelCache = {};
 
@@ -154,24 +117,6 @@ export const initModels = (req: any, deleted?: boolean) => {
     if (modelCache[companyKey]) {
         return modelCache[companyKey];
     }
-
-    const configuratorLogs = ConfiguratorLogs(sequelize);
-    const birthstoneProductCategory = BirthstoneProductCategory(sequelize);
-    const birthStoneProductDiamondOption = BirthStoneProductDiamondOption(sequelize);
-    const birthstoneProductEngraving = BirthstoneProductEngraving(sequelize);
-    const birthstoneProductMetalOption = BirthstoneProductMetalOption(sequelize);
-    const birthStoneProduct = BirthStoneProduct(sequelize);
-
-    const giftSetOrdersDetails = GiftSetOrdersDetails(sequelize);
-    const giftSetProduct = GiftSetProduct(sequelize);
-    const giftSetProductOrderTransaction = GiftSetProductOrderTransaction(sequelize);
-    const giftSetProductOrder = GiftSetProductOrder(sequelize);
-    const giftSetProductInvoice = GiftSetProductInvoice(sequelize);
-    const giftSetProductImages = GiftSetProductImages(sequelize);
-
-    const homeAboutSub = HomeAboutSub(sequelize);
-    const homeAboutMain = HomeAboutMain(sequelize);
-
     const goldKarat = GoldKarat(sequelize);
     const metalGroupMaster = MetalGroupMaster(sequelize);
     const metalMaster = MetalMaster(sequelize);
@@ -233,14 +178,6 @@ export const initModels = (req: any, deleted?: boolean) => {
 
     const megaMenus = MegaMenus(sequelize);
 
-    const fontStyleFiles = FontStyleFiles(sequelize);
-
-    const themeAttributeCustomers = ThemeAttributeCustomers(sequelize);
-    const themes = Themes(sequelize);
-    const themeAttributes = ThemeAttributes(sequelize);
-
-    const webConfigSetting = WebConfigSetting(sequelize);
-
     const aboutUsData = AboutUsData(sequelize);
 
     const action = Action(sequelize);
@@ -250,8 +187,6 @@ export const initModels = (req: any, deleted?: boolean) => {
     const userAddress = UserAddress(sequelize);
 
     const appUser = AppUser(sequelize);
-
-    const banner = Banner(sequelize);
 
     const blogCategoryData = BlogCategoryData(sequelize);
     const blogsData = BlogsData(sequelize);
@@ -263,24 +198,6 @@ export const initModels = (req: any, deleted?: boolean) => {
     const categoryData = CategoryData(sequelize);
 
     const companyInfo = CompanyInfo(sequelize);
-
-    const configBraceletProductDiamonds = ConfigBraceletProductDiamonds(sequelize);
-    const configBraceletProductMetals = ConfigBraceletProductMetals(sequelize);
-    const configBraceletProduct = ConfigBraceletProduct(sequelize);
-
-    const configCartProduct = ConfigCartProduct(sequelize);
-    const configOrderDetails = ConfigOrdersDetails(sequelize);
-
-    const configEternityProductDiamondDetails = ConfigEternityProductDiamondDetails(sequelize);
-    const configEternityProductMetalDetail = ConfigEternityProductMetalDetail(sequelize);
-    const configEternityProduct = ConfigEternityProduct(sequelize);
-
-    const configProductDiamonds = ConfigProductDiamonds(sequelize);
-    const configProductMetals = ConfigProductMetals(sequelize);
-    const configProduct = ConfigProduct(sequelize);
-
-    const configuratorSettingFile = ConfiguratorSettingFile(sequelize);
-    const configuratorSetting = ConfiguratorSetting(sequelize);
 
     const couponData = CouponData(sequelize);
 
@@ -372,16 +289,6 @@ export const initModels = (req: any, deleted?: boolean) => {
 
     const testimonialData = TestimonialData(sequelize);
 
-    const studConfigProduct = StudConfigProduct(sequelize);
-
-    const studMetal = StudMetal(sequelize);
-
-    const studDiamond = StudDiamonds(sequelize);
-
-    const configPendantProduct = ConfigPendantProduct(sequelize);
-    const configPendantDiamonds = ConfigPendantDiamonds(sequelize);
-    const configPendantMetals = ConfigPendantMetals(sequelize);
-
     const offers = Offers(sequelize);
     const offerDetails = OfferDetails(sequelize);
     const lookBook = LookBook(sequelize);
@@ -389,36 +296,6 @@ export const initModels = (req: any, deleted?: boolean) => {
 
     const diamondRanges = DiamondRanges(sequelize)
     const priceCorrection = PriceCorrection(sequelize)
-
-    configPendantMetals.belongsTo(configPendantProduct, { as: "metals", foreignKey: "pendant_id" });
-    configPendantMetals.belongsTo(metalMaster, { as: "metal", foreignKey: "metal_id" });
-    configPendantMetals.belongsTo(goldKarat, { as: "karat", foreignKey: "karat_id" });
-
-    configPendantDiamonds.belongsTo(configPendantProduct, { as: "diamonds", foreignKey: "pendant_id" });
-    configPendantDiamonds.belongsTo(diamondShape, { as: "shape", foreignKey: "dia_shape" });
-    configPendantDiamonds.belongsTo(mmSizeData, { as: "mm_size", foreignKey: "dia_mm_size" });
-
-    configPendantProduct.belongsTo(mmSizeData, { as: "mm_size", foreignKey: "center_dia_mm_size" });
-    configPendantProduct.belongsTo(diamondShape, { as: "dia_shape", foreignKey: "center_dia_shape" });
-    configPendantProduct.belongsTo(diamondCaratSize, { as: "dia_wt", foreignKey: "center_dia_wt" });
-    configPendantProduct.belongsTo(headsData, { as: "design", foreignKey: "design_type" });
-    configPendantProduct.hasOne(configPendantDiamonds, { as: "diamonds", foreignKey: "pendant_id" });
-    configPendantProduct.hasOne(configPendantMetals, { as: "metals", foreignKey: "pendant_id" });
-
-    studDiamond.belongsTo(studConfigProduct, { as: "stud_config_product", foreignKey: "stud_id" });
-    studDiamond.belongsTo(diamondShape, { as: "shape", foreignKey: "dia_shape" });
-    studDiamond.belongsTo(mmSizeData, { as: "mm_size", foreignKey: "dia_mm_size" });
-
-    studMetal.belongsTo(studConfigProduct, { as: "stud_config_product", foreignKey: "stud_id" });
-    studMetal.belongsTo(metalMaster, { as: "metal", foreignKey: "metal_id" });
-    studMetal.belongsTo(goldKarat, { as: "karat", foreignKey: "karat_id" });
-
-    studConfigProduct.belongsTo(mmSizeData, { as: "mm_size", foreignKey: "center_dia_mm_size" });
-    studConfigProduct.belongsTo(diamondShape, { as: "dia_shape", foreignKey: "center_dia_shape" });
-    studConfigProduct.belongsTo(diamondCaratSize, { as: "dia_wt", foreignKey: "center_dia_wt" });
-    studConfigProduct.belongsTo(headsData, { as: "setting", foreignKey: "setting_type" });
-    studConfigProduct.belongsTo(sideSettingStyles, { as: "huggies", foreignKey: "huggies_setting_type" });
-
     // testimonial data  association
     testimonialData.hasOne(image, { as: "image", foreignKey: "id", sourceKey: "id_image" });
 
@@ -1089,344 +966,7 @@ export const initModels = (req: any, deleted?: boolean) => {
     // coupon association
     couponData.belongsTo(appUser, { foreignKey: "user_id", as: "users" });
     couponData.belongsTo(appUser, { foreignKey: "created_by", as: "created_user" });
-
-    // config setting association
-    configuratorSetting.hasOne(image, {
-        as: "image",
-        foreignKey: "id",
-        sourceKey: "id_image",
-    });
-    // config setting file association
-    configuratorSettingFile.hasOne(appUser, {
-        as: "created_user",
-        foreignKey: "id",
-        sourceKey: "created_by",
-    });
-
-    configuratorSettingFile.belongsTo(configuratorSetting, {
-        foreignKey: "id_config_setting",
-        as: "config_setting",
-    });
-    configuratorSetting.hasMany(configuratorSettingFile, {
-        foreignKey: "id_config_setting",
-        as: "config_setting",
-    });
-    // config product association
-    configProduct.hasOne(diamondGroupMaster, { as: "cender_diamond", foreignKey: "id", sourceKey: "center_diamond_group_id" });
-
-    configProduct.hasOne(headsData, { as: "heads", foreignKey: "id", sourceKey: "head_type_id" });
-
-    configProduct.hasOne(shanksData, { as: "shanks", foreignKey: "id", sourceKey: "shank_type_id" });
-
-    configProduct.hasOne(sideSettingStyles, { as: "side_setting", foreignKey: "id", sourceKey: "side_setting_id" });
-    // config product metal association
-
-    configProductMetals.belongsTo(configProduct, {
-        foreignKey: "config_product_id",
-        as: "config_product",
-    });
-    configProduct.hasMany(configProductMetals, {
-        foreignKey: "config_product_id",
-        as: "CPMO",
-    });
-    configProductMetals.belongsTo(metalMaster, {
-        foreignKey: "metal_id",
-        as: "metal",
-    });
-    metalMaster.hasOne(configProductMetals, {
-        foreignKey: "metal_id",
-        as: "metal",
-    });
-    configProductMetals.belongsTo(goldKarat, {
-        foreignKey: "karat_id",
-        as: "karat",
-    });
-    goldKarat.hasOne(configProductMetals, {
-        foreignKey: "karat_id",
-        as: "karat",
-    });
-    // config product diamond association
-
-    configProductDiamonds.belongsTo(configProduct, {
-        foreignKey: "config_product_id",
-        as: "config_product",
-    });
-    configProduct.hasMany(configProductDiamonds, {
-        foreignKey: "config_product_id",
-        as: "CPDO",
-    });
-    configProductDiamonds.belongsTo(diamondGroupMaster, {
-        foreignKey: "id_diamond_group",
-        as: "side_diamonds",
-    });
-    diamondGroupMaster.hasOne(configProductDiamonds, {
-        foreignKey: "id_diamond_group",
-        as: "side_diamonds",
-    });
-
-    configProductDiamonds.hasOne(diamondShape, {
-        as: "shape",
-        foreignKey: "id",
-        sourceKey: "dia_shape",
-    });
-    configProductDiamonds.hasOne(colors, {
-        as: "color",
-        foreignKey: "id",
-        sourceKey: "dia_color",
-    });
-    configProductDiamonds.hasOne(clarityData, {
-        as: "clarity",
-        foreignKey: "id",
-        sourceKey: "dia_clarity",
-    });
-    configProductDiamonds.hasOne(stoneData, {
-        as: "stone",
-        foreignKey: "id",
-        sourceKey: "dia_stone",
-    });
-    configProductDiamonds.hasOne(cutsData, {
-        as: "cuts",
-        foreignKey: "id",
-        sourceKey: "dia_cuts",
-    });
-    configProductDiamonds.hasOne(mmSizeData, {
-        as: "mm_size",
-        foreignKey: "id",
-        sourceKey: "dia_mm_size",
-    });
-    // config order details association
-    configOrderDetails.belongsTo(orders, {
-        foreignKey: "order_id",
-        as: "config_product_order",
-    });
-    orders.hasMany(configOrderDetails, {
-        foreignKey: "order_id",
-        as: "config_order",
-    });
-    // config eternity product
-    configEternityProduct.belongsTo(diamondGroupMaster, {
-        foreignKey: "diamond_group_id",
-        as: "DiamondGroupMaster",
-    });
-
-    configEternityProduct.hasOne(clarityData, {
-        as: "diamond_clarity",
-        foreignKey: "id",
-        sourceKey: "dia_clarity_id",
-    });
-
-    configEternityProduct.hasOne(colors, {
-        as: "diamond_color",
-        foreignKey: "id",
-        sourceKey: "dia_color",
-    });
-
-    configEternityProduct.hasOne(diamondShape, {
-        as: "diamond_shape",
-        foreignKey: "id",
-        sourceKey: "dia_shape_id",
-    });
-
-    configEternityProduct.hasOne(cutsData, {
-        as: "diamond_cut",
-        foreignKey: "id",
-        sourceKey: "dia_cut_id",
-    });
-
-    configEternityProduct.hasOne(cutsData, {
-        as: "diamond_size",
-        foreignKey: "id",
-        sourceKey: "dia_cts",
-    });
-
-    configEternityProduct.hasOne(sideSettingStyles, {
-        as: "side_setting",
-        foreignKey: "id",
-        sourceKey: "side_setting_id",
-    });
-    // config eternity product metal association
-    configEternityProduct.hasOne(configEternityProductMetalDetail, {
-        foreignKey: "config_eternity_id",
-        as: "metal",
-    });
-
-    configEternityProductMetalDetail.belongsTo(configEternityProduct, {
-        foreignKey: "config_eternity_id",
-        as: "metal",
-    });
-
-    configEternityProductMetalDetail.belongsTo(metalMaster, {
-        foreignKey: "metal_id",
-        as: "MetalMaster",
-    });
-
-    configEternityProductMetalDetail.belongsTo(goldKarat, {
-        foreignKey: "karat_id",
-        as: "KaratMaster",
-    });
-    // config eternity product diamond association
-
-    configEternityProduct.hasOne(configEternityProductDiamondDetails, {
-        foreignKey: "config_eternity_product_id",
-        as: "diamonds",
-    });
-
-    configEternityProductDiamondDetails.belongsTo(configEternityProduct, {
-        foreignKey: "config_eternity_product_id",
-        as: "diamonds",
-    });
-
-    configEternityProductDiamondDetails.belongsTo(diamondGroupMaster, {
-        foreignKey: "id_diamond_group",
-        as: "DiamondGroup",
-    });
-
-    configEternityProductDiamondDetails.hasOne(diamondShape, {
-        as: "shape",
-        foreignKey: "id",
-        sourceKey: "dia_shape",
-    });
-    configEternityProductDiamondDetails.hasOne(colors, {
-        as: "color",
-        foreignKey: "id",
-        sourceKey: "dia_color",
-    });
-    configEternityProductDiamondDetails.hasOne(clarityData, {
-        as: "clarity",
-        foreignKey: "id",
-        sourceKey: "dia_clarity",
-    });
-    configEternityProductDiamondDetails.hasOne(stoneData, {
-        as: "stone",
-        foreignKey: "id",
-        sourceKey: "dia_stone",
-    });
-    configEternityProductDiamondDetails.hasOne(cutsData, {
-        as: "cuts",
-        foreignKey: "id",
-        sourceKey: "dia_cuts",
-    });
-    configEternityProductDiamondDetails.hasOne(diamondCaratSize, {
-        as: "carat",
-        foreignKey: "id",
-        sourceKey: "dia_cts",
-    });
-    // config cart product association
-
-    configCartProduct.belongsTo(configProduct, {
-        foreignKey: "product_id",
-        as: "config_product",
-    });
-    configProduct.hasMany(configCartProduct, {
-        foreignKey: "product_id",
-        as: "config_product_cart",
-    });
-
-    configCartProduct.belongsTo(appUser, {
-        foreignKey: "user_id",
-        as: "user",
-    });
-    appUser.hasMany(configCartProduct, {
-        foreignKey: "user_id",
-        as: "user_detail",
-    });
-
-    // config bracelet product association
-
-    configBraceletProduct.hasOne(sideSettingStyles, {
-        as: "side_setting",
-        foreignKey: "id",
-        sourceKey: "setting_type",
-    });
-    configBraceletProduct.hasOne(hookTypeData, {
-        as: "hook",
-        foreignKey: "id",
-        sourceKey: "hook_type",
-    });
-    configBraceletProduct.hasOne(lengthData, {
-        as: "length",
-        foreignKey: "id",
-        sourceKey: "product_length",
-    });
-    configBraceletProduct.hasOne(diamondCaratSize, {
-        as: "diamond_total_wt",
-        foreignKey: "id",
-        sourceKey: "dia_total_wt",
-    });
-
-    // config bracelet product metals association
-    configBraceletProduct.hasOne(configBraceletProductMetals, {
-        foreignKey: "config_product_id",
-        as: "config_product_metal_details",
-    });
-
-    configBraceletProductMetals.belongsTo(configBraceletProduct, {
-        foreignKey: "config_product_id",
-        as: "config_product_metal_details",
-    });
-
-    configBraceletProductMetals.belongsTo(metalMaster, {
-        foreignKey: "id_metal",
-        as: "metal_detail",
-    });
-
-    configBraceletProductMetals.belongsTo(goldKarat, {
-        foreignKey: "id_karat",
-        as: "karat_detail",
-    });
-    // config bracelet product diamonds association
-
-    configBraceletProduct.hasMany(configBraceletProductDiamonds, {
-        foreignKey: "config_product_id",
-        as: "config_product_diamond_details",
-    });
-
-    configBraceletProductDiamonds.belongsTo(configBraceletProduct, {
-        foreignKey: "config_product_id",
-        as: "config_product_diamond_details",
-    });
-
-    configBraceletProductDiamonds.belongsTo(diamondGroupMaster, {
-        foreignKey: "id_diamond_group_master",
-        as: "diamond_group_master",
-    });
-    configBraceletProductDiamonds.hasOne(diamondCaratSize, {
-        as: "carat",
-        foreignKey: "id",
-        sourceKey: "id_carat",
-    });
-    configBraceletProductDiamonds.hasOne(diamondShape, {
-        as: "shape",
-        foreignKey: "id",
-        sourceKey: "id_shape",
-    });
-    configBraceletProductDiamonds.hasOne(colors, {
-        as: "color",
-        foreignKey: "id",
-        sourceKey: "id_color",
-    });
-    configBraceletProductDiamonds.hasOne(clarityData, {
-        as: "clarity",
-        foreignKey: "id",
-        sourceKey: "id_clarity",
-    });
-    configBraceletProductDiamonds.hasOne(stoneData, {
-        as: "stone",
-        foreignKey: "id",
-        sourceKey: "id_stone",
-    });
-    configBraceletProductDiamonds.hasOne(cutsData, {
-        as: "cuts",
-        foreignKey: "id",
-        sourceKey: "id_cut",
-    });
-
-    configBraceletProductDiamonds.hasOne(mmSizeData, {
-        as: "mm_size",
-        foreignKey: "id",
-        sourceKey: "id_mm_size",
-    });
-
+    
     // company info association
     companyInfo.hasOne(image, {
         as: "dark_image",
@@ -1537,10 +1077,7 @@ export const initModels = (req: any, deleted?: boolean) => {
         foreignKey: "id",
         sourceKey: "id_category",
     });
-    // banner association
-    banner.hasOne(image, { as: "banner_image", foreignKey: "id", sourceKey: "id_image" });
-    banner.hasOne(image, { as: "banner_bg_image", foreignKey: "id", sourceKey: "id_bg_image" });
-
+  
     // app user association
     appUser.belongsTo(role, { foreignKey: "id_role", as: "role" });
     role.hasMany(appUser, { foreignKey: "id_role", as: "role_app_user" });
@@ -1558,18 +1095,6 @@ export const initModels = (req: any, deleted?: boolean) => {
         as: "image",
         foreignKey: "id",
         sourceKey: "id_image",
-    });
-    // theme association
-    themes.belongsTo(image, { foreignKey: "id_image", as: "image" });
-
-    // them attributes association
-    themeAttributes.belongsTo(themes, {
-        foreignKey: "id_theme",
-        as: "attributes",
-    });
-    themes.hasMany(themeAttributes, {
-        foreignKey: "id_theme",
-        as: "attributes",
     });
 
     // mega menu attributes association
@@ -1782,137 +1307,7 @@ export const initModels = (req: any, deleted?: boolean) => {
         foreignKey: "id",
         sourceKey: "id_metal",
     });
-    // home about sub association
-    homeAboutSub.hasOne(image, { as: "image", foreignKey: "id", sourceKey: "id_image" });
-
-    // gift set product association
-
-    giftSetProduct.hasOne(brandData, { as: "brands", foreignKey: "id", sourceKey: "brand_id" });
-
-    // gift set product invoice association
-    giftSetProductInvoice.belongsTo(giftSetProductOrder, {
-        foreignKey: "order_id",
-        as: "gift_set_order_invoice",
-    });
-    giftSetProductOrder.hasMany(giftSetProductInvoice, {
-        foreignKey: "order_id",
-        as: "gift_set_invoice",
-    });
-
-    // gift set product image association
-    giftSetProductImages.belongsTo(giftSetProduct, { foreignKey: "id_product", as: "gift_product" });
-
-    giftSetProduct.hasMany(giftSetProductImages, {
-        foreignKey: "id_product",
-        as: "gift_product_images",
-    });
-    // gift set product order details association
-
-    giftSetOrdersDetails.belongsTo(giftSetProduct, { foreignKey: "product_id", as: "product" });
-
-    giftSetProduct.hasMany(giftSetOrdersDetails, {
-        foreignKey: "product_id",
-        as: "gift_set_product_images",
-    });
-
-    giftSetOrdersDetails.belongsTo(giftSetProductOrder, {
-        foreignKey: "order_id",
-        as: "gift_product_order",
-    });
-    giftSetProductOrder.hasMany(giftSetOrdersDetails, {
-        foreignKey: "order_id",
-        as: "gift_order",
-    });
-
-    // birthstone product category association
-    birthstoneProductCategory.belongsTo(birthStoneProduct, {
-        foreignKey: "id_product",
-        as: "product",
-    });
-
-    birthStoneProduct.hasMany(birthstoneProductCategory, {
-        foreignKey: "id_product",
-        as: "birth_stone_product_categories",
-    });
-
-    birthstoneProductCategory.belongsTo(categoryData, {
-        foreignKey: "id_category",
-        as: "category",
-    });
-
-    birthstoneProductCategory.belongsTo(categoryData, {
-        foreignKey: "id_sub_category",
-        as: "sub_category",
-    });
-
-    birthstoneProductCategory.belongsTo(categoryData, {
-        foreignKey: "id_sub_sub_category",
-        as: "sub_sub_category",
-    });
-
-    // birthstone product engraving association
-    birthstoneProductEngraving.belongsTo(birthStoneProduct, {
-        foreignKey: "id_product",
-        as: "product",
-    });
-
-    birthStoneProduct.hasMany(birthstoneProductEngraving, {
-        foreignKey: "id_product",
-        as: "engravings",
-    });
-
-    // birthstone product metal option association
-    birthstoneProductMetalOption.belongsTo(birthStoneProduct, {
-        foreignKey: "id_product",
-        as: "product",
-    });
-    birthStoneProduct.hasMany(birthstoneProductMetalOption, {
-        foreignKey: "id_product",
-        as: "birthstone_PMO",
-    });
-
-    birthstoneProductMetalOption.belongsTo(metalMaster, {
-        foreignKey: "id_metal",
-        as: "metal_master",
-    });
-    metalMaster.hasMany(birthstoneProductMetalOption, {
-        foreignKey: "id_metal",
-        as: "birthstone_PMO",
-    });
-
-    birthstoneProductMetalOption.belongsTo(goldKarat, {
-        foreignKey: "id_karat",
-        as: "metal_karat",
-    });
-    goldKarat.hasMany(birthstoneProductMetalOption, {
-        foreignKey: "id_karat",
-        as: "birthstone_PMO",
-    });
-
-    // birthstone product diamond option association
-    birthStoneProductDiamondOption.belongsTo(birthStoneProduct, {
-        foreignKey: "id_product",
-        as: "product",
-    });
-
-    birthStoneProduct.hasMany(birthStoneProductDiamondOption, {
-        foreignKey: "id_product",
-        as: "birthstone_PDO",
-    });
-
-    birthStoneProductDiamondOption.belongsTo(diamondGroupMaster, {
-        foreignKey: "id_diamond_group",
-        as: "bs_diamond_group",
-    });
-
-    diamondGroupMaster.hasMany(birthStoneProductDiamondOption, {
-        foreignKey: "id_diamond_group",
-        as: "birthstone_PDO",
-    });
-
-    // birthstone product association
-    birthStoneProduct.hasOne(image, { as: "image", foreignKey: "id", sourceKey: "product_image" });
-
+    
     // product association
     product.belongsTo(product, {
         foreignKey: "parent_id",
@@ -1946,20 +1341,6 @@ export const initModels = (req: any, deleted?: boolean) => {
         as: "sub_sub_category",
     });
     modelCache[companyKey] = {
-        ConfiguratorLogs: configuratorLogs,
-        BirthstoneProductCategory: birthstoneProductCategory,
-        BirthStoneProductDiamondOption: birthStoneProductDiamondOption,
-        BirthstoneProductEngraving: birthstoneProductEngraving,
-        BirthstoneProductMetalOption: birthstoneProductMetalOption,
-        BirthStoneProduct: birthStoneProduct,
-        GiftSetOrdersDetails: giftSetOrdersDetails,
-        GiftSetProduct: giftSetProduct,
-        GiftSetProductOrderTransaction: giftSetProductOrderTransaction,
-        GiftSetProductOrder: giftSetProductOrder,
-        GiftSetProductInvoice: giftSetProductInvoice,
-        GiftSetProductImages: giftSetProductImages,
-        HomeAboutSub: homeAboutSub,
-        HomeAboutMain: homeAboutMain,
         GoldKarat: goldKarat,
         MetalGroupMaster: metalGroupMaster,
         MetalMaster: metalMaster,
@@ -1992,36 +1373,18 @@ export const initModels = (req: any, deleted?: boolean) => {
         TaxMaster: taxMaster,
         MegaMenuAttributes: megaMenuAttributes,
         MegaMenus: megaMenus,
-        FontStyleFiles: fontStyleFiles,
-        ThemeAttributeCustomers: themeAttributeCustomers,
-        Themes: themes,
-        ThemeAttributes: themeAttributes,
-        WebConfigSetting: webConfigSetting,
+        
         AboutUsData: aboutUsData,
         Action: action,
         ActivityLogs: activityLogs,
         UserAddress: userAddress,
         AppUser: appUser,
-        Banner: banner,
         BlogCategoryData: blogCategoryData,
         BlogsData: blogsData,
         BusinessUser: businessUser,
         CartProducts: cartProducts,
         CategoryData: categoryData,
         CompanyInfo: companyInfo,
-        ConfigBraceletProductDiamonds: configBraceletProductDiamonds,
-        ConfigBraceletProductMetals: configBraceletProductMetals,
-        ConfigBraceletProduct: configBraceletProduct,
-        ConfigCartProduct: configCartProduct,
-        ConfigOrdersDetails: configOrderDetails,
-        ConfigEternityProductDiamondDetails: configEternityProductDiamondDetails,
-        ConfigEternityProductMetalDetail: configEternityProductMetalDetail,
-        ConfigEternityProduct: configEternityProduct,
-        ConfigProductDiamonds: configProductDiamonds,
-        ConfigProductMetals: configProductMetals,
-        ConfigProduct: configProduct,
-        ConfiguratorSettingFile: configuratorSettingFile,
-        ConfiguratorSetting: configuratorSetting,
         CouponData: couponData,
         CustomerUser: customerUser,
         EamilLog: emailLogs,
@@ -2075,15 +1438,9 @@ export const initModels = (req: any, deleted?: boolean) => {
         TemplateSixData: templateSixData,
         TemplateThreeData: templateThreeData,
         TestimonialData: testimonialData,
-        StudConfigProduct: studConfigProduct,
-        StudMetal: studMetal,
-        StudDiamonds: studDiamond,
         TemplateFourData: templateFourData,
         LookBook: lookBook,
         OfferEligibleCustomers: offerEligibleCustomers,
-        ConfigPendantProduct: configPendantProduct,
-        ConfigPendantDiamonds: configPendantDiamonds,
-        ConfigPendantMetals: configPendantMetals,
         DiamondRanges: diamondRanges,
         TemplateEightData:templateEightData,
         PriceCorrection: priceCorrection

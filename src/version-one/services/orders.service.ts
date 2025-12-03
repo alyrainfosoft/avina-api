@@ -485,7 +485,7 @@ export const getAllOrdersUser = async (req: Request) => {
     };
     let noPagination = req.query.no_pagination === "1";
 
-    const result = await dbContext.query(
+    const result:any = await dbContext.query(
       `SELECT 
       COUNT(orders.id) OVER() AS totalItems,
 orders.id,

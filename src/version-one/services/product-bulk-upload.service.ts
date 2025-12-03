@@ -67,6 +67,7 @@ import {
 import { TResponseReturn } from "../../data/interfaces/common/common.interface";
 import { Op, Sequelize } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 const readXlsxFile = require("read-excel-file/node");
 
 export const addProductsFromCSVFile = async (req: Request) => {

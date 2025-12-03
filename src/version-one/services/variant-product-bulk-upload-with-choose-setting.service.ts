@@ -52,6 +52,7 @@ import {
 } from "../../utils/app-constants";
 import { Op } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 const readXlsxFile = require("read-excel-file/node");
 
 export const addChooseSettingProductsFromCSVFile = async (req: Request) => {

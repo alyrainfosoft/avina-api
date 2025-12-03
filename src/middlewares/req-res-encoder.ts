@@ -16,7 +16,6 @@ import {
   resUnauthorizedAccess,
   resUnknownError,
 } from "../utils/shared-functions";
-import dbContext from "../config/db-context";
 
 export const bodyDecipher: RequestHandler = (req, res, next) => {
   if (req.body) {
@@ -134,7 +133,6 @@ export const decryptCompanyInfoKeyForParams: RequestHandler = async(req, res, ne
   if(req?.params?.company_key){
     req.params.company_key = JSON.parse(decryptRequestData(req?.params?.company_key))
     if(req.headers.authorization === PUBLIC_AUTHORIZATION_TOKEN){
-      dbContext = dbContext
     }
      next()
   }

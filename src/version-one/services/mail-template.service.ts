@@ -5,6 +5,7 @@ import {  INVALID_MESSAGE_TYPE, MESSAGE_TYPE_MUST_BE_ARRAY, MESSAGE_VALUE_FROM_T
 import { Op } from "sequelize";
 import { LOG_FOR_SUPER_ADMIN } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 const updateMessageTypesForOtherTemplates = async (templateId: string | null, message_type: any[], trn: any,client_id:number, req: Request) => {
   try {

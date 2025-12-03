@@ -19,6 +19,7 @@ import {
 import { LogsActivityType, LogsType, SubscriptionStatus } from "../../utils/app-enumeration";
 import { Op } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addSubscriptions = async (req: Request) => {
   try {

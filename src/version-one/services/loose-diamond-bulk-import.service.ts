@@ -61,6 +61,7 @@ import {
 } from "./tp-diamond.service";
 import { IDiamondFilter } from "../../data/interfaces/diamond/diamond.interface";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 const readXlsxFile = require("read-excel-file/node");
 
 export const addLooseDiamondCSVFile = async (req: Request) => {

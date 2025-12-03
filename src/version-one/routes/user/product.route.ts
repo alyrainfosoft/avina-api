@@ -14,8 +14,6 @@ import {
   wishlistCartListCountFn,
   searchProductGloballyFn,
   cartProductListgustCheckOutFn,
-  getAllGiftSetProductsUserSideFn,
-  getByIDGiftSetProductsUsersFn,
   addToCartConfigProductAPIFn,
   cartConfigProductListByUSerIdFn,
   getBySKUConfigProductDetailsFn,
@@ -132,13 +130,6 @@ export default (app: Router) => {
   );
 
   // app.post("/config/product/cart/list", cartConfigProductListByUSerIdFn);
-
-  ///////////------Gift set Product---------///////////////////
-
-
-  app.get("/gift-set/products/list", getAllGiftSetProductsUserSideFn);
-
-  app.post("/gift-set/products", getByIDGiftSetProductsUsersFn);
 
 
   /* new diamond master base One combination config product */

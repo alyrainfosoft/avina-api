@@ -20,6 +20,7 @@ import {
 import { ActiveStatus, DeletedStatus, LogsActivityType, LogsType } from "../../utils/app-enumeration";
 import { Op, QueryTypes } from "sequelize";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addSippingCharge = async (req: Request) => {
   let trn;

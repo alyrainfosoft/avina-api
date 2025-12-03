@@ -6,6 +6,7 @@ import { ActiveStatus, DeletedStatus, IMAGE_TYPE, LogsActivityType, LogsType } f
 import { DEFAULT_STATUS_CODE_SUCCESS, DEFAULT_STATUS_SUCCESS, RECORD_UPDATE_SUCCESSFULLY } from "../../utils/app-messages";
 import { addActivityLogs, getInitialPaginationFromQuery, getLocalDate, resErrorDataExit, resNotFound, resSuccess } from "../../utils/shared-functions";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addtestimonial = async (req: Request) => {
     try {

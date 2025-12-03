@@ -1780,7 +1780,7 @@ export const getThreeStoneConfigProductPriceForCart = async (req: any, product_i
 }
 
 export const getEternityConfigProductPrice = async (req: any, product_id: any) => {
-  const productPrice = await dbContext.query(`SELECT cebp.id,
+  const productPrice:any = await dbContext.query(`SELECT cebp.id,
          CASE
              WHEN cebpdo.dia_stone IS NOT NULL THEN json_build_object('id', cebpdo.id, 'config_eternity_product_id', cebpdo.config_eternity_product_id, 'dia_clarity', cebpdo.dia_clarity, 'dia_color', cebpdo.dia_color, 'dia_count', cebpdo.dia_count, 'dia_cts', cebpdo.dia_cts, 'dia_cuts', cebpdo.dia_cuts, 'dia_mm_size', cebpdo.dia_mm_size, 'dia_shape', cebpdo.dia_shape, 'dia_stone', cebpdo.dia_stone, 'dia_weight', cebpdo.dia_weight, 'diamond_type', cebpdo.diamond_type, 'id_diamond_group', cebpdo.id_diamond_group, 'rate', dgmp.rate)
              ELSE NULL::json
@@ -1886,7 +1886,7 @@ export const getEternityConfigProductPrice = async (req: any, product_id: any) =
 }
 
 export const getBraceletConfigProductPrice = async (req: any, product_id: any) => {
-  const productPrice = await dbContext.query(`SELECT  
+  const productPrice:any = await dbContext.query(`SELECT  
 		CASE
             WHEN cbpm.id_karat IS NULL THEN metal_masters.metal_rate * cbpm.metal_wt
             ELSE metal_masters.metal_rate / metal_masters.calculate_rate * gold_kts.calculate_rate::double precision * cbpm.metal_wt 

@@ -5,6 +5,7 @@ import { ActiveStatus, DeletedStatus, LogsActivityType, LogsType, Pagination } f
 import { DEFAULT_STATUS_CODE_SUCCESS, RECORD_UPDATE_SUCCESSFULLY } from "../../utils/app-messages";
 import { addActivityLogs, getCompanyIdBasedOnTheCompanyKey, getInitialPaginationFromQuery, getLocalDate, resErrorDataExit, resNotFound, resSuccess } from "../../utils/shared-functions";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const addStaticPage = async (req: Request) => {
   const { name, slug, content, created_by } = req.body

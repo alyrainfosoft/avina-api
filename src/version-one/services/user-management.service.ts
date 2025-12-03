@@ -31,6 +31,7 @@ import {
 } from "../../utils/app-messages";
 import { moveFileToS3ByType } from "../../helpers/file.helper";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 const checkBURoleAndEmailAvailability = async (
   idRole: number,

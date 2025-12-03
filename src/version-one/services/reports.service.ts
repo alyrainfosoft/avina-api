@@ -7,6 +7,7 @@ import {
   SingleProductType,
 } from "../../utils/app-enumeration";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 
 export const customerReports = async (req: Request) => {
   try {

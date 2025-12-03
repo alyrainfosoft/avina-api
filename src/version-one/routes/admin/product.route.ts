@@ -33,15 +33,6 @@ import {
   searchProductGloballyFn,
   editproductApiFn,
   cartProductListgustCheckOutFn,
-  addGiftSetProductAPIFn,
-  getAllGiftSetProductsFn,
-  getByIDGiftSetProductsFn,
-  editGiftSetProductApiFn,
-  statusUpdateGiftSetProductFn,
-  deleteGiftSetProductFn,
-  deleteGiftSetProductImageFn,
-  getAllGiftSetProductsUserSideFn,
-  getByIDGiftSetProductsUsersFn,
   addToCartConfigProductAPIFn,
   cartConfigProductListByUSerIdFn,
   getBySKUConfigProductDetailsFn,
@@ -212,49 +203,7 @@ export default (app: Router) => {
 
   app.post("/product/review/list",[authorization], getProductReviewByProductIDFn);
 
-  ///////////------Gift set Product---------///////////////////
-
-  app.post(
-    "/gift-set/product/add",
-    [
-      authorization,
-      reqArrayImageParser(["thumb_images", "featured_images", "video"]),
-    ],
-    addGiftSetProductAPIFn
-  );
-
-  app.get("/gift-set/products/list", [authorization], getAllGiftSetProductsFn);
-
-  app.post("/gift-set/products", [authorization], getByIDGiftSetProductsFn);
-
-  app.post(
-    "/gift-set/product/edit",
-    [
-      authorization,
-      reqArrayImageParser(["thumb_images", "featured_images", "video"]),
-    ],
-    editGiftSetProductApiFn
-  );
-
-  app.post(
-    "/gift-set/products/status",
-    [authorization],
-    statusUpdateGiftSetProductFn
-  );
-
-  app.post(
-    "/gift-set/products/delete",
-    [authorization],
-    deleteGiftSetProductFn
-  );
-
-  app.post(
-    "/gift-set/products/image/delete",
-    [authorization],
-    deleteGiftSetProductImageFn
-  );
-
-
+  
   /* single product add with variant */
 
   app.post(

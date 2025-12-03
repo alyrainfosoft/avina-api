@@ -53,6 +53,7 @@ import {
   GET_DIAMOND_PLACE_ID_FROM_LABEL,
 } from "../../utils/app-constants";
 import { initModels } from "../model/index.model";
+import dbContext from "../../config/db-context";
 const readXlsxFile = require("read-excel-file/node");
 
 export const addVariantProductsFromCSVFile = async (req: Request) => {

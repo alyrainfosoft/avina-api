@@ -27,6 +27,7 @@ import { DIAMOND_ORIGIN } from "../../utils/app-enumeration";
 import { PER_PAGE_ROWS } from "../../utils/app-constants";
 import { Request } from "express";
 import { QueryTypes } from "sequelize";
+import dbContext from "../../config/db-context";
 
 const getQSParamsFromObject = (qsObject: Object) => {
   const qsParams = { ...qsObject };
